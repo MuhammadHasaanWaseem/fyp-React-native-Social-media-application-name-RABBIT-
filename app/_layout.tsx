@@ -28,6 +28,8 @@ export default function RootLayout() {
   return (
     <GluestackUIProvider mode="light"><Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="post" options={{ headerShown: false,presentation:'modal', animation:'slide_from_bottom' }} />
         <Stack.Screen name="+not-found" />
       </Stack></GluestackUIProvider>
   );
