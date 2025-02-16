@@ -1,0 +1,19 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  extensions = [uuidossp(map: "uuid-ossp")]
+}
+
+model User {
+  id         String   @id
+  username   String   @unique
+  avatar     String?
+  created_at DateTime @default(now())
+}

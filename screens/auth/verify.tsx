@@ -1,58 +1,71 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "@/components/ui/text";
-import { Button } from "@/components/ui/button";
-import { ButtonText } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputField } from "@/components/ui/input";
 import React, { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
-import { Image, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, StyleSheet } from "react-native";
+import Layout from './_layout';
 
 export default function VerifyScreen() {
   const [token, setToken] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const { phone } = useLocalSearchParams();
-  const router =useRouter();
+  const router = useRouter();
 
   const handleVerify = async () => {
-    
     console.log(token);
-    const { data, error } = await supabase.auth.verifyOtp({ phone:phone as string, token, type: 'sms'})
 
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone: phone as string,
+      token,
+      type: "sms",
+    });
 
-    console.log(data, error);
-    if(!error){
-      router.push('/(auth)/username')
+    if (!error) {
+      setErrorMessage("verified"); // Clear any previous errors
+      router.push("/(auth)/username");
+    } else {
+      setErrorMessage("OTP is incorrect. Please try again."); // Show error message
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Input Field */}
-      <Input variant="outline" size="md">
-        <InputField
-          placeholder="Enter OTP here..."
-          style={styles.inputField}
-          value={token}
-          onChangeText={setToken}
-          keyboardType="phone-pad"
-          secureTextEntry={true}
-        />
-      </Input>
+    <Layout onPress={handleVerify} buttonText="Verify OTP code!">
+      <SafeAreaView style={styles.container}>
+        {/* Input Field */}
+        <Input
+          variant="outline"
+          size="md"
+          style={{
+            borderColor: "white",
+            borderWidth: 1,
+            borderRadius: 10,
+            marginBottom: 20,
+            marginTop: 20,
+          }}
+        >
+          <InputField
+            placeholderTextColor={"white"}
+            placeholder="Enter OTP here..."
+            style={styles.inputField}
+            value={token}
+            onChangeText={setToken}
+            keyboardType="phone-pad"
+            secureTextEntry={true}
+          />
+        </Input>
 
-      {/* Verify Button */}
-      <Button style={{marginTop:4,borderRadius:4,height:40,width:'50%'}} size="md" variant="solid" action="primary" onPress={handleVerify}>
-        <ButtonText>Verify!</ButtonText>
-      </Button>
+        {/* Error Message in Red */}
+       
 
-      {/* Bottom Logo & Text */}
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity>
-          <Image source={require("../../assets/logo/i.png")} style={styles.logo} />
-        </TouchableOpacity>
-        <Text style={styles.brandText}>Rabbit</Text>
-      </View>
-    </SafeAreaView>
+        {/* Bottom Text */}
+        <View >
+        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : <Text style={styles.verifyerrorText}>{errorMessage}</Text>}
+        </View>
+      </SafeAreaView>
+    </Layout>
   );
 }
 
@@ -65,21 +78,28 @@ const styles = StyleSheet.create({
   inputField: {
     textAlign: "center",
     borderRadius: 9,
+    color: "white",
   },
- 
   bottomContainer: {
-    position: "absolute",
     bottom: 20, // Adjust as needed
     alignItems: "center",
   },
-  logo: {
-    height: 20,
-    width: 20,
-    marginBottom: 5,
-  },
   brandText: {
-    fontSize: 10,
+    fontSize: 14,
     fontWeight: "bold",
     textAlign: "center",
+    marginTop: 10,
+  },
+  verifyerrorText: {
+    color: "green",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginTop: 10,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginTop: 10,
   },
 });
