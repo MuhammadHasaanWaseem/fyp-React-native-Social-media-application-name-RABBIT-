@@ -44,7 +44,8 @@ const router =useRouter();
         listeners={{tabPress:(e)=>{
           e.preventDefault();
           router.push('/post');
-        }}}
+        }
+      }}
     /> <Tabs.Screen
     name="activity"
     options={{

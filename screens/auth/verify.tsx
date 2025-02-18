@@ -1,21 +1,20 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "@/components/ui/text";
-import { Input } from "@/components/ui/input";
-import { InputField } from "@/components/ui/input";
 import React, { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { View, StyleSheet } from "react-native";
-import Layout from './_layout';
+import Layout from "./_layout";
+import { OtpInput } from "react-native-otp-entry";
 
 export default function VerifyScreen() {
   const [token, setToken] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const [errorMessage, setErrorMessage] = useState("");
   const { phone } = useLocalSearchParams();
   const router = useRouter();
 
   const handleVerify = async () => {
-    console.log(token);
+    console.log("Entered OTP:", token);
 
     const { data, error } = await supabase.auth.verifyOtp({
       phone: phone as string,
@@ -24,45 +23,47 @@ export default function VerifyScreen() {
     });
 
     if (!error) {
-      setErrorMessage("verified"); // Clear any previous errors
+      setErrorMessage("Verified Successfully!"); // Green success message
       router.push("/(auth)/username");
     } else {
-      setErrorMessage("OTP is incorrect. Please try again."); // Show error message
+      setErrorMessage(" OTP is incorrect. Please try again.");
     }
   };
 
   return (
-    <Layout onPress={handleVerify} buttonText="Verify OTP code!">
+    <Layout onPress={handleVerify} buttonText="Verify OTP">
       <SafeAreaView style={styles.container}>
-        {/* Input Field */}
-        <Input
-          variant="outline"
-          size="md"
-          style={{
-            borderColor: "white",
-            borderWidth: 1,
-            borderRadius: 10,
-            marginBottom: 20,
-            marginTop: 20,
-          }}
-        >
-          <InputField
-            placeholderTextColor={"white"}
-            placeholder="Enter OTP here..."
-            style={styles.inputField}
-            value={token}
-            onChangeText={setToken}
-            keyboardType="phone-pad"
-            secureTextEntry={true}
-          />
-        </Input>
-
-        {/* Error Message in Red */}
-       
-
-        {/* Bottom Text */}
-        <View >
-        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : <Text style={styles.verifyerrorText}>{errorMessage}</Text>}
+        <OtpInput
+          focusColor="green"
+          numberOfDigits={8}
+          type="numeric"
+          placeholder="***********"
+          onTextChange={setToken}
+          autoFocus
+          secureTextEntry={false}
+          theme={{
+            containerStyle: { marginTop: 20}, 
+            inputsContainerStyle: { margin:2,padding:20},
+            
+            pinCodeContainerStyle: {
+              backgroundColor:'transparent',
+              borderColor: "white",
+              borderWidth: 1, 
+              borderRadius: 10
+              
+            },
+            pinCodeTextStyle: {
+              color: "white", 
+              fontSize: 24, 
+              
+              
+            },
+          }}/>
+        <View>
+        {errorMessage ? (
+    <Text style={errorMessage.includes("Verified") ? styles.successText : styles.errorText}>
+      {errorMessage}
+    </Text>  ) : null}
         </View>
       </SafeAreaView>
     </Layout>
@@ -75,31 +76,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  inputField: {
-    textAlign: "center",
-    borderRadius: 9,
-    color: "white",
-  },
-  bottomContainer: {
-    bottom: 20, // Adjust as needed
-    alignItems: "center",
-  },
-  brandText: {
+  successText: {
+    color: "lightgreen",
     fontSize: 14,
     fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 10,
-  },
-  verifyerrorText: {
-    color: "green",
-    fontSize: 14,
-    fontWeight: "bold",
-    marginTop: 10,
+    marginTop: 2,
   },
   errorText: {
     color: "red",
     fontSize: 14,
     fontWeight: "bold",
-    marginTop: 10,
+    marginTop:2
   },
 });

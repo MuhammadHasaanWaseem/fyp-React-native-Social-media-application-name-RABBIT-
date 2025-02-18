@@ -29,7 +29,7 @@ export default ({ children, onPress,buttonText }: { children: React.ReactNode, o
               <Button onPress={onPress} style={styles.button}>
                 <ButtonText style={styles.buttonText}>{buttonText}</ButtonText>
               </Button>
-              <VStack style={styles.footer} space="md">
+              <VStack>
               <Button  style={styles.button} onPress={()=>router.back()}>
               <ButtonText style={styles.buttonText}> Go back?</ButtonText></Button></VStack>
             </VStack>

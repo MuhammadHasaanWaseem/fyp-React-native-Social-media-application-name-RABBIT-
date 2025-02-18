@@ -47,11 +47,11 @@ setuser(user)
   }
 const  getUser = async (session:Session | null)=>{
   
-if(session){
-  const{data,error}= await supabase.from('User').select().eq('id',session?.user.id)
-  if(!error){setuser(data[0])}
-  router.push('/(tabs)')
-}
+  if(session){
+    const{data,error}= await supabase.from('User').select().eq('id',session?.user.id)
+    if(!error){setuser(data[0])}
+    router.push('/(tabs)')
+  }
 }
 const logOut = async ()=>{
   await supabase.auth.signOut();

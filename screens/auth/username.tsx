@@ -13,10 +13,7 @@ export default function VerifyScreen() {
   const{createUser} = useAuth();
   const router =useRouter();
 const handleusername   = async()=> {
-  createUser(username);
- 
-  
- 
+   createUser(username);
   
 }
 
@@ -40,15 +37,8 @@ const handleusername   = async()=> {
       </Input>
       
 
-      {/* Verify Button */}
-      
-      {/* Bottom Logo & Text */}
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity>
-          <Image source={require("../../assets/logo/i.png")} style={styles.logo} />
-        </TouchableOpacity>
-        <Text style={styles.brandText}>Rabbit</Text>
-      </View>
+    
+    
     </SafeAreaView></Layout>
   );
 }
