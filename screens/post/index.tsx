@@ -13,14 +13,7 @@ import * as Crypto from 'expo-crypto';
 import { useState,useEffect } from 'react';
 import Card from './card';
 import { FlatList } from 'react-native';
-
-interface Post{
-  id:string;
-  parent_id?:string | null;
-  user_id:string;
-  text:string;
-created_at?:string;
-}
+import { Post } from '@/lib/type';
 
 
 

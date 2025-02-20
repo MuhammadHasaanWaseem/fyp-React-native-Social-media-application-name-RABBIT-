@@ -8,7 +8,7 @@ import { useAuth } from '@/providers/AuthProviders';
 import { Input, InputField } from '@/components/ui/input';
 import { View } from '@/components/ui/view';
 
-export default ({post,updatepost}:{post:any,updatepost:any}) => {
+export default ({post,updatepost}:{post:any,updatepost:(id:string,text:string)=>void}) => {
   const { user } = useAuth();
 
   

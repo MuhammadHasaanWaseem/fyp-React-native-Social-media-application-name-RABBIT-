@@ -6,41 +6,28 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { Image, Camera, ImagePlay, Mic, Hash, MapPin } from 'lucide-react-native';
-import { Pressable, FlatList, View } from 'react-native';
-import { usePathname, useRouter } from 'expo-router';
+import { Image, Camera, ImagePlay, Mic, Hash, MapPin,Heart,Send,MessageCircle, Repeat } from 'lucide-react-native';
+import { Pressable, FlatList } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
-import { supabase } from '@/lib/supabase';
-import { useEffect, useState } from 'react';
-import { Spinner } from '@/components/ui/spinner';
+import { usePosts } from '@/hooks/use-posts';
+import { formatDistanceToNow } from 'date-fns'
+// import { useEffect } from 'react';
+
 
 export default () => {
   const { user } = useAuth();
-  const [threads, setThreads] = useState([]);
-  const pathname = usePathname();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const{data,refetch,isLoading} =usePosts();
+  // const pathname = usePathname();  
+  // useEffect(() => {
+  //   if (pathname === '/') {
+  //   refetch();
+  //   }
+  // }, [pathname]);
 
-  useEffect(() => {
-    // setLoading(true);
-
-    if (pathname === '/') {
-      getThreads();
-      setLoading(false);
-    }
-  }, [pathname]);
-
-  // Fetch posts along with their associated user data via the join
-  const getThreads = async () => {
-    const { data, error } = await supabase
-      .from('Post')
-      .select('*, User(*)')
-       .is('parent_id',null)
-      .order('created_at', { ascending: false });
-    console.log(data, error);
-    if (!error && data) setThreads(data);
-  };
-
+  
+ 
   return (
     <SafeAreaView className="bg-white flex-1">
       
@@ -78,16 +65,15 @@ export default () => {
         </HStack>
         <Divider />
       </Pressable>
-      {loading ? (
-              <View className="flex-1 justify-center items-center">
-                <Spinner size="large" color={'black'} />
-              </View>
-            ) : (
+      
       <FlatList 
-        data={threads}
+        data={data}
+        refreshing={isLoading}
+        onRefresh={refetch}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <HStack space="md" className="p-3">
+          <Card>
+          <HStack space="md" >
             <Avatar size="sm">
               {item.User?.avatar ? (
                 <AvatarImage source={{ uri: item.User.avatar }} />
@@ -96,19 +82,32 @@ export default () => {
                   {item.User?.username ? item.User.username.charAt(0) : ''}
                 </AvatarFallbackText>
               )}
+                       
+
             </Avatar>
             <VStack className="flex-1">
-              <HStack>
+              <HStack className='items-center' space='md'>
                 <Text style={{ fontWeight: 'bold', fontSize: 17 }}>
-                  {item.User?.username || ''},{" "}
+                  {item.User?.username || ''}
                 </Text>
-                <Text>{new Date(item.created_at).toLocaleDateString()}</Text>
+                <Text style={{fontSize: 12 }}>{item?.created_at && formatDistanceToNow(new Date(new Date(item.created_at).getTime() - new Date().getTimezoneOffset() * 60000), { addSuffix: true })}
+                </Text>
               </HStack>
-              <Text>{item.text}</Text>
+              
+              <Text className='text-black '>{item.text}</Text>
+              <VStack><Text>{''}</Text></VStack>
+              <HStack space='lg' className='items-center pt-1 '>
+                <Heart color="black" size={20} strokeWidth={1}/>
+                <MessageCircle color="black" size={20} strokeWidth={1}/>
+                <Repeat color="black" size={20} strokeWidth={1}/>
+                <Send color="black" size={20} strokeWidth={1}/>
+              </HStack>
             </VStack>
           </HStack>
+          <Divider className='w-full' style={{ marginTop:30}}/>
+          </Card>
         )}
-      />  )}
+      />  
     </SafeAreaView>
   );
 }; 
