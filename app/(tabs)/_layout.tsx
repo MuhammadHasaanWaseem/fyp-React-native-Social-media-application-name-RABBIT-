@@ -8,6 +8,7 @@ const router =useRouter();
     
     <Tabs 
       screenOptions={{
+         
         tabBarActiveTintColor: 'white',
         tabBarActiveBackgroundColor:'black',
       
@@ -22,6 +23,7 @@ const router =useRouter();
         }),
       }}>
       <Tabs.Screen
+      
         name="index"
         options={{
           title: '',

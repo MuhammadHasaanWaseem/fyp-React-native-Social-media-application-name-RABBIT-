@@ -7,21 +7,26 @@ import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar'
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { Image, Camera, ImagePlay, Mic, Hash, MapPin } from 'lucide-react-native';
-import { Pressable, FlatList } from 'react-native';
+import { Pressable, FlatList, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
+import { Spinner } from '@/components/ui/spinner';
 
 export default () => {
   const { user } = useAuth();
   const [threads, setThreads] = useState([]);
   const pathname = usePathname();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // setLoading(true);
+
     if (pathname === '/') {
       getThreads();
+      setLoading(false);
     }
   }, [pathname]);
 
@@ -30,6 +35,7 @@ export default () => {
     const { data, error } = await supabase
       .from('Post')
       .select('*, User(*)')
+       .is('parent_id',null)
       .order('created_at', { ascending: false });
     console.log(data, error);
     if (!error && data) setThreads(data);
@@ -37,11 +43,12 @@ export default () => {
 
   return (
     <SafeAreaView className="bg-white flex-1">
+      
       {/* Top Logo */}
       <HStack className="justify-center items-center">
         <Rabbiticon size={33} />
       </HStack>
-
+      
       {/* "What's New?" Card for the logged-in user */}
       <Pressable onPress={() => router.push('/post')}>
         <HStack className="items-center p-4">
@@ -59,18 +66,24 @@ export default () => {
                 <Text size="md">What's new?</Text>
               </VStack>
               <HStack className="items-center" space="3xl">
-                {[Image, Camera, ImagePlay, Hash, MapPin, Mic].map((Icon, index) => (
-                  <Icon key={index} color="grey" size={20} strokeWidth={1.5} />
-                ))}
+              <Image color="#64748b" size={20} strokeWidth={1.5}/>
+              <Camera color="#64748b" size={20} strokeWidth={1.5}/>
+              <ImagePlay color="#64748b" size={20} strokeWidth={1.5}/>
+              <Hash color="#64748b" size={20} strokeWidth={1.5}/>
+              <MapPin color="#64748b" size={20} strokeWidth={1.5}/>
+              <Mic color="#64748b" size={20} strokeWidth={1.5}/>
               </HStack>
             </VStack>
           </Card>
         </HStack>
         <Divider />
       </Pressable>
-
-      {/* Single Combined FlatList: Display threads (posts) with their associated user details */}
-      <FlatList
+      {loading ? (
+              <View className="flex-1 justify-center items-center">
+                <Spinner size="large" color={'black'} />
+              </View>
+            ) : (
+      <FlatList 
         data={threads}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -95,8 +108,7 @@ export default () => {
             </VStack>
           </HStack>
         )}
-      />  
+      />  )}
     </SafeAreaView>
   );
-};
- 
+}; 
