@@ -2,21 +2,37 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "@/components/ui/text";
 import { Input } from "@/components/ui/input";
 import { InputField } from "@/components/ui/input";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Image, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import Layout from './_layout';
 import { useAuth } from "@/providers/AuthProviders";
 import { useRouter } from "expo-router";
 
 export default function VerifyScreen() {
+  
   const [username, setusername] = useState("");
-  const{createUser} = useAuth();
+  const{user,createUser} = useAuth();
   const router =useRouter();
-const handleusername   = async()=> {
-   createUser(username);
+  //navigate imidiately
+
+  useEffect(() => {
+    if (user && user.username) {
+      router.push('/(tabs)');
+    }
+  }, [user]);
+//
+  const handleusername   = async()=> {
+   //createUser(username);
+   const success = await createUser(username);
+  if (success) {
+    router.push('/(tabs)');
+  } else {
+    // Optionally, display an error message to the user
+    console.error("Account creation failed");
+  }
   
 }
-
+ 
   return (
     <Layout onPress={handleusername} buttonText="Create Account">
     <SafeAreaView style={styles.container}>

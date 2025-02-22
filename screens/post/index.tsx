@@ -14,7 +14,7 @@ import { useState,useEffect } from 'react';
 import Card from './card';
 import { FlatList } from 'react-native';
 import { Post } from '@/lib/type';
-
+import { Image } from 'react-native';
 
 
 
@@ -42,8 +42,14 @@ export default () => {
      if (!error) router.back();
      console.log(data,error);
   };
-  const updatepost = async (id:string,text:string) => {
-    SetPostCard(PostCard.map((p:Post)=>p.id===id?{...p,text}:p));
+  const updatepost = async (id:string,key:string , value:string) => {
+    SetPostCard(PostCard.map((p:Post)=>p.id===id?{...p,[key]:value}:p));
+    const { data, error } = await supabase
+    .from('Post')             // Make sure this matches your actual table name
+    .update({ [key]: value }) // e.g., { file: data.path } or { text: 'new text' }
+    .eq('id', id);
+
+ 
   };
   return (
     <SafeAreaView className="bg-white flex-1">
@@ -53,13 +59,15 @@ export default () => {
         style={{ flex: 1 }}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <VStack space="lg" className="flex-1">
+          <VStack space="md" className="flex-1">
             {/* Header */}
-            <HStack className="items-center justify-between p-3">
+            <HStack className="items-center justify-between p-6">
               <TouchableOpacity onPress={() => router.back()}>
-                <Text className="font-bold text-2xl">close</Text>
+                
+                <Text className="font-semibold text-sm">Cancel</Text>
               </TouchableOpacity>
-              <Text className="text-2xl font-bold">New Post</Text>
+              <Text className="text-xl font-bold">New Post</Text>
+              
               <View style={{ width: 50 }} />
             </HStack>
             <Divider />

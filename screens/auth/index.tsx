@@ -14,12 +14,14 @@ export default function SignIn() {
 
   const handleSignIn = async () => {
     const { data, error } = await supabase.auth.signInWithOtp({
-      phone: `+1${phone}`,
+      // phone: `+92${phone}
+      phone:phone
     });
     if (!error) {
       router.push({
         pathname: '/(auth)/verify',
-        params: { phone: `+1${phone}` },
+        // params: { phone: `+92${phone}` },
+        params:{phone:phone}
       });
     }
     console.log(data, error);

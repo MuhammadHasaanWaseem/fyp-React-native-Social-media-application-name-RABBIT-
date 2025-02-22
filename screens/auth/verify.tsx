@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabase";
 import { View, StyleSheet } from "react-native";
 import Layout from "./_layout";
 import { OtpInput } from "react-native-otp-entry";
+import { Spinner } from "@/components/ui/spinner";
+import { HStack } from "@/components/ui/hstack";
 
 export default function VerifyScreen() {
   const [token, setToken] = useState("");
@@ -21,6 +23,7 @@ export default function VerifyScreen() {
       token,
       type: "sms",
     });
+    
 
     if (!error) {
       setErrorMessage("Verified Successfully!"); // Green success message
@@ -35,7 +38,7 @@ export default function VerifyScreen() {
       <SafeAreaView style={styles.container}>
         <OtpInput
           focusColor="green"
-          numberOfDigits={8}
+          numberOfDigits={6}
           type="numeric"
           placeholder="***********"
           onTextChange={setToken}
@@ -60,6 +63,7 @@ export default function VerifyScreen() {
             },
           }}/>
         <View>
+         <Spinner color={'blue'} size={24}/><Text>Verification in progress</Text>
         {errorMessage ? (
     <Text style={errorMessage.includes("Verified") ? styles.successText : styles.errorText}>
       {errorMessage}

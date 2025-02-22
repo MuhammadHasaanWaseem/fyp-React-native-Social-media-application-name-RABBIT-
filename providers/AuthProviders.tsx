@@ -35,24 +35,73 @@ type AuthProviderProps = {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setuser] = useState<User>({}); // State with typed user
   const [session, setSession] = useState<Session | null>(null)
-  const createUser = async (username:string)=>{
-const{data,error}= await supabase.from('User').insert({
-id:session?.user.id,
-  username,
-
-}).select() 
-if(error) return console.error(error)
-  const user=data[0]
-setuser(user)
-  }
-const  getUser = async (session:Session | null)=>{
   
-  if(session){
-    const{data,error}= await supabase.from('User').select().eq('id',session?.user.id)
-    if(!error){setuser(data[0])}
-    router.push('/(tabs)')
+
+
+  // const createUser = async (username:string)=>{
+  //   const{data,error}= await supabase.from('User').insert({
+  //   id:session?.user.id,
+  //   username,
+
+  //   }).select() 
+  // if(error) return console.error(error)
+  // const user=data[0]
+  //   setuser(user)
+  // }
+  const createUser = async (username: string) => {
+    const { data, error } = await supabase
+      .from('User')
+      .insert({
+        id: session?.user.id,
+        username,
+      })
+      .select();
+    
+    if (error) {
+      console.error(error);
+      return false;
+    }
+    
+    const user = data[0];
+    setuser(user);
+    return true;
+  };
+  
+// const  getUser = async (session:Session | null)=>{
+  
+//   if(session){
+//     const{data,error}= await supabase.from('User').select().eq('id',session?.user.id)
+//     if(!error){setuser(data[0])}
+//     router.push('/(tabs)')
+//   }
+// }
+const getUser = async (session: Session | null) => {
+  if (session) {
+    const { data, error } = await supabase
+      .from('User')
+      .select()
+      .eq('id', session.user.id);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      // Check if the user already has a username set
+      if (data[0].username) {
+        setuser(data[0]);
+        router.push('/(tabs)'); // Navigate to home if username exists
+      } else {
+        router.push('/(auth)/username'); // Stay on username screen if username is missing
+      }
+    } else {
+      // If no user record exists, navigate to the username screen
+      router.push('/(auth)/username');
+    }
   }
-}
+};
+
 const logOut = async ()=>{
   await supabase.auth.signOut();
   router.push('/(auth)')

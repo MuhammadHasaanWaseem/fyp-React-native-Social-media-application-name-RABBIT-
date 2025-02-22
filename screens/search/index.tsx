@@ -1,15 +1,10 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text } from '@/components/ui/text';
+import { View, Image,Text } from 'react-native'
+import React from 'react'
 
-
-
-export default () => {
+export default function index() {
   return (
-    < SafeAreaView className='bg-white flex-1'>
-
-<Text className='text-4xl text-black ' >search</Text>
-  
-
-    </SafeAreaView>
-  );
+    <View>
+search
+    </View>
+  )
 }
