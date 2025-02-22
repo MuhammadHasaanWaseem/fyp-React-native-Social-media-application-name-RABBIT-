@@ -23,6 +23,7 @@ interface PostCardprops {
 export default ({ post, updatepost }:  PostCardprops) => {
   const { user } = useAuth();
   const [Photo, setPhoto] = useState('');
+  const [MediaType, setMediaType] = useState('');
 
   // Upload file function
   const uploadFile = async (uri: string, type: string,name: string) => {
@@ -47,11 +48,11 @@ if(data) updatepost(post.id,'file',data?.path);
   // Photo and Video Picker Function
   const addPhotoAndVideo = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'] ,// Fix: Use proper mediaType
+      mediaTypes:ImagePicker.MediaTypeOptions.All,// Fix: Use proper mediaType
       allowsEditing: true,
-      allowsMultipleSelection:true,
-      aspect: [4, 3],
+      aspect: [6, 5],
       quality: 1,
+      
     });
 
 
@@ -60,6 +61,7 @@ if(data) updatepost(post.id,'file',data?.path);
 let name =uri?.split('/').pop();
     console.log(uri, type);
     setPhoto(uri);
+    setMediaType(type)
 uploadFile(uri,type,name);
   
   };
@@ -90,44 +92,19 @@ uploadFile(uri,type,name);
                   placeholderTextColor="#64748b"
                 />
               </Input>
-              {/* {Photo &&
-                (Photo.toLowerCase().endsWith('.mp4') ? (
-                  <Video
-                    source={{ uri: Photo }}
-                    style={{ height: 200, width: 200, borderRadius: 10 }}
-                    useNativeControls
-                    resizeMode={ResizeMode.CONTAIN}
-                    isLooping
-                  />
-                ) : (
-                  <Image
-                    source={{ uri: Photo }}
-                    style={{ height: 100, width: 100, borderRadius: 10 }}
-                  />
-                ))}
-              */}
- <Image
-                    source={{ uri: Photo }}
-                    style={{ height: 100, width: 100, borderRadius: 10 }}
-                  /> 
-                  {/* {Photo.length > 0 && (
-                <FlatList
-                  data={Photo}
-                  horizontal
-                  keyExtractor={(item, index) => item + index}
-                  renderItem={({ item }) => (
-                    <Image
-                      source={{ uri: item }}
-                      style={{
-                        height: 100,
-                        width: 100,
-                        borderRadius: 10,
-                        marginRight: 10,
-                      }}
-                    />
-                  )}
-                />
-              )} */}
+              {Photo && MediaType?.startsWith("image/") ? (
+  <Image source={{ uri: Photo }} style={{ height: 150, width: 150, borderRadius: 10 }} />
+) : null}
+
+{Photo && MediaType?.startsWith("video/") ? (
+  <Video
+    source={{ uri: Photo }}
+    style={{ height: 150, width: 150, borderRadius: 10 }}
+    useNativeControls
+    resizeMode={ResizeMode.CONTAIN}
+  />
+) : null}
+
              
             </VStack>
             <HStack className="items-center gap-7">
