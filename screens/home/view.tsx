@@ -66,11 +66,11 @@ const [duration, setDuration] = useState(0); // Total duration in seconds
           <Text>{""}</Text>
 
           <HStack>
-            {item?.file &&
+            {item.file &&
               (item.file.match(/\.(jpeg|jpg|png|gif)$/i) ? (
                 <Image
                   source={{
-                    uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/2f1d613f-5740-4c08-ac80-a5792b0f098e/${item.file}`,
+                    uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`,
                   }}
                   style={{ height: 150, width: 200, borderRadius: 10 }}
                 />
@@ -84,7 +84,7 @@ const [duration, setDuration] = useState(0); // Total duration in seconds
                   <Video
                     ref={videoRef}
                     source={{
-                      uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/2f1d613f-5740-4c08-ac80-a5792b0f098e/${item.file}`,
+                      uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`,
                     }}
                     style={[
                       { height: 300, width: 200, borderRadius: 10 },

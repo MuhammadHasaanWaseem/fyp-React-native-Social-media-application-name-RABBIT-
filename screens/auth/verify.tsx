@@ -38,7 +38,7 @@ export default function VerifyScreen() {
       <SafeAreaView style={styles.container}>
         <OtpInput
           focusColor="green"
-          numberOfDigits={6}
+          numberOfDigits={8}
           type="numeric"
           placeholder="***********"
           onTextChange={setToken}
