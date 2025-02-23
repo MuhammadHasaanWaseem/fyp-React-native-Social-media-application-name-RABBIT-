@@ -38,19 +38,19 @@ export default function VerifyScreen() {
       <SafeAreaView style={styles.container}>
         <OtpInput
           focusColor="green"
-          numberOfDigits={8}
+          numberOfDigits={6}
           type="numeric"
-          placeholder="***********"
+          placeholder="__________"
           onTextChange={setToken}
           autoFocus
           secureTextEntry={false}
           theme={{
-            containerStyle: { marginTop: 20}, 
+            containerStyle: { marginBottom:20}, 
             inputsContainerStyle: { margin:2,padding:20},
             
             pinCodeContainerStyle: {
               backgroundColor:'transparent',
-              borderColor: "white",
+              borderColor: "#1f1f1f",
               borderWidth: 1, 
               borderRadius: 10
               
@@ -63,7 +63,11 @@ export default function VerifyScreen() {
             },
           }}/>
         <View>
-         <Spinner color={'blue'} size={24}/><Text>Verification in progress</Text>
+          
+         <Spinner color={'darkgreen'} size={24}/>
+         <Text>{""}</Text>
+         <Text style={{color:'white',marginBottom:10,textAlign:'center'}}>Verification in progress</Text>
+         
         {errorMessage ? (
     <Text style={errorMessage.includes("Verified") ? styles.successText : styles.errorText}>
       {errorMessage}

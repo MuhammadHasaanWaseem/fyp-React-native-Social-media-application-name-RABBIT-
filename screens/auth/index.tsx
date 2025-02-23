@@ -31,15 +31,15 @@ export default function SignIn() {
     <Layout onPress={handleSignIn} buttonText='sign in'>
       
       <SafeAreaView style={{ flex: 1, justifyContent: 'center', backgroundColor: 'black', paddingHorizontal: 20 }}>
-      <View style={{ alignItems: 'center', marginBottom: 20 }}>
-        <Text style={{ fontSize: 24, fontWeight: 'bold', color: 'white' }}>
-            Enter your phone number
+      <View style={{ alignItems: 'left', marginBottom: 10 }}>
+        <Text style={{ fontSize: 14, fontWeight: '900', color: 'white' }}>
+          Enter your phone number
           </Text>
         </View>
 
         <Input 
           variant="outline" 
-          size="md" 
+          size="sm" 
           style={{ borderColor: 'white', borderWidth: 1, borderRadius: 10, marginBottom: 20 }}
         >
           <Text  style={{color:'white', fontSize:14 ,borderColor:'white' }}>{" "}+92</Text>

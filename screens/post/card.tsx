@@ -9,60 +9,48 @@ import { Input, InputField } from '@/components/ui/input';
 import { View } from '@/components/ui/view';
 import { FlatList, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useState,useRef } from 'react';
 import { Image } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { Post } from '@/lib/type';
 import { Video, ResizeMode } from 'expo-av';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { usePost } from '@/providers/PostProvider';
+import { useVideoPlayer } from '@/providers/VideoPlayerProvider';
+
 interface PostCardprops {
 
   post:Post,
-  updatepost: (id: string, key: string, value: string) => void
 
 }
-export default ({ post, updatepost }:  PostCardprops) => {
+export default ({ post }:  PostCardprops) => {
   const { user } = useAuth();
-  const [Photo, setPhoto] = useState('');
+  const {threadId} =useLocalSearchParams();
   const [MediaType, setMediaType] = useState('');
-
-  // Upload file function
-  const uploadFile = async (uri: string, type: string,name: string) => {
-   
-    // Extract filename from URI
-    // const fileName = uri.split('/').pop() || `upload_${Date.now()}`;
-
-    let newFormData = new FormData();
-    newFormData.append('file', {
-      uri,
-      name,
-      type,
-    } ); // Adding `as any` to satisfy TypeScript FormData type
-
-    const { data, error } = await supabase.storage
-      .from(`files/${user?.id}`)
-      .upload(name, newFormData);
-if(data) updatepost(post.id,'file',data?.path);
-    console.log(data, error);
-  };
-
+ const router = useRouter();
+ const{uploadFile,updatepost,Photo,setPhoto} =usePost();
+ const videoRef = useRef<Video>(null); // Create a ref for the video
+ //vedio provider
+ const { playVideo } = useVideoPlayer();  
   // Photo and Video Picker Function
   const addPhotoAndVideo = async () => {
+    setPhoto('');
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes:ImagePicker.MediaTypeOptions.All,// Fix: Use proper mediaType
       allowsEditing: true,
       aspect: [6, 5],
-      quality: 1,
+      quality: 0.5,
       
     });
 
-
+if(!result.assets?.[0]?.uri) return;
     let uri = result.assets?.[0]?.uri;
     let type = result.assets?.[0]?.mimeType;
 let name =uri?.split('/').pop();
     console.log(uri, type);
     setPhoto(uri);
     setMediaType(type)
-uploadFile(uri,type,name);
+uploadFile(post.id,uri,type,name);
   
   };
 
@@ -98,10 +86,16 @@ uploadFile(uri,type,name);
 
 {Photo && MediaType?.startsWith("video/") ? (
   <Video
+  ref={videoRef}
     source={{ uri: Photo }}
     style={{ height: 150, width: 150, borderRadius: 10 }}
     useNativeControls
     resizeMode={ResizeMode.CONTAIN}
+    onPlaybackStatusUpdate={(status) => {
+      if (status.isLoaded && status.isPlaying && videoRef.current) {
+        playVideo(videoRef.current);
+      }
+    }}
   />
 ) : null}
 
@@ -111,7 +105,12 @@ uploadFile(uri,type,name);
               <TouchableOpacity onPress={addPhotoAndVideo}>
                 <ImageIcon color="#64748b" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={()=>{
+                setPhoto('');
+                router.push({
+                pathname:'/camera',
+                params:{threadId:post.id}
+              })}}>
                 <Camera color="#64748b" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
               <TouchableOpacity>

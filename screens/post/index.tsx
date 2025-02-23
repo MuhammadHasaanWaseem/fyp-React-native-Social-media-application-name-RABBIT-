@@ -6,7 +6,7 @@ import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar'
 import { useAuth } from '@/providers/AuthProviders';
 import { Keyboard, KeyboardAvoidingView, Platform, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { Divider } from '@/components/ui/divider';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Button, ButtonText } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import * as Crypto from 'expo-crypto';
@@ -14,43 +14,49 @@ import { useState,useEffect } from 'react';
 import Card from './card';
 import { FlatList } from 'react-native';
 import { Post } from '@/lib/type';
-import { Image } from 'react-native';
+import { usePost } from '@/providers/PostProvider'
+import { Eraser, SquareArrowLeft } from 'lucide-react-native';
 
 
 
 export default () => {
   const { user } = useAuth();
+  const{threadId} =useLocalSearchParams();
+  const {updatepost,clearpost,PostCard,uploadpost,addthreads}=usePost();
 
-  const defaultpost:Post={
-    id: Crypto.randomUUID(),
-      user_id: user.id,
-      parent_id:null,
-      text:'',
-    }
-    useEffect(() => {
+  // const defaultpost:Post={
+  //   id: Crypto.randomUUID(),
+  //     user_id: user.id,
+  //     parent_id:null,
+  //     text:'',
+  //   }
+  //   useEffect(() => {
         
-          SetPostCard([defaultpost]);
+  //         SetPostCard([defaultpost]);
         
-      }, []);
+  //     }, []);
     
-  const [PostCard, SetPostCard] = useState<Post[]>([]);
+  // const [PostCard, SetPostCard] = useState<Post[]>([]);
 
-  const onPress = async () => {
-    console.log(PostCard);
-    if (!user) return;
-     const { data,error } = await supabase.from('Post').insert(PostCard).order('created_at',{ascending:false});
-     if (!error) router.back();
-     console.log(data,error);
-  };
-  const updatepost = async (id:string,key:string , value:string) => {
-    SetPostCard(PostCard.map((p:Post)=>p.id===id?{...p,[key]:value}:p));
-    const { data, error } = await supabase
-    .from('Post')             // Make sure this matches your actual table name
-    .update({ [key]: value }) // e.g., { file: data.path } or { text: 'new text' }
-    .eq('id', id);
+  // const onPress = async () => {
+  //   console.log(PostCard);
+  //   if (!user) return;
+  //    const { data,error } = await supabase.from('Post').insert(PostCard).order('created_at',{ascending:false});
+  //    if (!error) router.back();
+  //    console.log(data,error);
+  // };
+  // const updatepost = async (id:string,key:string , value:string) => {
+  //   SetPostCard(PostCard.map((p:Post)=>p.id===id?{...p,[key]:value}:p));
+  //   const { data, error } = await supabase
+  //   .from('Post')             // Make sure this matches your actual table name
+  //   .update({ [key]: value }) // e.g., { file: data.path } or { text: 'new text' }
+  //   .eq('id', id);
 
  
-  };
+  // };
+  // const clearpost =()=>{
+  //   SetPostCard([defaultpost]);
+  // }
   return (
     <SafeAreaView className="bg-white flex-1">
       
@@ -62,20 +68,31 @@ export default () => {
           <VStack space="md" className="flex-1">
             {/* Header */}
             <HStack className="items-center justify-between p-6">
-              <TouchableOpacity onPress={() => router.back()}>
+              {/* back button */}
+              <TouchableOpacity onPress={() =>router.back()}>
                 
-                <Text className="font-semibold text-sm">Cancel</Text>
+                <SquareArrowLeft color={'black'} size={20}/>
+
               </TouchableOpacity>
-              <Text className="text-xl font-bold">New Post</Text>
+              <Text></Text>
+              <Text className="text-2xl font-bold">ɴᴇᴡ ᴘᴏꜱᴛ</Text>
               
-              <View style={{ width: 50 }} />
+              <View style={{ width: 1 }} />
+              {/* clear button */}
+            <TouchableOpacity onPress={() => {
+                clearpost()}}>
+                
+                <Eraser color={'black'} size={20}/>
+
+              </TouchableOpacity>
             </HStack>
             <Divider />
 
             {/* List of Posts with "Add to post" as the footer */}
             <FlatList
               data={PostCard}
-              renderItem={({ item }) => <Card post={item} updatepost={updatepost}/>}
+              keyExtractor={(item)=>item.id}
+              renderItem={({ item }) => <Card post={item} />}
               contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }} // extra bottom padding so footer isn't hidden
               ListFooterComponent={
                 <HStack className="gap-6 items-center p-3">
@@ -83,7 +100,7 @@ export default () => {
                     <AvatarFallbackText>{user?.username}</AvatarFallbackText>
                     <AvatarImage source={{ uri: user?.avatar }} />
                   </Avatar>
-                  <Button variant="link" onPress={() => SetPostCard([...PostCard,{...defaultpost,parent_id: PostCard[0].id}])}>
+                  <Button variant="link" onPress={addthreads }>
                     <ButtonText>Add to post</ButtonText>
                   </Button>
                 </HStack>
@@ -101,8 +118,8 @@ export default () => {
               }}
             >
               <HStack className="items-center justify-between p-3  bg-white">
-                <Text className="text-gray-500">Anyone can reply & quote!</Text>
-                <Button style={{ borderRadius: 9, width: 88 }} onPress={onPress}>
+                <Text className="text-gray-500">ᴬⁿʸᵒⁿᵉ ᶜᵃⁿ ʳᵉᵖˡʸ & qᵘᵒᵗᵉ!</Text>
+                <Button style={{ borderRadius: 9, width: 88 }} onPress={uploadpost}>
                   <ButtonText>Post</ButtonText>
                 </Button>
               </HStack>

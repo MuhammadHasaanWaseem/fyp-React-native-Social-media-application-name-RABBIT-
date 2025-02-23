@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { AuthProvider } from '@/providers/AuthProviders';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PostProvider } from '@/providers/PostProvider';
 
 const queryClient =new QueryClient();
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -28,15 +29,20 @@ export default function RootLayout() {
   }
 
   return (
+    
     <GluestackUIProvider mode="light">
       <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <PostProvider>
         <Stack initialRouteName='(auth)'>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="post" options={{ headerShown: false,presentation:'modal', animation:'slide_from_bottom' }} />
+        <Stack.Screen name="camera" options={{ headerShown: false,presentation:'modal', animation:'slide_from_bottom' }} />
         <Stack.Screen name="+not-found" />
-      </Stack></AuthProvider>
+      </Stack>
+      </PostProvider>
+      </AuthProvider>
       </QueryClientProvider>
      </GluestackUIProvider>
   );

@@ -1,10 +1,14 @@
-import { View, Image,Text } from 'react-native'
 import React from 'react'
+import { View ,Text} from 'react-native'
 
-export default function index() {
+const Search = () => {
   return (
-    <View>
-search
+    <View className='items-center justify-center flex-1'>
+      <Text style={{fontFamily:'FuzzyBubbles-Regular'}}> 𝖗𝖆𝖇𝖇𝖎𝖙</Text>
+      <Text style={{fontFamily:'SpaceMono-Regular'}}> This is search screen</Text>
+
     </View>
   )
 }
+
+export default Search

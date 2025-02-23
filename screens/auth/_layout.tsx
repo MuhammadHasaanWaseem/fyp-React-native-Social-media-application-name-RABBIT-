@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Rabbiticon from '@/assets/logo/Rabbiticon';
+import Rabbiticon from '@/assets/logo/Rabbitlogo';
 import { VStack } from '@/components/ui/vstack';
 import { Text } from '@/components/ui/text';
 import { Button, ButtonText } from '@/components/ui/button';
@@ -17,8 +17,10 @@ export default ({ children, onPress,buttonText }: { children: React.ReactNode, o
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.container}>
-            <VStack style={styles.header} space="md">
+            <VStack style={styles.header} space="sm">
             <Rabbiticon size={299} />
+            <Text style={{color:'white', fontSize:18,fontWeight:'600'}}>Ａｕｔｈｅｎｔｉｃａｔｉｏｎ</Text>
+            
            
               
             </VStack>   
@@ -38,11 +40,11 @@ export default ({ children, onPress,buttonText }: { children: React.ReactNode, o
 
             <View style={styles.logoO}>
               <TouchableOpacity>
-                <Image source={require("../../assets/logo/i.png")} style={styles.logo} />
+                <Image source={require("../../assets/logo/Rabbit.png")} style={styles.logo} />
               </TouchableOpacity>
             </View>
        
-             <Text style={[styles.brandText,{textAlign:'center'}]}>Rabbit Authentication</Text></View>
+             <Text style={[styles.brandText,{textAlign:'center'}]}>Contact on instagram @im_hasaan_</Text></View>
             
           
         </TouchableWithoutFeedback>
@@ -69,14 +71,14 @@ const styles = StyleSheet.create({
   footer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 20,
+   marginTop:40
   },
   button: {
     backgroundColor: 'white',
     paddingVertical: 8,
     paddingHorizontal: 26,
     borderRadius: 10,
-    width:300
+    width:300,
 
 
   },
@@ -88,9 +90,10 @@ const styles = StyleSheet.create({
     paddingBottom:1
   },
   logo: {
-    height: 40,
-    width: 40,
-    marginBottom: 15,
+    height: 20,
+    width: 20,
+    marginBottom: 5,
+    marginTop: 15,
   },
   logoO: {
     alignItems: 'center',
