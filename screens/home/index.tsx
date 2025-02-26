@@ -6,8 +6,8 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { ImageIcon, Camera, ImagePlay, Mic, Hash, MapPin,Heart,Send,MessageCircle, Repeat } from 'lucide-react-native';
-import { Pressable, FlatList } from 'react-native';
+import { ImageIcon, Camera, ImagePlay, Mic, Hash, MapPin,Heart,Send,MessageCircle, Repeat, Brain } from 'lucide-react-native';
+import { Pressable, FlatList, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
 import { usePosts } from '@/hooks/use-posts';
@@ -33,15 +33,21 @@ export default () => {
     <SafeAreaView style={{backgroundColor:'#141414'}} className=" flex-1">
       
       {/* Top Logo */}
-      <HStack className=" justify-center items-center">
-        <Rabbiticon size={40} />
-        <VStack>
-        <Text style={{color:'#FF5700',fontWeight:700}}></Text>
-        {/* <Text style={{color:'#FF5700',fontWeight:700,fontSize:20}}> ☠ 𝕽𝖆𝖇𝖇𝖎𝖙 ◔◔</Text> */}
-        <Text style={{color:'white',fontWeight:700,fontSize:20}}> 𝕽𝖆𝖇𝖇𝖎𝖙 </Text>
+      <HStack className="justify-center items-center relative">
+  <Rabbiticon size={40} />
+  <HStack>
+    <VStack>
+      <Text style={{ color: '#FF5700', fontWeight: '700' }}></Text>
+      {/* <Text style={{color:'#FF5700',fontWeight:700,fontSize:20}}> ☠ 𝕽𝖆𝖇𝖇𝖎𝖙 ◔◔</Text> */}
+      <Text style={{ color: 'white', fontWeight: '700', fontSize: 20 }}> 𝕽𝖆𝖇𝖇𝖎𝖙 </Text>
+    </VStack>
+  </HStack>
+  <TouchableOpacity onPress={()=>router.push('/chatbot')} style={{ position: 'absolute', top: 25, right: 10 }}>
+    <Brain size={25} color={'white'} />
+  </TouchableOpacity>
+  
+</HStack>
 
-        </VStack>
-      </HStack>
       
       {/* "What's New?" Card for the logged-in user */}
       <Pressable onPress={() => router.push('/post')}>

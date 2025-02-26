@@ -10,7 +10,8 @@ import { formatDistanceToNow } from "date-fns";
 import { Post } from "@/lib/type";
 import { Video } from "expo-av";
 import ImageViewing from "react-native-image-viewing";
-
+import { Pressable } from "@/components/ui/pressable";
+import { useRouter } from "expo-router";
 export default ({ item }: { item: Post }) => {
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -21,6 +22,7 @@ export default ({ item }: { item: Post }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isImageVisible, setImageVisible] = useState(false);
+  const router = useRouter();
 
   const handlePlayPause = async () => {
     if (!videoRef.current) return;
@@ -41,7 +43,8 @@ export default ({ item }: { item: Post }) => {
   };
 
   return (
-    <Card style={{backgroundColor:'#141414'}}>
+     <Pressable onPress={()=>router.push('/thread')}>
+     <Card style={{backgroundColor:'#141414'}}>
       <HStack space="md">
         {/* user logo/icon */}
         <Avatar style={{borderWidth:1,borderColor:'white',backgroundColor:'white'}} size="sm">
@@ -64,6 +67,8 @@ export default ({ item }: { item: Post }) => {
                 )}
                 
             </Text>
+            {item?.place?.name && <Text style={{color:'white',fontSize:8}} >lahore , {item?.place?.name}</Text>}
+{/* <Text style={{color:'white', fontSize:8}}>, CHICAGO</Text> */}
           </HStack>
           {/* uploading or displaying text uploaded by the user */}
           <Text className="text-black" style={{color:'white'}}>{item.text}</Text>
@@ -125,33 +130,42 @@ export default ({ item }: { item: Post }) => {
                     resizeMode="cover"
                     onLoad={() => setIsLoading(false)}
                   />
-                  <HStack style={{marginTop:130,marginLeft:6}}>
-                    {/* pause play button */}
-                    <TouchableOpacity style={{ marginBottom: 4,marginRight:6 }} onPress={handlePlayPause}>
-                      {isPlaying ? <Pause size={20} color="grey" /> : <Play size={20} color="grey" />}
+                  <View style={{
+  position: "absolute",
+  gap:6,
+  left:120,
+  bottom:6,
+  flexDirection: "row",
+  justifyContent: "space-between"
+}}>
+                    {/* shows only when the vedio played fully */}
+                    {videoFinished && (
+                   <TouchableOpacity style={{backgroundColor:'#2f2f2f',borderRadius:50,padding:2}}  onPress={handleReplay}>
+                   <RotateCcw size={15} color="grey" />
+                 </TouchableOpacity>
+                  )}    
+                 {/* pause play button */}
+                    <TouchableOpacity style={{backgroundColor:'#2f2f2f',borderRadius:50,padding:2}}  onPress={handlePlayPause}>
+                      {isPlaying ? <Pause size={15} color="grey" /> : <Play size={15} color="grey" />}
                     </TouchableOpacity>
                     {/* mute un mute button */}
-                    <TouchableOpacity style={{ marginBottom: 4 ,marginRight:6 }} onPress={() => setIsMuted(!isMuted)}>
-                      {isMuted ? <VolumeX size={20} color="grey" /> : <Volume2 size={20} color="grey" />}
+                    <TouchableOpacity style={{ backgroundColor:'#2f2f2f',borderRadius:50,padding:2}} onPress={() => setIsMuted(!isMuted)}>
+                      {isMuted ? <VolumeX size={15} color="grey" /> : <Volume2 size={15} color="grey" />}
                     </TouchableOpacity>
                     {/* replay button */}
-                    {videoFinished && (
-                    //shows only when the vedio played fully
-                    <TouchableOpacity onPress={handleReplay}>
-                        <RotateCcw size={20} style={{marginRight:6 }} color="grey" />
-                      </TouchableOpacity>
-                    )}
-                  </HStack>
+                   </View>
+                  
                 </>
               ) : null)}
           </HStack>
-
           <VStack style={{ paddingTop: 16 }}>
             <HStack space="lg" className="items-center pt-1">
               {/* like */}
               <Heart color="white" size={20} strokeWidth={1} />
               {/* comment */}
-              <MessageCircle color="white" size={20} strokeWidth={1} />
+              <TouchableOpacity >
+              <MessageCircle color="white" size={20} strokeWidth={1}  />
+              </TouchableOpacity>
               {/* repost */}
               <Repeat color="white" size={20} strokeWidth={1} />
               {/* send */}
@@ -163,6 +177,6 @@ export default ({ item }: { item: Post }) => {
       {/* horizontally underluned underline */}
       {/* <Divider orientation="horizontal" style={{ marginTop: 30,width:'190%' }} /> */}
       
-    </Card>
+    </Card></Pressable>
   );
 };

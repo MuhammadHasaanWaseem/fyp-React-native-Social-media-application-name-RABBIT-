@@ -11,9 +11,9 @@ import { router, useLocalSearchParams } from 'expo-router';
 export default ()=> {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
-  
+
   const cameraRef =useRef<CameraView>(null)
-  const {uploadFile,Photo, setPhoto} =usePost()
+  const {uploadFile,Photo,MediaType,setMediaType, setPhoto} =usePost()
   const{threadId} =useLocalSearchParams();  console.log(threadId)
 
  const CAPTURED_UPLOADED =()=>{
@@ -31,6 +31,9 @@ export default ()=> {
                   if(!photo) return
 
                   setPhoto(photo.uri);
+                  setMediaType('image/jpg');
+
+                  console.log(photo.uri)
                   let filename = photo.uri.split('/').pop()
                   if(!filename) return
                   //uploading file to the supabase storage
@@ -55,21 +58,24 @@ export default ()=> {
                   if(Photo)  return(
         
                  <View style={{flex:1,justifyContent:'flex-end',alignItems:'center'}}>
-                        <Image source={{uri:Photo}} className='h-full w-full absolute'/>
+                       {
+                        (Photo && MediaType?.startsWith('image/')?
+                        <Image source={{uri:Photo}} className='h-full w-full absolute'/>:null)
+                       }
                         <HStack>
                         <HStack>
                           <TouchableOpacity 
                           onPress={CAPTURED_UPLOADED}>
                           <CheckCircle size={25} strokeWidth={3} color={'green'}/>
                   </TouchableOpacity>
-                  <Text style={{color:'white'}} >{" "}Satistfied?
+                  <Text style={{color:'white'}} >{" "}upload?
                   </Text>
                   </HStack>
                   <HStack>
                   <TouchableOpacity style={{marginLeft:50}} onPress={()=>setPhoto('')}>
                     <CircleX size={25} color={'red'} strokeWidth={3}/>
                   </TouchableOpacity>
-                  <Text style={{color:'white'}} > Unsatistfied?</Text>
+                  <Text style={{color:'white'}} > Re Capture?</Text>
                   </HStack></HStack>
                   <Text></Text>
                   <Text></Text>

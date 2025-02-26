@@ -1,36 +1,28 @@
-import { CircleX, Search } from 'lucide-react-native'
+import { CircleX, Search, X } from 'lucide-react-native'
 import React, { useState } from 'react'
-import { FlatList, Image, SafeAreaView, TouchableOpacity } from 'react-native'
+import { FlatList, Image, Keyboard, SafeAreaView, TouchableOpacity, Linking } from 'react-native'
 import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input"
 import { VStack } from '@/components/ui/vstack'
 import { usegif } from '@/hooks/use-gif'
-import { router, useLocalSearchParams } from 'expo-router'
+import { router} from 'expo-router'
 import { useDebounce } from '@/hooks/use-debounce'
-import { usePost } from '@/providers/PostProvider'
-import * as Crypto from 'expo-crypto'
-
 export default () => {
   const [search, setSearch] = useState('')
-  const { threadid } = useLocalSearchParams('')
   const debounceSearch = useDebounce(search, 500)
-  const { data, isLoading, error, refetch } = usegif(debounceSearch)
-  const { uploadFile,setPhoto } = usePost()
-
+  const { data } = usegif(debounceSearch)
   const handleupload = async (url: string) => {
-    const name = `${Crypto.randomUUID()}.gif`
-    uploadFile(threadid as string, url, 'image', name)
-    setPhoto(url);
-    
-    router.back();
+    try {
+      await Linking.openURL(url)
+    } catch (error) {
+      console.error("Error opening URL:", error)
+    }
   }
-
   return (
     <SafeAreaView style={{ backgroundColor: '#141414' }} className="flex-1">
       <VStack space="3xl" className="items-center p-5">
         <Input
           className="p-2 rounded-lg"
-          style={{ marginTop: 15, borderWidth: 2, width: '100%' }}
-        >
+          style={{ marginTop: 15, borderWidth: 2, width: '100%' }}>
           <InputSlot className="pt-3">
             <InputIcon as={Search} />
           </InputSlot>
@@ -39,7 +31,12 @@ export default () => {
             onChangeText={setSearch}
             value={search}
             placeholder="Search a gif"
-          />
+            />
+          <InputSlot className="pt-3">
+            <TouchableOpacity onPress={Keyboard.dismiss} onLongPress={() => router.back()}>
+             <InputIcon as={CircleX} size={24} />
+            </TouchableOpacity>
+          </InputSlot>
         </Input>
         <FlatList
           data={data?.data}

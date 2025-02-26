@@ -58,7 +58,7 @@ export default () => {
   //   SetPostCard([defaultpost]);
   // }
   return (
-    <SafeAreaView className="bg-white flex-1">
+    <SafeAreaView style={{backgroundColor:'#141414'}} className="flex-1">
       
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -71,18 +71,18 @@ export default () => {
               {/* back button */}
               <TouchableOpacity onPress={() =>router.back()}>
                 
-                <SquareArrowLeft color={'black'} size={20}/>
+                <SquareArrowLeft color={'white'} size={20}/>
 
-              </TouchableOpacity>
+              </TouchableOpacity >
               <Text></Text>
-              <Text className="text-2xl font-bold">ɴᴇᴡ ᴘᴏꜱᴛ</Text>
+              <Text style={{color:'white'}} className="text-2xl font-bold">ɴᴇᴡ ᴘᴏꜱᴛ</Text>
               
               <View style={{ width: 1 }} />
               {/* clear button */}
             <TouchableOpacity onPress={() => {
                 clearpost()}}>
                 
-                <Eraser color={'black'} size={20}/>
+                <Eraser color={'white'} size={20}/>
 
               </TouchableOpacity>
             </HStack>
@@ -96,12 +96,12 @@ export default () => {
               contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }} // extra bottom padding so footer isn't hidden
               ListFooterComponent={
                 <HStack className="gap-6 items-center p-3">
-                  <Avatar size="sm" style={{ marginLeft: 20 }}>
-                    <AvatarFallbackText>{user?.username}</AvatarFallbackText>
+                  <Avatar size="sm" style={{ marginLeft: 20,borderWidth:1,borderColor:'white',backgroundColor:'white' }}>
+                    <AvatarFallbackText style={{color:'whitblacke',fontWeight:'600'}}>{user?.username}</AvatarFallbackText>
                     <AvatarImage source={{ uri: user?.avatar }} />
                   </Avatar>
                   <Button variant="link" onPress={addthreads }>
-                    <ButtonText>Add to post</ButtonText>
+                    <ButtonText style={{color:'white'}}>Add to post</ButtonText>
                   </Button>
                 </HStack>
               }
@@ -117,10 +117,10 @@ export default () => {
                 paddingHorizontal: 16,
               }}
             >
-              <HStack className="items-center justify-between p-3  bg-white">
-                <Text className="text-gray-500">ᴬⁿʸᵒⁿᵉ ᶜᵃⁿ ʳᵉᵖˡʸ & qᵘᵒᵗᵉ!</Text>
-                <Button style={{ borderRadius: 9, width: 88 }} onPress={uploadpost}>
-                  <ButtonText>Post</ButtonText>
+              <HStack className="items-center justify-between p-3 ">
+                <Text style={{color:'white',fontSize:10,fontStyle:'italic'}}>Any one can reply & quote!</Text>
+                <Button style={{ borderRadius: 9,borderWidth:3,borderColor:'white',backgroundColor:'white', width: 88 }} onPress={uploadpost}>
+                  <ButtonText style={{color:'black'}}>Post</ButtonText>
                 </Button>
               </HStack>
             </View>

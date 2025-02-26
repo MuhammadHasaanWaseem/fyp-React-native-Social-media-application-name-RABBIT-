@@ -13,7 +13,8 @@ export const Postcontext = React.createContext({
   clearpost: () => {},
   addthreads:()=>{},
   uploadFile : ( id:string,uri: string, type: string,name: string) => {},
-  
+  MediaType:'', 
+  setMediaType:(uri:string)=>{},
   setPhoto:(uri:string)=>{},
   Photo:'',
 });
@@ -29,11 +30,14 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     user_id: user?.id || '',
     parent_id: null,
     text: '',
+    place_id:null,
   };
 
+  
   const [PostCard, SetPostCard] = useState<Post[]>([]);
   const [Photo, setPhoto] = useState('');
-
+  const [MediaType, setMediaType] = useState('');
+  
 
   useEffect(() => {
     if (user) {
@@ -41,6 +45,8 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user]);
 
+  
+ 
   const uploadpost = async () => {
     const { data, error } = await supabase
     
@@ -48,9 +54,12 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       .insert(PostCard)
       .order('created_at', { ascending: false });
       router.back()
+      //compulsory clear post
       clearpost()
     if (!error) 
-      clearpost(),
+      // compulsory clearpost
+      clearpost()
+
       setPhoto('')
       return data;    
     
@@ -96,7 +105,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <Postcontext.Provider value={{ PostCard,addthreads, updatepost, uploadpost, clearpost ,uploadFile,Photo,setPhoto}}>
+    <Postcontext.Provider value={{ PostCard,addthreads, updatepost, uploadpost, clearpost,MediaType, setMediaType ,uploadFile,Photo,setPhoto}}>
       {children}
     </Postcontext.Provider>
   );

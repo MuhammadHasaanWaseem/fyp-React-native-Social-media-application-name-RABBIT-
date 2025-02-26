@@ -7,7 +7,7 @@ import { Heading } from '@/components/ui/heading';
 import { useAuth } from '@/providers/AuthProviders';
 import { Input, InputField } from '@/components/ui/input';
 import { View } from '@/components/ui/view';
-import { FlatList, TouchableOpacity } from 'react-native';
+import {  TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useState,useRef } from 'react';
 import { Image } from 'react-native';
@@ -16,7 +16,6 @@ import { Video, ResizeMode } from 'expo-av';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { usePost } from '@/providers/PostProvider';
 import { useVideoPlayer } from '@/providers/VideoPlayerProvider';
-
 interface PostCardprops {
 
   post:Post,
@@ -25,12 +24,14 @@ interface PostCardprops {
 export default ({ post }:  PostCardprops) => {
   const { user } = useAuth();
   const {threadId} =useLocalSearchParams();
-  const [MediaType, setMediaType] = useState('');
+  const {MediaType, setMediaType} = usePost()
  const router = useRouter();
  const{uploadFile,updatepost,Photo,setPhoto} =usePost();
  const videoRef = useRef<Video>(null); // Create a ref for the video
  //vedio provider
- const { playVideo } = useVideoPlayer();  
+ const { playVideo } = useVideoPlayer(); 
+ //function for gif
+ 
   // Photo and Video Picker Function
   const addPhotoAndVideo = async () => {
     setPhoto('');
@@ -46,7 +47,7 @@ if(!result.assets?.[0]?.uri) return;
     let uri = result.assets?.[0]?.uri;
     let type = result.assets?.[0]?.mimeType;
 let name =uri?.split('/').pop();
-    console.log(uri, type);
+    console.log(type);
     setPhoto(uri);
     setMediaType(type)
 uploadFile(post.id,uri,type,name);
@@ -55,8 +56,8 @@ uploadFile(post.id,uri,type,name);
   return (
     <HStack className="items-center p-0">
       <VStack className="items-center">
-        <Avatar size="md" style={{ marginLeft: 20 }}>
-          <AvatarFallbackText>{user?.username}</AvatarFallbackText>
+        <Avatar size="md" style={{ marginLeft: 20,backgroundColor:'white' }}>
+          <AvatarFallbackText style={{color:'black',fontWeight:'600'}}>{user?.username}</AvatarFallbackText>
           <AvatarImage source={{ uri: user?.avatar }} />
         </Avatar>
         <View style={{ height: 40, borderLeftWidth: 1, borderColor: '#e2e8f0' }} />
@@ -66,11 +67,12 @@ uploadFile(post.id,uri,type,name);
         <Card size="sm" className="m-1 bg-transparent">
           <VStack space="md" className="p-2">
             <VStack>
-              <Heading size="md" className="mb-1">
+              <Heading style={{color:'white'}} size="md" className="mb-1">
                 {user?.username}
               </Heading>
-              <Input className="border-0" size="md">
+              <Input className="border-0" size="md" >
                 <InputField
+                style={{color:'white'}}
                   value={post.text}
                   onChangeText={(text) => updatepost(post.id, "text",text)}
                   className="p-0 m-0"
@@ -81,6 +83,7 @@ uploadFile(post.id,uri,type,name);
               {Photo && MediaType?.startsWith("image/") ? (
   <Image source={{ uri: Photo }} style={{ height: 150, width: 150, borderRadius: 10 }} />
 ) : null}
+ 
 
 {Photo && MediaType?.startsWith("video/") ? (
   <Video
@@ -101,7 +104,7 @@ uploadFile(post.id,uri,type,name);
             </VStack>
             <HStack className="items-center gap-7">
               <TouchableOpacity onPress={addPhotoAndVideo}>
-                <ImageIcon color="#64748b" size={20} strokeWidth={1.5} />
+                <ImageIcon color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
               <TouchableOpacity onPress={()=>{
                 setPhoto('');
@@ -109,19 +112,23 @@ uploadFile(post.id,uri,type,name);
                 pathname:'/camera',
                 params:{threadId:post.id}
               })}}>
-                <Camera color="#64748b" size={20} strokeWidth={1.5} />
+                <Camera color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
               <TouchableOpacity onPress={()=>router.push('/gif')}>
-                <ImagePlay color="#64748b" size={20} strokeWidth={1.5} />
+                <ImagePlay color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
               <TouchableOpacity>
-                <Hash color="#64748b" size={20} strokeWidth={1.5} />
+                <Hash color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
               <TouchableOpacity>
-                <MapPin color="#64748b" size={20} strokeWidth={1.5} />
+                <MapPin onPress={()=>{
+                router.push({
+                pathname:'/places',
+                params:{threadId:post.id}
+              })}} color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
               <TouchableOpacity>
-                <Mic color="#64748b" size={20} strokeWidth={1.5} />
+                <Mic color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
             </HStack>
           </VStack>

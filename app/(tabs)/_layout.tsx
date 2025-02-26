@@ -44,11 +44,11 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="empty"
-        options={{
+        options={{ 
           title: '',
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: 'center' }}>
-              <Plus strokeWidth={focused ? 2.5  : 2} color={color} size={34} />
+            <View style={{ alignItems: 'center', backgroundColor:'#2f2f2f',padding:5,top:6,borderRadius:10 }}>
+              <Plus  strokeWidth={focused ? 2.5  : 2} color={color} size={34} />
               {focused && <View style={styles.activeIndicator} />}
             </View>
           ),

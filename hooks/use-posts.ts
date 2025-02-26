@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 export const getPosts =async()=>{
         const { data, error } = await supabase
         .from('Post')
-        .select('*, User(*)')
+        .select('*, User(*),place(name)')
         .is('parent_id',null)
         .order('created_at', { ascending: false })
         if(!error){

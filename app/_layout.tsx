@@ -40,6 +40,9 @@ export default function RootLayout() {
         <Stack.Screen name="post" options={{ headerShown: false,presentation:'modal', animation:'slide_from_bottom' }} />
         <Stack.Screen name="camera" options={{ headerShown: false,presentation:'modal', animation:'slide_from_bottom' }} />
         <Stack.Screen name="gif" options={{ headerShown: false,presentation:'modal', animation:'slide_from_bottom' }} />
+        <Stack.Screen name="chatbot" options={{ headerShown: false,presentation:'modal', animation:'slide_from_bottom' }} />
+        <Stack.Screen name="places" options={{ headerShown: false,presentation:'modal', animation:'slide_from_bottom' }} />
+        <Stack.Screen name="thread" options={{headerShown: false,headerTitle:'Create a threads here,',headerTitleAlign: 'center',presentation:'modal', animation:'slide_from_bottom' }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       </PostProvider>

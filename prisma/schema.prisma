@@ -29,4 +29,15 @@ model Post {
     file       String
     created_at DateTime @default(now())
     Post   Post[]   @relation("Posts")
+    place_id   String?
+    place      Place?   @relation(fields: [place_id], references: [id], onDelete: Cascade)
 } 
+model Place {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()"))
+  name        String
+  latitude    Float
+  longitude   Float
+  address     String?
+  created_at  DateTime @default(now())
+  
+}

@@ -19,3 +19,12 @@ export interface Post{
   User?:User;
   Post?:Post[];
   }
+  export interface Place{
+    id:string;
+   name:string
+   latitude:number
+   longitude:number
+   address:string
+   created_at:Date
+    }
+  
