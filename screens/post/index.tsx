@@ -4,25 +4,22 @@ import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/providers/AuthProviders';
-import { Alert, Keyboard, KeyboardAvoidingView, Platform, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, BackHandler, Keyboard, KeyboardAvoidingView, Platform, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { Divider } from '@/components/ui/divider';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Button, ButtonText } from '@/components/ui/button';
-import { supabase } from '@/lib/supabase';
-import * as Crypto from 'expo-crypto';
-import { useState,useEffect } from 'react';
+import { useCallback } from 'react';
 import Card from './card';
 import { FlatList } from 'react-native';
-import { Post } from '@/lib/type';
 import { usePost } from '@/providers/PostProvider'
-import { Eraser, SquareArrowLeft } from 'lucide-react-native';
+import { SquareArrowLeft } from 'lucide-react-native';
 
 
 
 export default () => {
   const { user } = useAuth();
   const{threadId} =useLocalSearchParams();
-  const {updatepost,clearpost,PostCard,uploadpost,addthreads}=usePost();
+  const {clearpost,PostCard,uploadpost,addthreads}=usePost();
 
   // const defaultpost:Post={
   //   id: Crypto.randomUUID(),
@@ -57,6 +54,23 @@ export default () => {
   // const clearpost =()=>{
   //   SetPostCard([defaultpost]);
   // }
+  /// 
+  const backwithpostclear =()=>{
+    clearpost();
+    router.push('/(tabs)')
+    
+  }
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        backwithpostclear();
+        return true; // Prevent default behavior
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [])
+  );
   return (
     <SafeAreaView style={{backgroundColor:'#141414'}} className=" flex-1">
       
@@ -69,7 +83,7 @@ export default () => {
             {/* Header */}
             <HStack className="items-center justify-between p-6">
               {/* back button */}
-              <TouchableOpacity onPress={() =>router.push('/(tabs)')}>
+              <TouchableOpacity onPress={backwithpostclear}>
                 
                 <SquareArrowLeft color={'white'} size={20}/>
 

@@ -113,16 +113,7 @@ export default ({ item }: { item: Post }) => {
                     }}
                     style={{ height: 300, width: 200,borderWidth:0.5,borderColor:'black', borderRadius: 10 }}
                     useNativeControls={false}
-                    onPlaybackStatusUpdate={(status) => {
-                      if (status.positionMillis && duration) {
-                        setProgress((status.positionMillis / (duration * 1000)) * 100);
-                        setCurrentTime(status.positionMillis / 1000);
-                      }
-                      if (status.didJustFinish) {
-                        setIsPlaying(false);
-                        setVideoFinished(true);
-                      }
-                    }}
+                    
                     isMuted={isMuted}
                     isLooping={false}
                     resizeMode="cover"
