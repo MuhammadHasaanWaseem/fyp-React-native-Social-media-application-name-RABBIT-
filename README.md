@@ -15,7 +15,7 @@ npx prisma db push
 
 
 libraries
-1-tanstack //for cathing
+1-tanstack //for catching
 2-data fns (url :'https://date-fns.org/') // date in the form of 6 days ago etc
 3-gluestack ui // for better ui components
 4-lucide-react-native // for icons
