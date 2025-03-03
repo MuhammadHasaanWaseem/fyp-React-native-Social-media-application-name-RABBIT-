@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { ImageIcon, Camera, ImagePlay, Mic, Hash, MapPin,Heart,Send,MessageCircle, Repeat, Brain } from 'lucide-react-native';
+import { ImageIcon, Camera, ImagePlay, Mic, Hash, MapPin,Heart,Send,MessageCircle, Repeat, Brain, Globe } from 'lucide-react-native';
 import { Pressable, FlatList, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
@@ -42,7 +42,7 @@ export default () => {
     </VStack>
   </HStack>
   <TouchableOpacity onPress={()=>router.push('/chatbot')} style={{ position: 'absolute', top: 25, right: 10 }}>
-    <Brain size={25} color={'white'} />
+    <Globe size={25} color={'white'} />
   </TouchableOpacity>
   
 </HStack>

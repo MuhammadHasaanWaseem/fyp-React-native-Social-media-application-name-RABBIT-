@@ -30,6 +30,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     user_id: user?.id || '',
     parent_id: null,
     text: '',
+    
   };
 
   const [PostCard, SetPostCard] = useState<Post[]>([]);

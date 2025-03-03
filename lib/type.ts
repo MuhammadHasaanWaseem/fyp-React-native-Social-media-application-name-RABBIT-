@@ -15,10 +15,11 @@ export interface Post{
   parent_id?:string | null;
   user_id:string;
   text:string;
- 
+ file?:string|null
   created_at?:string;
   User?:User;
   Post?:Post[];
+  tag_name?:string| null
   }
   export interface Place{
     id:string;
@@ -28,4 +29,7 @@ export interface Post{
    address:string
    created_at:Date
     }
-  
+  export interface Tag{
+
+    name:string
+  }

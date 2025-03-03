@@ -5,19 +5,19 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Heading } from '@/components/ui/heading';
 import { useAuth } from '@/providers/AuthProviders';
-import { Input, InputField } from '@/components/ui/input';
 import { View } from '@/components/ui/view';
 import { FlatList, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Image } from 'react-native';
-import { supabase } from '@/lib/supabase';
+import Input from './input'
 import { Post } from '@/lib/type';
 import { Video, ResizeMode } from 'expo-av';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { usePost } from '@/providers/PostProvider';
 import { useVideoPlayer } from '@/providers/VideoPlayerProvider';
 import Audio from './audio';
+import { supabase } from '@/lib/supabase';
 interface PostCardprops {
 
   post:Post,
@@ -25,14 +25,40 @@ interface PostCardprops {
 }
 export default ({ post }:  PostCardprops) => {
   
+
+
   const { user } = useAuth();
   const {threadId} =useLocalSearchParams();
-const[showaudio,setshowaudio]= useState(false)
- const router = useRouter();
- const{uploadFile,updatepost,Photo,MediaType,setMediaType,setPhoto} =usePost();
- const videoRef = useRef<Video>(null); // Create a ref for the video
+  const regex =/([#@]\w+)|([^#@]+)/g;
+  const textArray =post.text?.match(regex) || []
+  const[showaudio,setshowaudio]= useState(false)
+  const router = useRouter();
+  
+  //use effect hook
+//   useEffect(()=>{
+// let index=textArray?.findIndex(text =>text.startsWith('#'))
+// if(index!==-1 && index !==textArray?.length-1){
+//   createTag(textArray[index])
+
+// }
+//       },[textArray])
+
+const createTag =async(text:string)=>{
+const {data,error} =await supabase.from('Tag').upsert({
+name:text,
+updated_at:new Date(),
+
+}).select()
+if(!error) updatepost(post.id,'tag_name',data[0]?.name)
+// console.log(data,error)
+// if(error) console.log(error)
+//   return data[0]
+}
+
+  const{uploadFile,updatepost,Photo,MediaType,setMediaType,setPhoto} =usePost();
+  const videoRef = useRef<Video>(null); // Create a ref for the video
  //vedio provider
- const { playVideo } = useVideoPlayer();  
+  const { playVideo } = useVideoPlayer();  
   // Photo and Video Picker Function
   const addPhotoAndVideo = async () => {
    
@@ -77,16 +103,19 @@ setMediaType('')
               <Heading  style={{color:'white'}} size="md" className="mb-1">
                 {user?.username}
               </Heading>
-              <Input className="border-0" size="md">
+              {/* <Input className="border-0" size="md">
                 <InputField
                   value={post.text}
+                  multiline={true}
                   onChangeText={(text) => updatepost(post.id, "text",text)}
                   className="p-0 m-0"
                   placeholder="What's new?"
                   placeholderTextColor="#64748b"
                   style={{color:'white'}}
                 />
-              </Input>
+              </Input> */}
+              <Input post={post}  updatePost={updatepost} textArray={textArray}/>
+            
               {Photo && MediaType?.startsWith("image/") ? (
   <Image source={{ uri: Photo }} style={{ height: 150, width: 150, borderRadius: 10 }} />
 ) : null} 

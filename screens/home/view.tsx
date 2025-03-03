@@ -10,7 +10,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Post } from "@/lib/type";
 import { Video } from "expo-av";
 import ImageViewing from "react-native-image-viewing";
-import { useRouter } from "expo-router";
+import { rendertext } from "@/screens/post/input";
 import Audio from '@/screens/post/audio';
 
 export default ({ item }: { item: Post }) => {
@@ -20,7 +20,8 @@ export default ({ item }: { item: Post }) => {
   const [videoFinished, setVideoFinished] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isImageVisible, setImageVisible] = useState(false);
-  
+  const regex =/([#@]\w+)|([^#@]+)/g;
+  const textArray =item.text?.match(regex) || []
   const handlePlayPause = async () => {
     if (!videoRef.current) return;
     if (isPlaying) {
@@ -68,7 +69,8 @@ export default ({ item }: { item: Post }) => {
 {/* <Text style={{color:'white', fontSize:8}}>, CHICAGO</Text> */}
           </HStack>
           {/* uploading or displaying text uploaded by the user */}
-          <Text className="text-black" style={{color:'white'}}>{item.text}</Text>
+          {/* <Text className="text-black" style={{color:'white'}}>{item.text}</Text> */}
+          {rendertext(textArray)}
           <Text>{""}</Text>
           {/* AUDIO */}
           <Text>{""}</Text>
@@ -116,7 +118,13 @@ export default ({ item }: { item: Post }) => {
                     }}
                     style={{ height: 300, width: 200,borderWidth:0.5,borderColor:'black', borderRadius: 10 }}
                     useNativeControls={false}
+                    onPlaybackStatusUpdate={(status) => {
                     
+                      if (status.didJustFinish) {
+                        setIsPlaying(false);
+                        setVideoFinished(true);
+                      }
+                    }}
                     isMuted={isMuted}
                     isLooping={false}
                     resizeMode="cover"

@@ -26,18 +26,29 @@ model Post {
     parent_id  String?
     parent     Post?    @relation(name: "Posts", fields: [parent_id], references: [id], onDelete: Cascade)
     text       String
-    file       String
+    file       String?
+    tag_name    String?
+    Tags       Tag[] 
     created_at DateTime @default(now())
     Post   Post[]   @relation("Posts")
     place_id   String?
     place      Place?   @relation(fields: [place_id], references: [id], onDelete: Cascade)
+  
 } 
 model Place {
-  id          String   @id @default(dbgenerated("uuid_generate_v4()"))
+  id          String   @id
   name        String
   latitude    Float
   longitude   Float
   address     String?
   created_at  DateTime @default(now())
+  posts       Post[]
   
+}
+model Tag {
+    
+    name  String    @id
+    created_at DateTime @default(now())
+    updated_at DateTime @default(now()) @updatedAt
+    posts     Post[]
 }
