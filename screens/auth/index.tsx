@@ -42,7 +42,7 @@ export default function SignIn() {
           size="sm" 
           style={{ borderColor: 'white', borderWidth: 1, borderRadius: 10, marginBottom: 20 }}
         >
-          <Text  style={{color:'white', fontSize:14 ,borderColor:'white' }}>{" "}+92</Text>
+          {/* <Text  style={{color:'white', fontSize:14 ,borderColor:'white' }}>{" "}+92</Text> */}
           <InputField 
             placeholder="Enter phone no. here..." 
             style={{ textAlign: 'left', color: 'white', paddingTop: 10 ,paddingBottom:7.5}} 

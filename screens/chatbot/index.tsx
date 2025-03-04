@@ -6,7 +6,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Divider } from "@/components/ui/divider";
-import { Brain, Globe, Home } from "lucide-react-native";
+import { Brain, Globe, Home, LoaderCircle } from "lucide-react-native";
 import { HStack } from "@/components/ui/hstack";
 import Rabbiticon from "@/assets/logo/Rabbitlogo";
 
@@ -105,7 +105,7 @@ export default () => {
                 <Text 
                   style={
                     item.role === "user" 
-                      ? { color: "pink",fontSize:15, fontWeight: "bold" } 
+                      ? { color: "yellow",marginTop:5,fontSize:15, fontWeight: "800" } 
                       : { color: "white" }
                   }
                 >
@@ -118,7 +118,7 @@ export default () => {
             <Animated.View 
               style={{ transform: [{ rotate: spin }], alignSelf: 'center', marginVertical: 10 }}
             >
-              <Rabbiticon size={40} color="white" />
+              <LoaderCircle size={40} color="white" />
             </Animated.View>
           )}
           {/* Input and Send Button */}

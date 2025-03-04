@@ -1,6 +1,6 @@
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
-import { Camera, Mic, MapPin, ImageIcon, Hash, ImagePlay, ToyBrick, Eraser } from 'lucide-react-native';
+import { Camera, Mic, MapPin, ImageIcon, Hash, ImagePlay, ToyBrick, Eraser, LockIcon } from 'lucide-react-native';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Heading } from '@/components/ui/heading';
@@ -35,12 +35,13 @@ export default ({ post }:  PostCardprops) => {
   const router = useRouter();
   
   //use effect hook
-//   useEffect(()=>{
-// let index=textArray?.findIndex(text =>text.startsWith('#'))
-// if(index!==-1 && index !==textArray?.length-1){
-//   createTag(textArray[index])
+// //   useEffect(()=>{
+// // let index=textArray?.findIndex(text =>text.startsWith('#'))
+// // if(index!==-1 && index !==textArray?.length-1){
+// //   createTag(textArray[index])
 
-// }
+// // }
+
 //       },[textArray])
 
 const createTag =async(text:string)=>{
@@ -50,9 +51,8 @@ updated_at:new Date(),
 
 }).select()
 if(!error) updatepost(post.id,'tag_name',data[0]?.name)
-// console.log(data,error)
-// if(error) console.log(error)
-//   return data[0]
+
+
 }
 
   const{uploadFile,updatepost,Photo,MediaType,setMediaType,setPhoto} =usePost();
@@ -159,7 +159,7 @@ setMediaType('')
                 <Hash color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
               <TouchableOpacity>
-                <MapPin color="white" size={20} strokeWidth={1.5} />
+                <LockIcon color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
               <TouchableOpacity>
                 <Mic color="white" size={20} strokeWidth={1.5} onPress={()=>setshowaudio(!showaudio)}/>

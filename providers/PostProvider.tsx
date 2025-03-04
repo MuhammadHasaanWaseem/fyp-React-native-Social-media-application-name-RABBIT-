@@ -98,6 +98,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     setPhoto('')
     setMediaType('')
     
+    
   };
   const addthreads =()=>{
     SetPostCard([...PostCard,{...defaultpost,parent_id: PostCard[0].id}])

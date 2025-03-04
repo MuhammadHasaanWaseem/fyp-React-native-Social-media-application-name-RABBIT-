@@ -31,10 +31,7 @@ return(
  placeholderTextColor="grey"
 
  placeholder="What's new?"
- onContentSizeChange={(e)=>console.log(e.nativeEvent.contentSize.height)}
- onKeyPress={({nativeEvent})=>{
-    console.log(nativeEvent.key)
- }}
+
  style={{color:'white'}}
 >
     {rendertext(textArray)}

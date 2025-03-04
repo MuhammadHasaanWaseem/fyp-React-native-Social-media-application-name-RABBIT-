@@ -1,54 +1,78 @@
-
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
   extensions = [uuidossp(map: "uuid-ossp")]
 }
 
 model User {
-    id        String    @id  
-    username  String    @unique
-    avatar   String?
-    created_at DateTime @default(now())
-    posts     Post[]
+  id         String   @id
+  username   String   @unique
+  avatar     String?
+  created_at DateTime @default(now())
+  posts      Post[] @relation("User")
+  repost     Post[] @relation("RepostUser")
+  likes      Like[]
+  comments   Comment[]
 }
 
 model Post {
-    id         String   @id
-    user_id    String
-    user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-    parent_id  String?
-    parent     Post?    @relation(name: "Posts", fields: [parent_id], references: [id], onDelete: Cascade)
-    text       String
-    file       String?
-    tag_name    String?
-    Tags       Tag[] 
-    created_at DateTime @default(now())
-    Post   Post[]   @relation("Posts")
-    place_id   String?
-    place      Place?   @relation(fields: [place_id], references: [id], onDelete: Cascade)
-  
-} 
-model Place {
-  id          String   @id
-  name        String
-  latitude    Float
-  longitude   Float
-  address     String?
-  created_at  DateTime @default(now())
-  posts       Post[]
-  
+id                  String   @id
+user_id             String
+user                User     @relation("User",fields: [user_id], references: [id], onDelete: Cascade)
+parent_id           String?
+parent              Post?    @relation(name: "Posts", fields: [parent_id], references: [id], onDelete: Cascade)
+text                String
+file                String?
+repost_user_id      String?
+repost_user         User?    @relation("RepostUser",fields: [repost_user_id], references: [id])
+tag_name            String?
+Tags                Tag[]
+created_at          DateTime @default(now())
+Post                Post[]   @relation("Posts")
+place_id            String?
+place               Place?   @relation(fields: [place_id], references: [id], onDelete: Cascade)
+likes               Like[]
+comments            Comment[]
+
 }
+
+model Place {
+  id         String   @id
+  name       String
+  latitude   Float
+  longitude  Float
+  address    String?
+  created_at DateTime @default(now())
+  posts      Post[]
+}
+
 model Tag {
-    
-    name  String    @id
-    created_at DateTime @default(now())
-    updated_at DateTime @default(now()) @updatedAt
-    posts     Post[]
+  name       String   @id
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  posts      Post[]
+}
+
+model Like {
+  id         String   @id @default(dbgenerated("uuid_generated_v4()"))
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  post_id    String
+  created_at DateTime @default(now())
+}
+
+model Comment {
+  id         String    @id @default(dbgenerated("uuid_generated_v4()"))
+  post_id    String
+  post       Post      @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  user_id    String
+  user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  text       String
+  created_at DateTime  @default(now())
 }

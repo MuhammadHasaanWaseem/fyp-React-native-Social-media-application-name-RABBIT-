@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { ImageIcon, Camera, ImagePlay, Mic, Hash, MapPin,Heart,Send,MessageCircle, Repeat, Brain, Globe } from 'lucide-react-native';
+import { ImageIcon, Camera, ImagePlay, Mic, Hash, MapPin,Heart,Send,MessageCircle, Repeat, Brain, Globe, LockIcon } from 'lucide-react-native';
 import { Pressable, FlatList, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
@@ -33,7 +33,9 @@ export default () => {
       
       {/* Top Logo */}
       <HStack className="justify-center items-center relative">
-  <Rabbiticon size={40} />
+<TouchableOpacity onPress={()=>refetch}>
+<Rabbiticon size={40} />
+</TouchableOpacity>
   <HStack>
     <VStack>
       <Text style={{ color: '#FF5700', fontWeight: '700' }}></Text>
@@ -69,7 +71,7 @@ export default () => {
               <Camera color="white" size={20} strokeWidth={1.5}/>
               <ImagePlay color="white" size={20} strokeWidth={1.5}/>
               <Hash color="white" size={20} strokeWidth={1.5}/>
-              <MapPin color="white" size={20} strokeWidth={1.5}/>
+              <LockIcon color="white" size={20} strokeWidth={1.5}/>
               <Mic color="white" size={20} strokeWidth={1.5}/>
               </HStack>
             </VStack>
@@ -87,8 +89,7 @@ export default () => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           
-          <><View item={item} />
-          {/* <Divider orientation="horizontal" style={{ marginTop: 20, width: '190%' }} /> */}
+          <><View item={item} refetch={refetch} />
           </>
           
         )}

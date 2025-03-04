@@ -12,8 +12,14 @@ import { Video } from "expo-av";
 import ImageViewing from "react-native-image-viewing";
 import { rendertext } from "@/screens/post/input";
 import Audio from '@/screens/post/audio';
-
-export default ({ item }: { item: Post }) => {
+import * as Crypto from 'expo-crypto';
+import { supabase } from "@/lib/supabase";
+import * as Haptics from 'expo-haptics';
+import { useAuth } from "@/providers/AuthProviders";
+import { router } from "expo-router";
+export default ({ item,refetch }: { item: Post,refetch:()=>void }) => {
+  const{user} =useAuth();
+  const isliked =item?.Like?.some((like:{user_id:string})=>like.user_id ===user?.id);
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -39,7 +45,34 @@ export default ({ item }: { item: Post }) => {
     setIsPlaying(true);
     setVideoFinished(false);
   };
-  
+  const addlike = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    const{error} =await supabase.from('Like').insert({
+      user_id:user?.id,
+      post_id:item.id
+    })
+    if(!error)refetch();
+  };
+  const removelike = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    const{error} = await supabase.from('Like').delete().eq('user_id',user?.id).eq('post_id',item.id)
+    if(!error)refetch();
+  };
+  //under testing
+  const addrepost= async () => {
+   const newpost ={
+id:Crypto.randomUUID(),
+user_id:user?.id,
+parent_id:item.parent_id,
+text:item.text,
+file:item.file,
+place_id:item.place_id,
+tag_name:item.tag_name,
+repost_user_id:user?.id
+
+   }
+   console.log(newpost)
+  };
 
   return (
      <Card style={{backgroundColor:'#141414'}}>
@@ -65,11 +98,11 @@ export default ({ item }: { item: Post }) => {
                 )}
                 
             </Text>
+
             {/* {item?.place?.name && <Text style={{color:'white',fontSize:8}} >lahore , {item?.place?.name}</Text>} */}
 {/* <Text style={{color:'white', fontSize:8}}>, CHICAGO</Text> */}
           </HStack>
-          {/* uploading or displaying text uploaded by the user */}
-          {/* <Text className="text-black" style={{color:'white'}}>{item.text}</Text> */}
+
           {rendertext(textArray)}
           <Text>{""}</Text>
           {/* AUDIO */}
@@ -161,13 +194,20 @@ export default ({ item }: { item: Post }) => {
           <VStack style={{ paddingTop: 16 }}>
             <HStack space="lg" className="items-center pt-1">
               {/* like */}
-              <Heart color="white" size={20} strokeWidth={1} />
+              <TouchableOpacity onPress={isliked ? removelike :addlike}>
+              <Heart color={isliked ? 'red' : 'white'} size={20} strokeWidth={1} fill={isliked ? 'red' :'transparent'} />
+              </TouchableOpacity>
               {/* comment */}
-              <TouchableOpacity >
+              <TouchableOpacity onPress={()=>router.push({
+  pathname: '/comments',
+  params: { id: item.id }
+})}>
               <MessageCircle color="white" size={20} strokeWidth={1}  />
               </TouchableOpacity>
               {/* repost */}
+              <TouchableOpacity onPress={addrepost}>
               <Repeat color="white" size={20} strokeWidth={1} />
+              </TouchableOpacity>
               {/* send */}
               <Send color="white" size={20} strokeWidth={1} />
             </HStack>

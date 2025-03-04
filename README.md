@@ -24,3 +24,17 @@ libraries
 run command :  npm install 
 // and (if needed)
 run command : npm install @tanstack/react-query date-fns lucide-react-native @gluestack-ui/accordion @gluestack-ui/button
+
+
+    //  { item?.repost_user && <HStack className="items-center" style={{gap:5}} >
+        // <Text style={{color:'grey',fontWeight:'400'}}>Reposted by {item?.repost_user?.username}</Text>
+
+    // <Repeat color="white" size={15} strokeWidth={1} />
+    // <Pressable onPress={()=>router.push({
+    //   pathname:'/profile',
+    //   params:{id:item?.repost_user_id}
+    // })}>
+
+    // </Pressable>
+    
+    // </HStack>}

@@ -20,41 +20,6 @@ export default () => {
   const { user } = useAuth();
   const{threadId} =useLocalSearchParams();
   const {clearpost,PostCard,uploadpost,addthreads}=usePost();
-
-  // const defaultpost:Post={
-  //   id: Crypto.randomUUID(),
-  //     user_id: user.id,
-  //     parent_id:null,
-  //     text:'',
-  //   }
-  //   useEffect(() => {
-        
-  //         SetPostCard([defaultpost]);
-        
-  //     }, []);
-    
-  // const [PostCard, SetPostCard] = useState<Post[]>([]);
-
-  // const onPress = async () => {
-  //   console.log(PostCard);
-  //   if (!user) return;
-  //    const { data,error } = await supabase.from('Post').insert(PostCard).order('created_at',{ascending:false});
-  //    if (!error) router.back();
-  //    console.log(data,error);
-  // };
-  // const updatepost = async (id:string,key:string , value:string) => {
-  //   SetPostCard(PostCard.map((p:Post)=>p.id===id?{...p,[key]:value}:p));
-  //   const { data, error } = await supabase
-  //   .from('Post')             // Make sure this matches your actual table name
-  //   .update({ [key]: value }) // e.g., { file: data.path } or { text: 'new text' }
-  //   .eq('id', id);
-
- 
-  // };
-  // const clearpost =()=>{
-  //   SetPostCard([defaultpost]);
-  // }
-  /// 
   const backwithpostclear =()=>{
     clearpost();
     router.push('/(tabs)')
