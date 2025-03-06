@@ -1,6 +1,6 @@
 import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, StatusBar, View } from 'react-native';
 import { Heart, Home, Plus, Search, User } from 'lucide-react-native';
 
 export default function TabLayout() {
@@ -18,6 +18,7 @@ export default function TabLayout() {
         }),
       }}
     >
+    
       <Tabs.Screen
         name="index"
         options={{

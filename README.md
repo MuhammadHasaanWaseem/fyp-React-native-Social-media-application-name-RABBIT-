@@ -38,3 +38,25 @@ run command : npm install @tanstack/react-query date-fns lucide-react-native @gl
     // </Pressable>
     
     // </HStack>}
+
+
+
+ const {uploadFile,Photo,setPhoto,updatepost} =usePost()
+  const addPhoto = async () => {
+     
+      // setPhoto('');
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes:ImagePicker.MediaTypeOptions.Images,// Fix: Use proper mediaType
+        allowsEditing: true,
+        aspect: [6, 5],
+        quality: 0.2,
+        
+      });
+  if(!result.assets?.[0]?.uri) return;
+      let uri = result.assets?.[0]?.uri;
+      let type = result.assets?.[0]?.mimeType;
+      let name =uri?.split('/').pop();
+      // setPhoto(uri);
+      uploadFile(post.id,uri,type,name);
+    
+    };

@@ -77,8 +77,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       const { data, error } = await supabase.storage
         .from(`files/${user?.id}`)
         .upload(name, newFormData);
-  if(data) updatepost(id,'file',data?.path);
-      console.log(data, error);
+   if(data) updatepost(id,'file',data?.path);
     };
  
 

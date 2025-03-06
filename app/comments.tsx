@@ -1,2 +1,2 @@
-import Comments from "@/screens/home/comments";
+import Comments from "@/screens/tabs/home/comments";
 export default ()=> <Comments/>

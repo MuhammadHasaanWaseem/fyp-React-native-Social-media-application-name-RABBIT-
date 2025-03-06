@@ -2,10 +2,10 @@ import { ActivityIndicator, Image, TouchableOpacity, View, Modal } from "react-n
 import { useState, useRef } from "react";
 import { HStack } from "@/components/ui/hstack";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarBadge, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { Heart, Send, MessageCircle, Repeat, Volume2, VolumeX, Pause, Play, RotateCcw } from "lucide-react-native";
+import { Heart, Send, MessageCircle, Repeat, Volume2, VolumeX, Pause, Play, RotateCcw, Plus, Check } from "lucide-react-native";
 import { formatDistanceToNow } from "date-fns";
 import { Post } from "@/lib/type";
 import { Video } from "expo-av";
@@ -78,7 +78,9 @@ repost_user_id:user?.id
      <Card style={{backgroundColor:'#141414'}}>
       <HStack space="md">
         {/* user logo/icon */}
-        <Avatar style={{borderWidth:1,borderColor:'white',backgroundColor:'white'}} size="sm">
+        <Avatar style={{borderColor:'white',backgroundColor:'white'}} size="sm">
+      
+
           {item.User?.avatar ? (
             <AvatarImage source={{ uri: item.User.avatar }} />
           ) : (
@@ -88,8 +90,13 @@ repost_user_id:user?.id
         {/* username */}
         <VStack className="flex-1">
           <HStack className="items-center" space="md">
-            <Text style={{ fontWeight: "bold",color:'white', fontSize: 17 }}>{item.User?.username || ""}</Text>
-            <Text style={{ color:'white', fontSize: 12 }}>
+        <TouchableOpacity onPress={()=>router.push({
+          pathname:'/user',
+          params:{userid:item?.user_id}
+        })}>
+        <Text style={{ fontWeight: "bold",color:'white', fontSize: 17 }}>{item.User?.username || ""}</Text>
+        </TouchableOpacity>           
+        <Text style={{ color:'white', fontSize: 12 }}>
               {item?.created_at &&
               // efficeint time zone format
                 formatDistanceToNow(

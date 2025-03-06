@@ -1,2 +1,2 @@
-import Activity from "@/screens/activity";
+import Activity from "@/screens/tabs/activity";
 export default ()=> <Activity/>

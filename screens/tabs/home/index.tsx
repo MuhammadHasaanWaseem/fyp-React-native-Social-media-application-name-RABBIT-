@@ -7,7 +7,7 @@ import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar'
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { ImageIcon, Camera, ImagePlay, Mic, Hash, MapPin,Heart,Send,MessageCircle, Repeat, Brain, Globe, LockIcon } from 'lucide-react-native';
-import { Pressable, FlatList, TouchableOpacity } from 'react-native';
+import { Pressable, FlatList, TouchableOpacity, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
 import { usePosts } from '@/hooks/use-posts';
@@ -30,7 +30,6 @@ export default () => {
  
   return (
     <SafeAreaView style={{backgroundColor:'#141414'}} className=" flex-1">
-      
       {/* Top Logo */}
       <HStack className="justify-center items-center relative">
 <TouchableOpacity onPress={()=>refetch}>
@@ -53,7 +52,7 @@ export default () => {
       {/* "What's New?" Card for the logged-in user */}
       <Pressable onPress={() => router.push('/post')}>
         <HStack className="items-center p-4">
-          <Avatar size="md" style={{borderWidth:1,borderColor:'white',backgroundColor:'white'}}>
+          <Avatar size="md" style={{borderColor:'white',backgroundColor:'white'}}>
             <AvatarFallbackText style={{color:'black'}} >{user?.username || ''}</AvatarFallbackText>
             <AvatarImage  source={{ uri: user?.avatar }} />
           </Avatar>

@@ -1,2 +1,2 @@
-import Chatbot from '@/screens/chatbot'
+import Chatbot from '@/screens/tabs/chatbot'
 export default()=><Chatbot/>
