@@ -1,6 +1,6 @@
 import { CircleX, Search, X } from 'lucide-react-native'
 import React, { useEffect, useState } from 'react'
-import { FlatList, Image, Keyboard, SafeAreaView, TouchableOpacity, Linking } from 'react-native'
+import { FlatList, Keyboard, SafeAreaView, TouchableOpacity, Linking } from 'react-native'
 import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input"
 import { VStack } from '@/components/ui/vstack'
 import { router, useLocalSearchParams} from 'expo-router'

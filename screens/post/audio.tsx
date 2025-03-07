@@ -1,7 +1,7 @@
 import { HStack } from "@/components/ui/hstack";
 import { AudioLines, Circle, CirclePause, CirclePlay } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Alert, Text, TouchableOpacity } from "react-native";
+import { Alert, TouchableOpacity } from "react-native";
 import { Audio } from "expo-av";
 import * as Crypto from "expo-crypto";
 import { usePost } from "@/providers/PostProvider";

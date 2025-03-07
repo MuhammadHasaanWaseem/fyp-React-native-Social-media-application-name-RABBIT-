@@ -3,11 +3,10 @@ import React from 'react'
 import { HStack } from '@/components/ui/hstack'
 import { ArrowLeft } from 'lucide-react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { useThread } from '@/hooks/use-thread'
 import { VStack } from '@/components/ui/vstack'
 import { Divider } from '@/components/ui/divider'
 import { useAuth } from '@/providers/AuthProviders'
-import view from './view'
+
 
 const Thread = () => {
   

@@ -7,7 +7,6 @@ import { View, StyleSheet } from "react-native";
 import Layout from "./_layout";
 import { OtpInput } from "react-native-otp-entry";
 import { Spinner } from "@/components/ui/spinner";
-import { HStack } from "@/components/ui/hstack";
 
 export default function VerifyScreen() {
   const [token, setToken] = useState("");

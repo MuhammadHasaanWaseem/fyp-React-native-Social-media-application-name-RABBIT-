@@ -3,7 +3,7 @@ import { Text } from "@/components/ui/text";
 import { Input } from "@/components/ui/input";
 import { InputField } from "@/components/ui/input";
 import React, { useState,useEffect } from "react";
-import { Image, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import {  View, StyleSheet } from "react-native";
 import Layout from './_layout';
 import { useAuth } from "@/providers/AuthProviders";
 import { useRouter } from "expo-router";

@@ -5,6 +5,7 @@ export const getThread = async (id: string) => {
   const { data, error } = await supabase
     .from('Post')
     .select('*, User:User!:user_id(*),Post(*,User:User!user_id(*))')
+    .filter('id','eq',id)
     .order('created_at', { ascending: false })
 
   if (!error) return data

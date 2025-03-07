@@ -1,6 +1,6 @@
 import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
-import { Platform, StatusBar, View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { Heart, Home, Plus, Search, User } from 'lucide-react-native';
 
 export default function TabLayout() {

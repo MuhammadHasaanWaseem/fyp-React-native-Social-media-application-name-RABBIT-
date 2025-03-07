@@ -6,9 +6,8 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Divider } from "@/components/ui/divider";
-import { Brain, Globe, Home, LoaderCircle } from "lucide-react-native";
+import { ArrowLeft,  LoaderCircle, MessageCircleCodeIcon } from "lucide-react-native";
 import { HStack } from "@/components/ui/hstack";
-import Rabbiticon from "@/assets/logo/Rabbitlogo";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const API_KEY = "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";
@@ -88,13 +87,14 @@ export default () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={{ flex: 1 }}>
           <HStack className=" justify-between items-center">
-            <TouchableOpacity>
-              <Globe color={'white'} size={23} />
-            </TouchableOpacity>
-            <Text style={{ color: 'white', fontWeight: '100', fontSize: 22 }}>ʀᴀʙʙɪᴛ ᴀɪ</Text>
             <TouchableOpacity onPress={() => router.push('/(tabs)')}>
-              <Home size={23} color={'white'} />
-            </TouchableOpacity>      
+              <ArrowLeft size={23} color={'white'} />
+            </TouchableOpacity>
+            
+            <Text style={{ color: 'white', fontWeight: '100', fontSize: 22 }}>ʀᴀʙʙɪᴛ ᴀɪ</Text>
+            <TouchableOpacity>
+              <MessageCircleCodeIcon color={'white'} size={23} />
+            </TouchableOpacity>
           </HStack>
           <Divider style={{ marginTop: 4 }}/>
           <FlatList

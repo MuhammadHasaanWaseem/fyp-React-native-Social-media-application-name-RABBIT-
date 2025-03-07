@@ -76,3 +76,10 @@ model Comment {
   text       String
   created_at DateTime  @default(now())
 }
+model WorldChatMessage {
+  id         String   @id @default(uuid())
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  text       String
+  created_at DateTime @default(now())
+} 

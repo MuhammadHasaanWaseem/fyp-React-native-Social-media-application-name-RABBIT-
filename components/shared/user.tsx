@@ -1,8 +1,7 @@
 import { User } from "@/lib/type";
-import { useAuth } from "@/providers/AuthProviders";
-import { View, Text, Pressable, Alert, TouchableOpacity } from "react-native";
+import {  Text, Pressable, Alert, TouchableOpacity, FlatList, SafeAreaView } from "react-native";
 import { HStack } from "../ui/hstack";
-import {  Info, Power, UserCheck2 } from "lucide-react-native";
+import {  Info, PlusSquareIcon, UserCheck2 } from "lucide-react-native";
 import { Avatar, AvatarBadge, AvatarImage, AvatarFallbackText } from "../ui/avatar";
 import { Button, ButtonText } from "../ui/button";
 import { Divider } from "../ui/divider";
@@ -10,16 +9,10 @@ import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { VStack } from "../ui/vstack";
 import { supabase } from "@/lib/supabase";
-import {
-  Actionsheet,
-  ActionsheetContent,
-  ActionsheetItem,
-  ActionsheetItemText,
-  ActionsheetDragIndicator,
-  ActionsheetDragIndicatorWrapper,
-  ActionsheetBackdrop,
-} from "@/components/ui/actionsheet"
-
+import View from '@/components/shared/sharedview'
+import { usePosts } from "@/hooks/use-posts";
+import bottomSheet from "./bottom-sheet";
+import BottomSheet from "./bottom-sheet";
 
 enum Tab {
   PUBLIC = "Public",
@@ -27,16 +20,24 @@ enum Tab {
   CAPSULE = "Capsule",
 }
 
+const tabs =[
+{  
+   name:Tab.PUBLIC,
+  key:'user_id'},
+{ 
+   name:Tab.PRIVATE,
+  key:'private_id'},
+{  
+  name:Tab.CAPSULE,
+  key:'capsule_id'}
+]
 export default ({ user }: { user: User }) => {
+ 
+  const [tab, setTab] = useState<typeof tabs[number]>(tabs[0]);
   const [showActionsheet, setShowActionsheet] = useState(false)
-  const handleClose = () => setShowActionsheet(false)
-  const [tab, setTab] = useState<Tab>(Tab.PUBLIC);
-  const {logOut} =useAuth();
+  const {data,refetch,isLoading} =usePosts({key:tab.key,value:user?.id,type:'eq'});
   //handle logout function
-  const handlelogout =()=>{
-    handleClose();
-    logOut();
-  }
+
   // Use local state to update avatar immediately on UI
   const [localAvatar, setLocalAvatar] = useState<string>(user?.avatar || "");
 
@@ -83,15 +84,17 @@ export default ({ user }: { user: User }) => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#141414" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#141414" }}>
       <Text></Text>
       <Text></Text>
-<TouchableOpacity onPress={() => setShowActionsheet(true)}>
   <HStack space="md" className="justify-end">
-  <Text style={{color:"white",fontWeight:'900'}}>User Info</Text>
-  <Info style={{marginRight:23}} color={'#00ff00'}/>
+      <TouchableOpacity >
+      <PlusSquareIcon color={'white'}/>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>setShowActionsheet(true)} >
+      <Info style={{marginRight:23}} color={'white'}/>
+      </TouchableOpacity>
   </HStack>
-</TouchableOpacity>
       <HStack className="items-center justify-between p-6">
        <VStack>
        <Text style={{ fontSize: 24, marginLeft: 8, fontWeight: "bold", color: "white" }}>
@@ -104,7 +107,7 @@ export default ({ user }: { user: User }) => {
 
        </VStack>
         {/* Wrap the Avatar in a Pressable so it becomes clickable */}
-        <Pressable onPress={handleAvatarPress}>
+        <Pressable >
           <Avatar size="lg">
             <AvatarBadge
               size="lg"
@@ -126,7 +129,7 @@ export default ({ user }: { user: User }) => {
       </HStack>
 
       <HStack space="md" className="items-center justify-between p-6">
-        <Button variant="outline" className="flex-1 rounded-xl" onPress={() => {}}>
+        <Button variant="outline" className="flex-1 rounded-xl" onPress={handleAvatarPress}>
           <ButtonText style={{ color: "white" }}>Edit Profile</ButtonText>
         </Button>
         <Button variant="outline" className="flex-1 rounded-xl" onPress={() => {}}>
@@ -135,41 +138,35 @@ export default ({ user }: { user: User }) => {
       </HStack>
       <Divider style={{ marginTop: 14, marginBottom: 10 }} />
       <HStack space="md" style={{ padding: 4 }}>
-        {Object.values(Tab).map((t) => (
+        {tabs.map((t) => (
           <Button
-            key={t}
+            key={t.name}
             variant="outline"
-            className={`flex-1 rounded-xl ${t === tab ? "bg-white " : "bg-transparent"}`}
+            className={`flex-1 rounded-xl ${t.name === tab.name ? "bg-white " : "bg-transparent"}`}
             onPress={() => setTab(t)}
           >
-            <ButtonText style={{ color: t === tab ? "#141414" : "white" }}>{t}</ButtonText>
+            <ButtonText style={{ color: t.name === tab.name ? "#141414" : "white" }}>{t.name}</ButtonText>
           </Button>
         ))}
       </HStack>
-      {/* user info action sheet here */}
-      <Actionsheet  isOpen={showActionsheet} onClose={handleClose}>
-        <ActionsheetBackdrop />
-        <ActionsheetContent style={{backgroundColor:'#141414',borderColor:'grey'}}>
-          <ActionsheetDragIndicatorWrapper>
-            <ActionsheetDragIndicator />
-          </ActionsheetDragIndicatorWrapper>
-          <ActionsheetItem >
-            <ActionsheetItemText  style={{color:"white"}}>Username : {user?.username}</ActionsheetItemText>
-          </ActionsheetItem>
-          <ActionsheetItem >
-            <ActionsheetItemText style={{color:"white"}}>User id :{user?.id}</ActionsheetItemText>
-          </ActionsheetItem>
-          <ActionsheetItem >
-            <ActionsheetItemText style={{color:"white"}}>Account Created at :{user?.created_at}</ActionsheetItemText>
-          </ActionsheetItem>
-          <ActionsheetItem onPress={handlelogout}>
-            <ActionsheetItemText style={{color:'red'}}>Logout?</ActionsheetItemText>
-          </ActionsheetItem>         
-          <ActionsheetItem onPress={handleClose}>
-            <ActionsheetItemText>Close</ActionsheetItemText>
-          </ActionsheetItem>
-        </ActionsheetContent>
-      </Actionsheet>
-    </View>
+      <VStack>
+         <FlatList  style={{marginBottom:150}}//margining from bottom to last rendered post full visiblity from flat list
+                data={data}
+                refreshing={isLoading}
+                onRefresh={refetch}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  
+                  <><View item={item} refetch={refetch} />
+                  
+                  </>
+                  
+                )}
+                
+              />  
+              
+      </VStack>
+      <BottomSheet showActionsheet={showActionsheet} setShowActionsheet={setShowActionsheet}/>
+    </SafeAreaView>
   );
 };

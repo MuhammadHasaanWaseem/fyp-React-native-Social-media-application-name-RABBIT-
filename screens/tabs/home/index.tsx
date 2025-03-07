@@ -6,44 +6,36 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { ImageIcon, Camera, ImagePlay, Mic, Hash, MapPin,Heart,Send,MessageCircle, Repeat, Brain, Globe, LockIcon } from 'lucide-react-native';
-import { Pressable, FlatList, TouchableOpacity, StatusBar } from 'react-native';
+import { ImageIcon, Camera, ImagePlay, Mic, Hash ,Globe, LockIcon, MessageCircleCodeIcon } from 'lucide-react-native';
+import { Pressable, FlatList, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
 import { usePosts } from '@/hooks/use-posts';
-import View from './view';
+import View from '@/components/shared/sharedview'
 // import { useEffect } from 'react';
 
 
 export default () => {
   const { user } = useAuth();
   const router = useRouter();
-  const{data,refetch,isLoading} =usePosts();
-  // const pathname = usePathname();  
-  // useEffect(() => {
-  //   if (pathname === '/') {
-  //   refetch();
-  //   }
-  // }, [pathname]);
+  const{data,refetch,isLoading} =usePosts({key:'parent_id',value:null,type:'is'});
 
   
  
   return (
     <SafeAreaView style={{backgroundColor:'#141414'}} className=" flex-1">
       {/* Top Logo */}
-      <HStack className="justify-center items-center relative">
-<TouchableOpacity onPress={()=>refetch}>
-<Rabbiticon size={40} />
+      <HStack className="justify-between items-center ">
+<TouchableOpacity onPress={()=>router.push('/worldchat')}>
+<Globe style={{marginTop:20,marginLeft:10}} size={25} color={'white'}/>
+
 </TouchableOpacity>
-  <HStack>
-    <VStack>
-      <Text style={{ color: '#FF5700', fontWeight: '700' }}></Text>
-      {/* <Text style={{color:'#FF5700',fontWeight:700,fontSize:20}}> ☠ 𝕽𝖆𝖇𝖇𝖎𝖙 ◔◔</Text> */}
-      <Text style={{ color: 'white', fontWeight: '700', fontSize: 20 }}> 𝕽𝖆𝖇𝖇𝖎𝖙 </Text>
-    </VStack>
-  </HStack>
-  <TouchableOpacity onPress={()=>router.push('/chatbot')} style={{ position: 'absolute', top: 25, right: 10 }}>
-    <Globe size={25} color={'white'} />
+  <TouchableOpacity onPress={()=>router.reload()}>
+  <Rabbiticon size={40} />
+
+  </TouchableOpacity>
+  <TouchableOpacity onPress={()=>router.push('/chatbot')} >
+    <MessageCircleCodeIcon style={{marginTop:20,marginRight:10}} size={25} color={'white'} />
   </TouchableOpacity>
   
 </HStack>

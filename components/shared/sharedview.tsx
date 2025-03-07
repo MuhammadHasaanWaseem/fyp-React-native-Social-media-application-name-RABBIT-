@@ -1,11 +1,11 @@
-import { ActivityIndicator, Image, TouchableOpacity, View, Modal } from "react-native";
+import { ActivityIndicator, Image, TouchableOpacity, View, Modal, Share } from "react-native";
 import { useState, useRef } from "react";
 import { HStack } from "@/components/ui/hstack";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarBadge, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { Heart, Send, MessageCircle, Repeat, Volume2, VolumeX, Pause, Play, RotateCcw, Plus, Check } from "lucide-react-native";
+import { Heart, Send, MessageCircle, Volume2, VolumeX, Pause, Play, RotateCcw } from "lucide-react-native";
 import { formatDistanceToNow } from "date-fns";
 import { Post } from "@/lib/type";
 import { Video } from "expo-av";
@@ -26,8 +26,11 @@ export default ({ item,refetch }: { item: Post,refetch:()=>void }) => {
   const [videoFinished, setVideoFinished] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isImageVisible, setImageVisible] = useState(false);
+  
+  //user tags post
   const regex =/([#@]\w+)|([^#@]+)/g;
   const textArray =item.text?.match(regex) || []
+  //pause button
   const handlePlayPause = async () => {
     if (!videoRef.current) return;
     if (isPlaying) {
@@ -37,6 +40,7 @@ export default ({ item,refetch }: { item: Post,refetch:()=>void }) => {
     }
     setIsPlaying(!isPlaying);
   };
+  //vedio replay
 
   const handleReplay = async () => {
     if (!videoRef.current) return;
@@ -45,6 +49,7 @@ export default ({ item,refetch }: { item: Post,refetch:()=>void }) => {
     setIsPlaying(true);
     setVideoFinished(false);
   };
+  //like button
   const addlike = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     const{error} =await supabase.from('Like').insert({
@@ -53,8 +58,47 @@ export default ({ item,refetch }: { item: Post,refetch:()=>void }) => {
     })
     if(!error)refetch();
   };
+  //share button
+  const handleShare = async () => {
+    let shareMessage = "";
+    let fileUrl = "";
+  
+    // If the post has text, include it
+    if (item.text) {
+      shareMessage += item.text;
+    }
+  
+    if (item.file) {
+      fileUrl = `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`;
+      // Option 1: Append the file URL to the message
+      shareMessage += `\n\nView media: ${fileUrl}`;
+      
+    }
+  
+    try {
+      const result = await Share.share({
+        message: shareMessage,
+        // You can also include the url property if desired:
+        // url: fileUrl || undefined,
+      });
+  
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with an activity type
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+  
+  //remove like
   const removelike = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) //vibrations
     const{error} = await supabase.from('Like').delete().eq('user_id',user?.id).eq('post_id',item.id)
     if(!error)refetch();
   };
@@ -106,14 +150,11 @@ repost_user_id:user?.id
                 
             </Text>
 
-            {/* {item?.place?.name && <Text style={{color:'white',fontSize:8}} >lahore , {item?.place?.name}</Text>} */}
-{/* <Text style={{color:'white', fontSize:8}}>, CHICAGO</Text> */}
+         
           </HStack>
 
           {rendertext(textArray)}
-          <Text>{""}</Text>
-          {/* AUDIO */}
-          <Text>{""}</Text>
+                 {/* AUDIO */}
           {item?.file && (item?.file.match(/\.(mp3|m4a)$/i)?( <Audio userId={item?.user_id} id ={item.id} uri={`https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`}/>):null)}
 
           {/* images and vedios upload note this file doen'nt effect db functionlity */}
@@ -128,7 +169,7 @@ repost_user_id:user?.id
                       source={{
                         uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`,
                       }}
-                      style={{ height: 150, width: 200, borderWidth:1,borderColor:'black',borderRadius: 10 }}
+                      style={{ height: 150, width: 200,marginTop:5, borderWidth:1,borderColor:'black',borderRadius: 10 }}
                       resizeMode="cover"
                     />  
                 </TouchableOpacity>
@@ -156,7 +197,7 @@ repost_user_id:user?.id
                     source={{
                       uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`,
                     }}
-                    style={{ height: 300, width: 200,borderWidth:0.5,borderColor:'black', borderRadius: 10 }}
+                    style={{ height: 300,marginTop:5, width: 200,borderWidth:0.5,borderColor:'black', borderRadius: 10 }}
                     useNativeControls={false}
                     onPlaybackStatusUpdate={(status) => {
                     
@@ -202,21 +243,26 @@ repost_user_id:user?.id
             <HStack space="lg" className="items-center pt-1">
               {/* like */}
               <TouchableOpacity onPress={isliked ? removelike :addlike}>
-              <Heart color={isliked ? 'red' : 'white'} size={20} strokeWidth={1} fill={isliked ? 'red' :'transparent'} />
+              <HStack><Heart color={isliked ? 'red' : 'white'} size={20} strokeWidth={1} fill={isliked ? 'red' :'transparent'} />
+              <Text style={{ color: "white", marginLeft: 4 }}>
+                {item.Like ? item.Like.length :0}
+              </Text></HStack>
               </TouchableOpacity>
               {/* comment */}
               <TouchableOpacity onPress={()=>router.push({
   pathname: '/comments',
   params: { id: item.id }
 })}>
-              <MessageCircle color="white" size={20} strokeWidth={1}  />
+              <HStack><MessageCircle color="white" size={20} strokeWidth={1}  />
+              <Text style={{ color: "white", marginLeft: 4 }}>
+              {item.Comment ? item.Comment.length : 0} 
+                </Text>
+                </HStack>
               </TouchableOpacity>
-              {/* repost */}
-              <TouchableOpacity onPress={addrepost}>
-              <Repeat color="white" size={20} strokeWidth={1} />
-              </TouchableOpacity>
-              {/* send */}
+              {/*sharing button*/}
+              <TouchableOpacity onPress={handleShare}>
               <Send color="white" size={20} strokeWidth={1} />
+              </TouchableOpacity>
             </HStack>
           </VStack>
         </VStack>

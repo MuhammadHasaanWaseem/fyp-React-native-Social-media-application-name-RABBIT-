@@ -2,12 +2,10 @@ import React, { useState, ReactNode,useEffect } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
-import username from '@/app/(auth)/username';
-// Define the user type (optional, but recommended)
+// Define the user type
 type User = {
   name?: string;
   email?: string;
-  // Add any other fields your user object might have
 };
 
 // Define the context with a default value

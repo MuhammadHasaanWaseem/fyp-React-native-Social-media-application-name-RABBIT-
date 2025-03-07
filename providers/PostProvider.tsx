@@ -3,7 +3,6 @@ import { useAuth } from '@/providers/AuthProviders';
 import { supabase } from '@/lib/supabase';
 import * as Crypto from 'expo-crypto';
 import { Post } from '@/lib/type';
-import { Alert } from 'react-native';
 import { router } from 'expo-router';
 
 export const Postcontext = React.createContext({

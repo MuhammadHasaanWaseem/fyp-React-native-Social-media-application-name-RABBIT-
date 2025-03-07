@@ -1,8 +1,8 @@
 import { usePost } from '@/providers/PostProvider';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { CheckCircle, Circle, CircleX, SquareX, SwitchCameraIcon } from 'lucide-react-native';
+import { CheckCircle, Circle, CircleX, SwitchCameraIcon } from 'lucide-react-native';
 import { useRef, useState } from 'react';
-import { Alert, Button, Image, Text, TouchableOpacity, View } from 'react-native';
+import { Button, Image, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import { HStack } from '@/components/ui/hstack';
 import { router, useLocalSearchParams } from 'expo-router';

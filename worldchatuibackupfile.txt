@@ -1,0 +1,310 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { 
+  View, 
+  FlatList, 
+  TextInput, 
+  TouchableOpacity, 
+  ActivityIndicator, 
+  KeyboardAvoidingView, 
+  Platform, 
+  SafeAreaView 
+} from 'react-native';
+import { Text as RNText } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/providers/AuthProviders';
+import { ArrowLeft, Trash2Icon } from 'lucide-react-native';
+import { router } from 'expo-router';
+
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogBody,
+  AlertDialogBackdrop,
+} from "@/components/ui/alert-dialog";
+import { Button, ButtonText } from "@/components/ui/button";
+import { Heading } from "@/components/ui/heading";
+import { Text } from "@/components/ui/text";
+import { ArrowDownCircle } from 'lucide-react-native';
+
+const Worldchat = () => {
+  const { user } = useAuth();
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newMessage, setNewMessage] = useState('');
+  const [showAlertDialog, setShowAlertDialog] = useState(false);
+  const [chatCleared, setChatCleared] = useState(false);
+
+  // New state for delete alert
+  const [deleteAlertVisible, setDeleteAlertVisible] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState(null);
+
+  const flatListRef = useRef(null);
+
+  // Check if chat was cleared on mount
+  useEffect(() => {
+    const checkChatCleared = async () => {
+      const flag = await AsyncStorage.getItem('chatCleared');
+      if (flag === 'true') {
+        setChatCleared(true);
+        setMessages([]);
+        setLoading(false);
+      } else {
+        setChatCleared(false);
+        // Fetch messages only if chat wasn't cleared
+        fetchMessages();
+      }
+    };
+    checkChatCleared();
+  }, []);
+
+  const fetchMessages = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('WorldChatMessage')
+      .select('*, user:User!user_id(id, username, avatar)')
+      .order('created_at', { ascending: true });
+    if (error) console.error('Error fetching messages:', error);
+    else setMessages(data);
+    setLoading(false);
+  }, []);
+
+  // Realtime subscription for new messages
+  useEffect(() => {
+    const channel = supabase
+      .channel('worldchat-messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'WorldChatMessage' }, payload => {
+        setMessages(prev => {
+          if (prev.find(msg => msg.id === payload.new.id)) return prev;
+          return [...prev, payload.new];
+        });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Scroll to bottom when messages update
+  useEffect(() => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({ animated: true });
+    }
+  }, [messages]);
+
+  const sendMessage = async () => {
+    if (!newMessage.trim()) return;
+    // If a new message is sent, remove the "cleared" flag so chat loads normally.
+    if (chatCleared) {
+      await AsyncStorage.removeItem('chatCleared');
+      setChatCleared(false);
+    }
+    const optimisticMessage = {
+      id: Math.random().toString(),
+      user_id: user?.id,
+      text: newMessage,
+      created_at: new Date().toISOString(),
+      user: { id: user?.id, username: user?.username, avatar: user?.avatar }
+    };
+    setMessages(prev => [...prev, optimisticMessage]);
+    setNewMessage('');
+    const { error } = await supabase.from('WorldChatMessage').insert({
+      user_id: user?.id,
+      text: newMessage,
+    });
+    if (error) {
+      console.error('Error sending message:', error);
+      setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
+    }
+  };
+
+  const handleDeleteMessage = async () => {
+    if (!messageToDelete) return;
+    const { error } = await supabase
+      .from('WorldChatMessage')
+      .delete()
+      .eq('id', messageToDelete.id);
+    if (error) {
+      console.error('Error deleting message:', error);
+    } else {
+      setMessages(prev => prev.filter(msg => msg.id !== messageToDelete.id));
+    }
+    setDeleteAlertVisible(false);
+    setMessageToDelete(null);
+  };
+
+  const cancelDeleteAlert = () => {
+    setDeleteAlertVisible(false);
+    setMessageToDelete(null);
+  };
+
+  const renderItem = ({ item }) => {
+    const isCurrentUser = item.user_id === user?.id;
+    return (
+      <View
+        style={[
+          {
+            padding: 10,
+            borderBottomWidth: 1,
+            borderBottomColor: '#333',
+            marginVertical: 5,
+            maxWidth: '80%',
+          },
+          isCurrentUser && {
+            backgroundColor: '#1fd655',
+            borderRadius: 10,
+            alignSelf: 'flex-start',
+            padding: 10,
+          },
+          (!isCurrentUser) && {
+            backgroundColor: 'white',
+            borderRadius: 10,
+            padding: 10,
+            alignSelf: 'flex-end',
+          }
+        ]}
+      >
+        <RNText style={[{ fontWeight: 'bold', color: 'black' }, isCurrentUser && { textAlign: 'right' }]}>
+          {item.user?.username}
+        </RNText>
+        <RNText style={[{ color: 'black' }, isCurrentUser && { textAlign: 'right' }]}>
+          {item.text}
+        </RNText>
+        <RNText style={[{ color: 'black', fontSize: 12 }, isCurrentUser && { textAlign: 'right' }]}>
+          {new Date(item.created_at).toLocaleTimeString()}
+        </RNText>
+        {isCurrentUser && (
+          <TouchableOpacity onPress={() => {
+            setMessageToDelete(item);
+            setDeleteAlertVisible(true);
+          }}>
+            <Trash2Icon style={{marginTop:6}} color={ 'white'} size={16}/>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
+
+  const handleCloseDialog = () => setShowAlertDialog(false);
+
+  const handleBackWithoutClearing = () => {
+    setShowAlertDialog(false);
+    router.back();
+  };
+
+  // Clear the local chat state and set a flag so that on remount the chat remains empty.
+  const handleClearAndBack = async () => {
+    await AsyncStorage.setItem('chatCleared', 'true');
+    setChatCleared(true);
+    setMessages([]);
+    setShowAlertDialog(false);
+    router.back();
+  };
+
+  const scrollToBottom = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({ animated: true });
+    }
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#141414' }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+      >
+        <View style={{ flex: 1, backgroundColor: '#141414' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', padding: 10, borderBottomWidth: 1, borderBottomColor: '#333' }}>
+            <TouchableOpacity onPress={() => setShowAlertDialog(true)}>
+              <ArrowLeft color={'white'} size={24} />
+            </TouchableOpacity>
+            <RNText style={{ fontSize: 20, color: 'white', fontWeight: 'bold' }}>Worldchat</RNText>
+            <TouchableOpacity>
+              <ArrowDownCircle color={'white'} size={24} onPress={scrollToBottom} />
+            </TouchableOpacity>
+          </View>
+          {loading ? (
+            <ActivityIndicator size="large" color="white" style={{ marginTop: 20 }} />
+          ) : (
+            <FlatList
+              ref={flatListRef}
+              data={messages}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+              contentContainerStyle={{ paddingHorizontal: 14, paddingBottom: 10 }}
+              style={{ flex: 1 }}
+            />
+          )}
+          <View style={{ flexDirection: 'row', padding: 10, borderTopWidth: 1, borderTopColor: '#333', alignItems: 'center' }}>
+            <TextInput
+              style={{ flex: 1, backgroundColor: '#1f1f1f', color: 'white', borderRadius: 8, padding: 10 }}
+              placeholder="Type a message..."
+              placeholderTextColor="grey"
+              value={newMessage}
+              onChangeText={setNewMessage}
+            />
+            <TouchableOpacity onPress={sendMessage} style={{ justifyContent: 'center', alignItems: 'center', marginLeft: 10 }}>
+              <RNText style={{ color: 'white', fontWeight: 'bold' }}>Send</RNText>
+            </TouchableOpacity>
+          </View>
+          <AlertDialog isOpen={showAlertDialog} onClose={handleCloseDialog} size="lg">
+            <AlertDialogBackdrop />
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <Heading size="lg" className="font-semibold">Go Back?</Heading>
+              </AlertDialogHeader>
+              <AlertDialogBody className="mt-3 mb-4">
+                <Text size="sm">
+                  Do you want to clear the chat screen before going back, or keep it?
+                </Text>
+              </AlertDialogBody>
+              <AlertDialogFooter>
+                <Button variant="outline" action="secondary" onPress={handleCloseDialog} size="sm">
+                  <ButtonText>Cancel</ButtonText>
+                </Button>
+                <Button variant="outline" action="secondary" onPress={handleBackWithoutClearing} size="sm">
+                  <ButtonText>Without Clearing</ButtonText>
+                </Button>
+                <Button onPress={handleClearAndBack} size="sm">
+                  <ButtonText>Clear & Go Back</ButtonText>
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          
+          {/* Delete Message Alert Dialog */}
+          <AlertDialog isOpen={deleteAlertVisible} onClose={cancelDeleteAlert} size="lg">
+            <AlertDialogBackdrop />
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <Heading size="lg" className="font-semibold">Delete Message?</Heading>
+              </AlertDialogHeader>
+              <AlertDialogBody className="mt-3 mb-4">
+                <Text size="sm">
+                  Are you sure you want to delete this message?
+                </Text>
+              </AlertDialogBody>
+              <AlertDialogFooter>
+                <Button variant="outline" action="secondary" onPress={cancelDeleteAlert} size="sm">
+                  <ButtonText>No</ButtonText>
+                </Button>
+                <Button onPress={handleDeleteMessage} size="sm">
+                  <ButtonText>Yes</ButtonText>
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          
+        </View>
+      </KeyboardAvoidingView>
+      <Text></Text>
+      <Text></Text> 
+    </SafeAreaView>
+  );
+};
+
+export default Worldchat;

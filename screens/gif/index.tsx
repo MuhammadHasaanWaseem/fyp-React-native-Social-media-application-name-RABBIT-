@@ -1,4 +1,4 @@
-import { CircleX, Search, X } from 'lucide-react-native'
+import { CircleX, Search, } from 'lucide-react-native'
 import React, { useState } from 'react'
 import { FlatList, Image, Keyboard, SafeAreaView, TouchableOpacity, Linking } from 'react-native'
 import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input"

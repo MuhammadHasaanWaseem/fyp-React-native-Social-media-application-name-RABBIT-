@@ -1,12 +1,12 @@
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
-import { Camera, Mic, MapPin, ImageIcon, Hash, ImagePlay, ToyBrick, Eraser, LockIcon } from 'lucide-react-native';
+import { Camera, Mic, ImageIcon, Hash, ImagePlay, LockIcon } from 'lucide-react-native';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Heading } from '@/components/ui/heading';
 import { useAuth } from '@/providers/AuthProviders';
 import { View } from '@/components/ui/view';
-import { FlatList, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useRef, useState } from 'react';
 import { Image } from 'react-native';
@@ -103,17 +103,7 @@ setMediaType('')
               <Heading  style={{color:'white'}} size="md" className="mb-1">
                 {user?.username}
               </Heading>
-              {/* <Input className="border-0" size="md">
-                <InputField
-                  value={post.text}
-                  multiline={true}
-                  onChangeText={(text) => updatepost(post.id, "text",text)}
-                  className="p-0 m-0"
-                  placeholder="What's new?"
-                  placeholderTextColor="#64748b"
-                  style={{color:'white'}}
-                />
-              </Input> */}
+            
               <Input post={post}  updatePost={updatepost} textArray={textArray}/>
             
               {Photo && MediaType?.startsWith("image/") ? (
