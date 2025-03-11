@@ -46,6 +46,8 @@ export default function RootLayout() {
         <Stack.Screen name="comments" options={{headerShown: false,headerTitle:'Add to comment',headerTitleAlign: 'center',presentation:'modal', animation:'slide_from_left' }} />
         <Stack.Screen name="user" options={{headerShown:false,headerTitleAlign: 'center',presentation:'modal', animation:'slide_from_left' }} />
         <Stack.Screen name="worldchat" options={{headerShown:false,headerTitleAlign: 'center',presentation:'modal', animation:'slide_from_left' }} />
+        <Stack.Screen name="followsheet" options={{ headerShown: false,presentation:'modal', animation:'slide_from_bottom' }} />
+        <Stack.Screen name="followingsheet" options={{ headerShown: false,presentation:'modal', animation:'slide_from_bottom' }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       </PostProvider>

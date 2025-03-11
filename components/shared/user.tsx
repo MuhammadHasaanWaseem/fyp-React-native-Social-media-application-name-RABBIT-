@@ -2,7 +2,7 @@ import { User } from "@/lib/type";
 import {  Text, Pressable, Alert, TouchableOpacity, FlatList, SafeAreaView } from "react-native";
 import { HStack } from "../ui/hstack";
 import {  Info, PlusSquareIcon, UserCheck2 } from "lucide-react-native";
-import { Avatar, AvatarBadge, AvatarImage, AvatarFallbackText } from "../ui/avatar";
+import { Avatar, AvatarBadge, AvatarImage, AvatarFallbackText, AvatarGroup } from "../ui/avatar";
 import { Button, ButtonText } from "../ui/button";
 import { Divider } from "../ui/divider";
 import { useState } from "react";
@@ -12,6 +12,11 @@ import { supabase } from "@/lib/supabase";
 import View from '@/components/shared/sharedview'
 import { usePosts } from "@/hooks/use-posts";
 import BottomSheet from "./bottom-sheet";
+import { useAuth } from "@/providers/AuthProviders";
+import { usefollowers } from "@/hooks/use-followers";
+import { usefollowing } from "@/hooks/use-following";
+import { router } from "expo-router";
+
 
 enum Tab {
   PUBLIC = "Public",
@@ -39,7 +44,10 @@ export default ({ user }: { user: User }) => {
 
   // Use local state to update avatar immediately on UI
   const [localAvatar, setLocalAvatar] = useState<string>(user?.avatar || "");
-
+  const {data:followers}= usefollowers(user?.id);
+  const {data:following} =usefollowing(user?.id)
+  const {user:userauth}=useAuth();
+  const isOwner =userauth?.id==user?.id;
   const handleAvatarPress = async () => {
     try {
       // Request permission for accessing media library
@@ -95,46 +103,95 @@ export default ({ user }: { user: User }) => {
       </TouchableOpacity>
   </HStack>
       <HStack className="items-center justify-between p-6">
-       <VStack>
+       <VStack >
        <Text style={{ fontSize: 24, marginLeft: 8, fontWeight: "bold", color: "white" }}>
           {user?.username}
         </Text>
+        
        <HStack className="items-center" style={{marginTop:5}}>
        <Text style={{color:'white' ,fontSize:12,fontWeight:"900"}}>   User id : </Text>
        <Text style={{color:'white' ,fontSize:9}}>{user?.id}</Text>
        </HStack>
 
+       
+
        </VStack>
+       
         {/* Wrap the Avatar in a Pressable so it becomes clickable */}
         <Pressable >
           <Avatar size="lg">
-            <AvatarBadge
-              size="lg"
-              style={{
-                backgroundColor: "transparent",
-                borderWidth: 0,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <UserCheck2 color={"white"} size={10} strokeWidth={4} />
-            </AvatarBadge>
+           
             <AvatarFallbackText style={{ color: "white" }}>
               {user?.username}
             </AvatarFallbackText>
             <AvatarImage source={{ uri: localAvatar }} />
           </Avatar>
         </Pressable>
-      </HStack>
+        
 
-      <HStack space="md" className="items-center justify-between p-6">
-        <Button variant="outline" className="flex-1 rounded-xl" onPress={handleAvatarPress}>
-          <ButtonText style={{ color: "white" }}>Edit Profile</ButtonText>
-        </Button>
-        <Button variant="outline" className="flex-1 rounded-xl" onPress={() => {}}>
-          <ButtonText style={{ color: "white" }}>Share Profile</ButtonText>
-        </Button>
-      </HStack>
+
+
+        
+      </HStack> 
+      <HStack style={{marginLeft:40}} space="md"> 
+      {followers &&
+       <AvatarGroup >
+       {followers.slice(0, 3).map((item, index) => {
+         return (
+           <Avatar
+             key={index}
+             size="sm"
+             className={"border-1 border-outline-0 "}
+           >
+             <AvatarFallbackText className="text-white">
+               {item?.user?.username}
+             </AvatarFallbackText>
+             <AvatarImage
+            source={{ uri: item?.user?.avatar }}
+              />
+           </Avatar>
+         )
+       })}
+       {followers.length >3 &&
+        <Avatar size="sm">
+        <AvatarFallbackText>{"+ " + (followers.length-3 )+ ""}</AvatarFallbackText>
+      </Avatar>
+       }
+     </AvatarGroup>
+
+       }
+       {/* follower sheet */}
+       <Pressable onPress={()=>router.push('/followsheet')}>      
+         <Text style={{color:'grey'}}>Follower {followers?.length}</Text>
+       </Pressable>
+       {/* following sheet */}
+       <Pressable e onPress={()=>router.push('/followingsheet')}>    
+           <Text style={{color:'grey'}}>Following {following?.length}</Text>
+       </Pressable>
+        </HStack> 
+      <SafeAreaView className="justify-start">
+     
+       </SafeAreaView>
+     {
+      isOwner &&  <HStack space="md" className="items-center justify-between p-6">
+      <Button variant="outline" className="flex-1 rounded-xl" onPress={handleAvatarPress}>
+        <ButtonText style={{ color: "white" }}>Edit Profile</ButtonText>
+      </Button>
+      <Button variant="outline" className="flex-1 rounded-xl" onPress={() => {}}>
+        <ButtonText style={{ color: "white" }}>Share Profile</ButtonText>
+      </Button>
+    </HStack>
+     }
+      {
+      !isOwner &&  <HStack space="md" className="items-center justify-between p-6">
+      <Button variant="outline" className="flex-1 rounded-xl" onPress={handleAvatarPress}>
+        <ButtonText style={{ color: "white" }}>Follow</ButtonText>
+      </Button>
+      <Button variant="outline" className="flex-1 rounded-xl" onPress={() => {}}>
+        <ButtonText style={{ color: "white" }}>Share Profile</ButtonText>
+      </Button>
+    </HStack>
+     }
       <Divider style={{ marginTop: 14, marginBottom: 10 }} />
       <HStack space="md" style={{ padding: 4 }}>
         {tabs.map((t) => (
@@ -165,7 +222,7 @@ export default ({ user }: { user: User }) => {
               />  
               
       </VStack>
-      <BottomSheet showActionsheet={showActionsheet} setShowActionsheet={setShowActionsheet}/>
+      <BottomSheet  showActionsheet={showActionsheet} setShowActionsheet={setShowActionsheet}/>
     </SafeAreaView>
   );
 };

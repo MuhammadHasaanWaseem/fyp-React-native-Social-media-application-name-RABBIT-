@@ -1,15 +1,15 @@
 import {useQuery} from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+//following_user:User!following_user_id(*)
 
 export const getfollowing = async (userid: string) => {
     if(!userid) return null
         const { data, error } = await supabase
               .from('Followers')
-              .select('*,following_user:User!following_user_id(*)')
+              .select('following_user_id')
               .eq('user_id', userid);
               const following =data?.map((follower)=>follower?.following_user_id)
-              console.log(following)
-              console.log(data)
+
               if(!error) return following
       };
       
