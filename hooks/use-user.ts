@@ -9,12 +9,18 @@ export const getUser = async (userid: string) => {
               .eq('id', userid);
               if(!error) return data[0]
       };
+      export const getSearchUsers = async () => {
+            const { data, error } = await supabase
+                  .from('User')
+                  .select()
+                  .order('created_at',{ascending:true}).limit(50);
+                  if(!error) return data;
+          };
       
-      
-  export const useUser =(userid:string)=>{
+  export const useUser =(userid?:string)=>{
          const{data,isLoading,error,refetch} =useQuery({
         queryKey:["user",userid],
-        queryFn:()=>getUser(userid)      
+        queryFn:()=>userid ? getUser(userid):getSearchUsers()      
                     });
              return {data,isLoading,error,refetch}
     }

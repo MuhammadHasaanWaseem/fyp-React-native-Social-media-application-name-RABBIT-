@@ -27,10 +27,7 @@ import { ArrowLeft } from 'lucide-react-native';
 export default () => {
   const { user } = useAuth();
   const { threadId } = useLocalSearchParams();
-  // Assuming usePost now provides: 
-  // - PostCard: an array of post objects with a "text" field,
-  // - Photo and MediaType: for image/video selections,
-  // - audio: a string representing the selected audio file URI.
+ 
   const { clearpost, PostCard, uploadpost, Photo, MediaType, audio } = usePost();
 
   // Function to clear the post and navigate back
@@ -39,7 +36,6 @@ export default () => {
     router.push('/(tabs)');
   };
 
-  // Determine if at least one type of content is present:
   // 1. Text: Check if any post in the PostCard array has nonempty text.
   const hasText = PostCard.some(post => post.text && post.text.trim().length > 0);
   // 2. Media: Check if a photo/video is selected.
@@ -54,7 +50,7 @@ export default () => {
   const postButtonStyle = {
     borderRadius: 9,
     width: 88,
-    backgroundColor: isValid ? 'white' : '#ccc' // Gray when disabled
+    backgroundColor: isValid ? 'white' : '#3f3f3f' // kindda dim Gray when disabled
   };
 
   // Handle Android hardware back button press

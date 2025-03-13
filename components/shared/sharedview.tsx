@@ -184,9 +184,9 @@ export default function ShareView({ item, refetch }: { item: any, refetch: () =>
               </View>
             ) : item.file && item.file.match(/\.(mp4|mov|avi|mkv)$/i) ? (
               <View style={{ position: 'relative' }}>
-                {isLoading && (
+                {/* {isLoading && (
                   <ActivityIndicator size="large" color="white" style={{ height: 300, width: 200 }} />
-                )}
+                )} */}
                 <Video
                   ref={videoRef}
                   source={{ uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}` }}

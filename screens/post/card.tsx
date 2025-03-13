@@ -16,7 +16,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { usePost } from '@/providers/PostProvider';
 import { useVideoPlayer } from '@/providers/VideoPlayerProvider';
 import Audio from './audio';
-import { supabase } from '@/lib/supabase';
 import { BlurView } from 'expo-blur';
 
 interface PostCardProps {

@@ -94,14 +94,17 @@ export default ({ user }: { user: User }) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#141414" }}>
       <Text></Text>
       <Text></Text>
-  <HStack space="md" className="justify-end">
-      <TouchableOpacity >
-      <PlusSquareIcon color={'white'}/>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={()=>setShowActionsheet(true)} >
-      <Info style={{marginRight:23}} color={'white'}/>
-      </TouchableOpacity>
-  </HStack>
+ {
+  isOwner &&  <HStack space="md" className="justify-end">
+  <TouchableOpacity >
+  <PlusSquareIcon color={'white'}/>
+  </TouchableOpacity>
+  <TouchableOpacity onPress={()=>setShowActionsheet(true)} >
+  <Info style={{marginRight:23}} color={'white'}/>
+  </TouchableOpacity>
+</HStack>
+ }
+
       <HStack className="items-center justify-between p-6">
        <VStack >
        <Text style={{ fontSize: 24, marginLeft: 8, fontWeight: "bold", color: "white" }}>
@@ -161,13 +164,23 @@ export default ({ user }: { user: User }) => {
 
        }
        {/* follower sheet */}
-       <Pressable onPress={()=>router.push('/followsheet')}>      
+       <Pressable onPress={()=>router.push({
+pathname:'/followsheet',
+params:{userid:user?.id}
+
+       })}>      
          <Text style={{color:'grey'}}>Follower {followers?.length}</Text>
        </Pressable>
        {/* following sheet */}
-       <Pressable e onPress={()=>router.push('/followingsheet')}>    
-           <Text style={{color:'grey'}}>Following {following?.length}</Text>
-       </Pressable>
+      {
+        isOwner &&  <Pressable  onPress={()=>router.push({
+          pathname:'/followingsheet',
+          params:{userid:user?.id}
+          
+                 })}>    
+                     <Text style={{color:'grey'}}>Following {following?.length}</Text>
+                 </Pressable>
+      }
         </HStack> 
       <SafeAreaView className="justify-start">
      
