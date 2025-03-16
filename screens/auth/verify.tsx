@@ -1,12 +1,12 @@
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text } from "@/components/ui/text";
 import React, { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Text, KeyboardAvoidingView, Platform } from "react-native";
 import Layout from "./_layout";
 import { OtpInput } from "react-native-otp-entry";
 import { Spinner } from "@/components/ui/spinner";
+import { HStack } from "@/components/ui/hstack";
 
 export default function VerifyScreen() {
   const [token, setToken] = useState("");
@@ -15,64 +15,58 @@ export default function VerifyScreen() {
   const router = useRouter();
 
   const handleVerify = async () => {
-    console.log("Entered OTP:", token);
-
     const { data, error } = await supabase.auth.verifyOtp({
       phone: phone as string,
       token,
       type: "sms",
     });
-    
 
     if (!error) {
-      setErrorMessage("Verified Successfully!"); // Green success message
+      setErrorMessage("Verified Successfully!");
       router.push("/(auth)/username");
     } else {
-      setErrorMessage(" OTP is incorrect. Please try again.");
+      setErrorMessage("OTP is incorrect. Please try again.");
     }
   };
 
   return (
     <Layout onPress={handleVerify} buttonText="Verify OTP">
-      <SafeAreaView style={styles.container}>
-        <OtpInput
-          focusColor="green"
-          numberOfDigits={6}
-          type="numeric"
-          placeholder="__________"
-          onTextChange={setToken}
-          autoFocus
-          secureTextEntry={false}
-          theme={{
-            containerStyle: { marginBottom:20}, 
-            inputsContainerStyle: { margin:2,padding:20},
-            
-            pinCodeContainerStyle: {
-              backgroundColor:'transparent',
-              borderColor: "#1f1f1f",
-              borderWidth: 1, 
-              borderRadius: 10
-              
-            },
-            pinCodeTextStyle: {
-              color: "white", 
-              fontSize: 24, 
-              
-              
-            },
-          }}/>
-        <View>
-          
-         <Spinner color={'darkgreen'} size={24}/>
-         <Text>{""}</Text>
-         <Text style={{color:'white',marginBottom:10,textAlign:'center'}}>Verification in progress</Text>
-         
-        {errorMessage ? (
-    <Text style={errorMessage.includes("Verified") ? styles.successText : styles.errorText}>
-      {errorMessage}
-    </Text>  ) : null}
-        </View>
-      </SafeAreaView>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <SafeAreaView style={styles.innerContainer}>
+          <View style={styles.content}>
+            <Text style={styles.title}>Enter Verification Code</Text>
+            <Text style={styles.subtitle}>Sent to {phone}</Text>
+
+            <OtpInput
+              numberOfDigits={6}
+              autoFocus
+              onTextChange={setToken}
+              theme={{
+                containerStyle: styles.otpContainer,
+                inputsContainerStyle: styles.otpInputsContainer,
+                pinCodeContainerStyle: styles.pinCodeContainer,
+                pinCodeTextStyle: styles.pinCodeText,
+                focusStickStyle: styles.focusStick,
+                focusedPinCodeContainerStyle: styles.focusedPinCodeContainer
+              }}
+            />
+
+            <HStack style={styles.statusContainer}>
+              <Spinner color="#3B82F6" size={24} />
+              <Text style={styles.progressText}>Verification in progress</Text>
+            </HStack>
+
+            {errorMessage && (
+              <Text style={errorMessage.includes("Verified") ? styles.successText : styles.errorText}>
+                {errorMessage}
+              </Text>
+            )}
+          </View>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </Layout>
   );
 }
@@ -80,19 +74,78 @@ export default function VerifyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#000',
+  },
+  innerContainer: {
+    flex: 1,
+    paddingHorizontal: 24,
+    justifyContent: 'center',
+  },
+  content: {
+    marginBottom: 40,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: 'white',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+  otpContainer: {
+    marginBottom: 32,
+  },
+  otpInputsContainer: {
+    gap: 12,
+  },
+  pinCodeContainer: {
+    backgroundColor: '#1F2937',
+    borderWidth: 1,
+    borderColor: '#374151',
+    borderRadius: 12,
+    height: 56,
+    width: 48,
+  },
+  pinCodeText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  focusStick: {
+    backgroundColor: '#3B82F6',
+    width: 2,
+  },
+  focusedPinCodeContainer: {
+    borderColor: '#3B82F6',
+  },
+  statusContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    marginBottom: 24,
+  },
+  progressText: {
+    color: '#9CA3AF',
+    fontSize: 14,
+    fontWeight: '500',
   },
   successText: {
-    color: "lightgreen",
+    color: '#10B981',
     fontSize: 14,
-    fontWeight: "bold",
-    marginTop: 2,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 16,
   },
   errorText: {
-    color: "red",
+    color: '#EF4444',
     fontSize: 14,
-    fontWeight: "bold",
-    marginTop:2
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 16,
   },
 });

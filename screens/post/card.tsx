@@ -1,9 +1,8 @@
-// PostCard.tsx
 import React, { useState, useRef } from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
-import { Camera, Mic, ImageIcon, Hash, ImagePlay, LockIcon } from 'lucide-react-native';
+import { Camera, Mic, ImageIcon, Hash, ImagePlay, LockIcon, AtSignIcon, Timer } from 'lucide-react-native';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Heading } from '@/components/ui/heading';
@@ -139,24 +138,34 @@ export default function PostCard({ post }: PostCardProps) {
               {showaudio && <Audio id={post.id} />}
             </VStack>
             <HStack className="items-center gap-7">
+              {/* select media from local storage */}
               <TouchableOpacity onPress={addPhotoAndVideo}>
                 <ImageIcon color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
+              {/* capture from camera */}
               <TouchableOpacity onPress={() => {
                 setPhoto('');
                 router.push({ pathname: '/camera', params: { threadId: post.id } });
               }}>
                 <Camera color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
+              {/* towards gifs */}
               <TouchableOpacity onPress={() => router.push('/gif')}>
                 <ImagePlay color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
+              {/* mention */}
               <TouchableOpacity>
-                <Hash color="white" size={20} strokeWidth={1.5} />
+                <AtSignIcon color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
+              {/* {premier post} */}
+              <TouchableOpacity>
+                <Timer color="white" size={20} strokeWidth={1.5} />
+              </TouchableOpacity>
+              {/* spolier alert */}
               <TouchableOpacity onPress={handleSpoilerToggle}>
                 <LockIcon color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
+              {/* music record */}
               <TouchableOpacity onPress={() => setShowaudio(!showaudio)}>
                 <Mic color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
@@ -167,6 +176,7 @@ export default function PostCard({ post }: PostCardProps) {
     </HStack>
   );
 }
+
 
 const styles = StyleSheet.create({
   blurContainer: {

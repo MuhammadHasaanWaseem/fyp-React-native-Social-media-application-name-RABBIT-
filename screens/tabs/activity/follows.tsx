@@ -1,4 +1,4 @@
-import { FlatList, SafeAreaView,Text, TouchableOpacity, View } from "react-native"
+import { FlatList, SafeAreaView,Text, TouchableOpacity } from "react-native"
 import { usefollowers } from "@/hooks/use-followers"
 import { useAuth } from "@/providers/AuthProviders";
 import { HStack } from "@/components/ui/hstack";

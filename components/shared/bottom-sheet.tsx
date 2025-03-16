@@ -8,6 +8,8 @@ import {
     ActionsheetBackdrop,
   } from "@/components/ui/actionsheet"
 import { useAuth } from "@/providers/AuthProviders";
+import { Divider } from "../ui/divider";
+import { onShareProfile } from "@/lib/shareprofile";
 
 
   export default ({showActionsheet, setShowActionsheet}:{showActionsheet:boolean, setShowActionsheet:(show:boolean)=>void})=>{
@@ -23,24 +25,35 @@ return(
 
 <Actionsheet  isOpen={showActionsheet} onClose={handleClose}>
 <ActionsheetBackdrop />
-<ActionsheetContent style={{backgroundColor:'#141414',borderColor:'grey'}}>
+<ActionsheetContent style={{backgroundColor:'#0A0A0A',borderColor:'grey'}}>
   <ActionsheetDragIndicatorWrapper>
     <ActionsheetDragIndicator />
   </ActionsheetDragIndicatorWrapper>
   <ActionsheetItem >
     <ActionsheetItemText  style={{color:"white"}}>Username : {user?.username}</ActionsheetItemText>
   </ActionsheetItem>
+  <Divider/>
   <ActionsheetItem >
     <ActionsheetItemText style={{color:"white"}}>User id :{user?.id}</ActionsheetItemText>
   </ActionsheetItem>
+  <Divider/>
+
   <ActionsheetItem >
     <ActionsheetItemText style={{color:"white"}}>Account Created at :{user?.created_at}</ActionsheetItemText>
   </ActionsheetItem>
+  <Divider/>
+  <ActionsheetItem onPress={() => onShareProfile(username?.username)}>
+    <ActionsheetItemText style={{color:"white"}}>Share profile</ActionsheetItemText>
+  </ActionsheetItem>
+  <Divider/>
+
   <ActionsheetItem onPress={handlelogout}>
     <ActionsheetItemText style={{color:'red'}}>Logout?</ActionsheetItemText>
-  </ActionsheetItem>         
-  <ActionsheetItem onPress={handleClose}>
-    <ActionsheetItemText>Close</ActionsheetItemText>
+  </ActionsheetItem>  
+  <Divider/>
+       
+  <ActionsheetItem  onPress={handleClose}>
+    <ActionsheetItemText style={{color:"white"}}>Close</ActionsheetItemText>
   </ActionsheetItem>
 </ActionsheetContent>
 </Actionsheet>

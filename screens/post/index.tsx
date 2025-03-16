@@ -1,4 +1,3 @@
-// NewPostScreen.tsx
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui/text';
 import { HStack } from '@/components/ui/hstack';
@@ -67,7 +66,7 @@ export default () => {
   );
 
   return (
-    <SafeAreaView style={{ backgroundColor: '#141414' }} className="flex-1">
+    <SafeAreaView style={{ backgroundColor: '#0A0A0A' }} className="flex-1">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}

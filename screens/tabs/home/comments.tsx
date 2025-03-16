@@ -112,7 +112,7 @@ const Comments = () => {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#141414' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={80}>
         <View style={{ flex: 1, backgroundColor: '#141414' }}>
           <HStack style={{ marginTop: 43, marginHorizontal: 14, alignItems: 'center' }}>

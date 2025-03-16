@@ -6,13 +6,23 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { ImageIcon, Camera, ImagePlay, Mic, Hash ,Globe, LockIcon, MessageCircleCodeIcon } from 'lucide-react-native';
+import { 
+  ImageIcon,
+  Camera, 
+  ImagePlay, 
+  Mic, 
+  Hash ,
+  Globe,
+  LockIcon,
+  MessageCircleCodeIcon, 
+  Timer, 
+  AtSignIcon } 
+  from 'lucide-react-native';
 import { Pressable, FlatList, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
 import { usePosts } from '@/hooks/use-posts';
 import View from '@/components/shared/sharedview'
-// import { useEffect } from 'react';
 
 
 export default () => {
@@ -23,7 +33,7 @@ export default () => {
   
  
   return (
-    <SafeAreaView style={{backgroundColor:'#141414'}} className=" flex-1">
+    <SafeAreaView style={{backgroundColor:'#0A0A0A'}} className=" flex-1">
       {/* Top Logo */}
       <HStack className="justify-between items-center ">
 <TouchableOpacity onPress={()=>router.push('/worldchat')}>
@@ -57,13 +67,14 @@ export default () => {
                 </Text>
                 <Text style={{color:'white'}}  size="md">What's new?</Text>
               </VStack>
-              <HStack className="items-center" space="3xl">
+              <HStack className="items-center" space="2xl">
               <ImageIcon color="white" size={20} strokeWidth={1.5}/>
               <Camera color="white" size={20} strokeWidth={1.5}/>
               <ImagePlay color="white" size={20} strokeWidth={1.5}/>
-              <Hash color="white" size={20} strokeWidth={1.5}/>
               <LockIcon color="white" size={20} strokeWidth={1.5}/>
               <Mic color="white" size={20} strokeWidth={1.5}/>
+              <AtSignIcon color="white" size={20} strokeWidth={1.5} />
+              <Timer color="white" size={20} strokeWidth={1.5} />
               </HStack>
             </VStack>
           </Card>

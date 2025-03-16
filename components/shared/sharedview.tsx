@@ -23,7 +23,8 @@ import {
   Pause,
   Play,
   RotateCcw,
-  CopyPlusIcon
+  CopyPlusIcon,
+  UserCheck2
 } from 'lucide-react-native';
 import { formatDistanceToNow } from 'date-fns';
 import { Video } from 'expo-av';
@@ -112,7 +113,7 @@ export default function ShareView({ item, refetch }: { item: any, refetch: () =>
   };
 
   return (
-    <Card style={{ backgroundColor: '#141414' }}>
+    <Card style={{ backgroundColor: '#0A0A0A' }}>
       <HStack space="md">
         <Avatar style={{ borderColor: 'white', backgroundColor: 'white' }} size="md">
           {item.User?.avatar ? (
@@ -139,7 +140,7 @@ export default function ShareView({ item, refetch }: { item: any, refetch: () =>
             </Text>
             {!following?.includes(item?.user_id) && user?.id !== item?.user_id && (
               <TouchableOpacity onPress={followuser}>
-                <CopyPlusIcon color={'white'} size={16} />
+                <UserCheck2 color={'white'} size={16} />
               </TouchableOpacity>
             )}
           </HStack>
@@ -260,7 +261,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor:'black'
+    backgroundColor:'#0f0f0f'
   },
   viewSpoilerButton: {
     padding: 8,

@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { 
-  View, 
-  FlatList, 
-  TextInput, 
-  TouchableOpacity, 
-  ActivityIndicator, 
-  KeyboardAvoidingView, 
-  Platform, 
+import {
+  View,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
-  StyleSheet
+  StyleSheet,
 } from 'react-native';
 import { Text as RNText } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/providers/AuthProviders';
-import { ArrowLeft, Trash2Icon, ArrowDownCircle } from 'lucide-react-native';
+import { ArrowLeft, Trash2Icon, ArrowDownCircle, SendIcon } from 'lucide-react-native';
 import { router } from 'expo-router';
 
 import {
@@ -24,10 +24,10 @@ import {
   AlertDialogFooter,
   AlertDialogBody,
   AlertDialogBackdrop,
-} from "@/components/ui/alert-dialog";
-import { Button, ButtonText } from "@/components/ui/button";
-import { Heading } from "@/components/ui/heading";
-import { Text } from "@/components/ui/text";
+} from '@/components/ui/alert-dialog';
+import { Button, ButtonText } from '@/components/ui/button';
+import { Heading } from '@/components/ui/heading';
+import { Text } from '@/components/ui/text';
 import { HStack } from '@/components/ui/hstack';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 
@@ -38,14 +38,11 @@ const Worldchat = () => {
   const [newMessage, setNewMessage] = useState('');
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [chatCleared, setChatCleared] = useState(false);
-
-  // State for delete alert
   const [deleteAlertVisible, setDeleteAlertVisible] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState(null);
 
   const flatListRef = useRef(null);
 
-  // Check if chat was cleared on mount
   useEffect(() => {
     const checkChatCleared = async () => {
       const flag = await AsyncStorage.getItem('chatCleared');
@@ -72,16 +69,19 @@ const Worldchat = () => {
     setLoading(false);
   }, []);
 
-  // Realtime subscription for new messages
   useEffect(() => {
     const channel = supabase
       .channel('worldchat-messages')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'WorldChatMessage' }, payload => {
-        setMessages(prev => {
-          if (prev.find(msg => msg.id === payload.new.id)) return prev;
-          return [...prev, payload.new];
-        });
-      })
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'WorldChatMessage' },
+        (payload) => {
+          setMessages((prev) => {
+            if (prev.find((msg) => msg.id === payload.new.id)) return prev;
+            return [...prev, payload.new];
+          });
+        }
+      )
       .subscribe();
 
     return () => {
@@ -89,7 +89,6 @@ const Worldchat = () => {
     };
   }, []);
 
-  // Scroll to bottom when messages update
   useEffect(() => {
     if (flatListRef.current) {
       flatListRef.current.scrollToEnd({ animated: true });
@@ -107,9 +106,9 @@ const Worldchat = () => {
       user_id: user?.id,
       text: newMessage,
       created_at: new Date().toISOString(),
-      user: { id: user?.id, username: user?.username, avatar: user?.avatar }
+      user: { id: user?.id, username: user?.username, avatar: user?.avatar },
     };
-    setMessages(prev => [...prev, optimisticMessage]);
+    setMessages((prev) => [...prev, optimisticMessage]);
     setNewMessage('');
     const { error } = await supabase.from('WorldChatMessage').insert({
       user_id: user?.id,
@@ -118,7 +117,7 @@ const Worldchat = () => {
 
     if (error) {
       console.error('Error sending message:', error);
-      setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
+      setMessages((prev) => prev.filter((msg) => msg.id !== optimisticMessage.id));
     }
   };
 
@@ -131,7 +130,7 @@ const Worldchat = () => {
     if (error) {
       console.error('Error deleting message:', error);
     } else {
-      setMessages(prev => prev.filter(msg => msg.id !== messageToDelete.id));
+      setMessages((prev) => prev.filter((msg) => msg.id !== messageToDelete.id));
     }
     setDeleteAlertVisible(false);
     setMessageToDelete(null);
@@ -145,34 +144,40 @@ const Worldchat = () => {
   const renderItem = ({ item }) => {
     const isCurrentUser = item.user_id === user?.id;
     return (
-      <View style={[styles.messageContainer, isCurrentUser ? styles.messageCurrent : styles.messageOther]}>
+      <View
+        style={[
+          styles.messageContainer,
+          isCurrentUser ? styles.messageCurrent : styles.messageOther,
+        ]}
+      >
         <HStack style={isCurrentUser ? styles.hStackCurrent : styles.hStackOther}>
           <Avatar size="md" style={styles.avatar}>
             <AvatarImage source={{ uri: item.user?.avatar }} />
           </Avatar>
-           <TouchableOpacity onPress={()=>router.push({
-                    pathname:'/user',
-                    params:{userid:item?.user_id}
-                  })}>
-                    <RNText style={[styles.username, isCurrentUser ? { textAlign: 'left' } : { textAlign: 'right' }]}>
-            {item.user?.username}
-          </RNText>
+          <TouchableOpacity
+            onPress={() =>
+              router.push({ pathname: '/user', params: { userid: item?.user_id } })
+            }
+          >
+            <RNText style={styles.username}>{item.user?.username}</RNText>
           </TouchableOpacity>
         </HStack>
-        <RNText style={[styles.messageText, isCurrentUser ? { textAlign: 'left' } : { textAlign: 'right' }]}>
-          {item.text}
-        </RNText>
-        <RNText style={[styles.timestamp, isCurrentUser ? { textAlign: 'left' } : { textAlign: 'right' }]}>
-          {new Date(item.created_at).toLocaleTimeString()}
-        </RNText>
-        {isCurrentUser && (
-          <TouchableOpacity onPress={() => {
-            setMessageToDelete(item);
-            setDeleteAlertVisible(true);
-          }}>
-            <Trash2Icon style={styles.deleteIcon} color={'white'} size={16} />
-          </TouchableOpacity>
-        )}
+        <RNText style={styles.messageText}>{item.text}</RNText>
+        <View style={styles.messageFooter}>
+          <RNText style={styles.timestamp}>
+            {new Date(item.created_at).toLocaleTimeString()}
+          </RNText>
+          {isCurrentUser && (
+            <TouchableOpacity
+              onPress={() => {
+                setMessageToDelete(item);
+                setDeleteAlertVisible(true);
+              }}
+            >
+              <Trash2Icon color={'white'} size={16} />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     );
   };
@@ -232,47 +237,62 @@ const Worldchat = () => {
               value={newMessage}
               onChangeText={setNewMessage}
             />
-            <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
-              <RNText style={styles.sendButtonText}>Send</RNText>
-            </TouchableOpacity>
+           <TouchableOpacity onPress={sendMessage}>
+            <SendIcon color={'#4FC3F7'} />
+           </TouchableOpacity>
           </View>
           <AlertDialog isOpen={showAlertDialog} onClose={handleCloseDialog} size="lg">
             <AlertDialogBackdrop />
             <AlertDialogContent>
               <AlertDialogHeader>
-                <Heading size="lg" className="font-semibold">Go Back?</Heading>
+                <Heading size="lg" className="font-semibold">
+                  Go Back?
+                </Heading>
               </AlertDialogHeader>
               <AlertDialogBody className="mt-3 mb-4">
-                <Text size="sm">
-                  Do you want to clear the chat screen before going back, or keep it?
+                <Text size="sm" style={{marginBottom:4}}>
+                  Note ! going back will clear your chat screen permanently
                 </Text>
               </AlertDialogBody>
               <AlertDialogFooter>
-                <Button variant="outline" action="secondary" onPress={handleCloseDialog} size="sm">
+                <Button
+                  variant="outline"
+                  action="secondary"
+                  
+                  onPress={handleCloseDialog}
+                  size="sm"
+                >
                   <ButtonText>Cancel</ButtonText>
                 </Button>
-                <Button variant="outline" action="secondary" onPress={handleBackWithoutClearing} size="sm">
-                  <ButtonText>Without Clearing</ButtonText>
-                </Button>
+               
                 <Button onPress={handleClearAndBack} size="sm">
-                  <ButtonText>Clear & Go Back</ButtonText>
+                  <ButtonText>Confirm</ButtonText>
                 </Button>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <AlertDialog isOpen={deleteAlertVisible} onClose={cancelDeleteAlert} size="lg">
+          <AlertDialog
+            isOpen={deleteAlertVisible}
+            onClose={cancelDeleteAlert}
+            size="lg"
+          >
             <AlertDialogBackdrop />
             <AlertDialogContent>
               <AlertDialogHeader>
-                <Heading size="lg" className="font-semibold">Delete Message?</Heading>
+                <Heading size="lg" className="font-semibold">
+                  Delete Message?
+                </Heading>
               </AlertDialogHeader>
               <AlertDialogBody className="mt-3 mb-4">
-                <Text size="sm">
-                  Are you sure you want to delete this message?
-                </Text>
+                <Text size="sm">Are you sure you want to delete this message?</Text>
               </AlertDialogBody>
               <AlertDialogFooter>
-                <Button variant="outline" action="secondary" onPress={cancelDeleteAlert} size="sm">
+                <Button
+                  variant="outline"
+                  action="secondary"
+                  onPress={cancelDeleteAlert}
+                  size="sm"
+                >
                   <ButtonText>No</ButtonText>
                 </Button>
                 <Button onPress={handleDeleteMessage} size="sm">
@@ -283,8 +303,6 @@ const Worldchat = () => {
           </AlertDialog>
         </View>
       </KeyboardAvoidingView>
-      <RNText></RNText>
-      <RNText></RNText> 
     </SafeAreaView>
   );
 };
@@ -292,14 +310,14 @@ const Worldchat = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#141414',
+    backgroundColor: '#0A0A0A',
   },
   keyboardAvoiding: {
     flex: 1,
   },
   container: {
     flex: 1,
-    backgroundColor: '#141414',
+    backgroundColor: '#0A0A0A',
   },
   header: {
     flexDirection: 'row',
@@ -308,7 +326,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#0A0A0A',
   },
   headerTitle: {
     fontSize: 22,
@@ -328,84 +346,75 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
-    padding: 10,
+    padding: 15,
     borderTopWidth: 1,
     borderTopColor: '#333',
     alignItems: 'center',
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#0A0A0A',
+    gap:7
   },
   textInput: {
     flex: 1,
     backgroundColor: '#1f1f1f',
     color: 'white',
-    borderRadius: 8,
+    borderRadius: 20,
     padding: 10,
-  },
-  sendButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    backgroundColor: '#0066CC',
-    borderRadius: 8,
-  },
-  sendButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    borderWidth: 1,
+    borderColor: '#444444',
   },
   messageContainer: {
     padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
     marginVertical: 5,
     maxWidth: '80%',
     borderRadius: 10,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     elevation: 3,
   },
   messageCurrent: {
-    backgroundColor: '#1f1f1f',
+    backgroundColor: '#333333',
     alignSelf: 'flex-start',
-    width: '50%',
   },
   messageOther: {
-    backgroundColor: 'blue',
+    backgroundColor: '#003366',
     alignSelf: 'flex-end',
-    width: '50%',
   },
   hStackCurrent: {
     gap: 5,
     alignItems: 'center',
   },
   hStackOther: {
+    gap: 5,
     alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: 'row-reverse',
   },
   username: {
     fontWeight: 'bold',
     color: 'white',
-    fontSize: 16,
+    fontSize: 14,
   },
   messageText: {
     color: 'white',
     fontSize: 15,
-    marginTop: 5,
+    lineHeight: 20,
   },
   timestamp: {
-    color: 'white',
-    fontSize: 12,
+    color: '#AAAAAA',
+    fontSize: 10,
     marginTop: 3,
   },
-  avatar: {
-    borderColor: 'transparent',
-    backgroundColor: 'white',
+  messageFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 5,
   },
-  deleteIcon: {
-    marginTop: 6,
+  avatar: {
+    borderColor: '#AAAAAA',
+    borderWidth: 1,
+    backgroundColor: 'transparent',
   },
 });
 

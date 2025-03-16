@@ -56,7 +56,7 @@ params:{userid:user?.id}
 </TouchableOpacity>
 
 <Text style={{color:'white',fontSize:10}}>
-user id : {user?.id}</Text>
+ {user?.bio}</Text>
 </VStack>
 </HStack>
 {  followingdata?.includes( user?.id)   ?(

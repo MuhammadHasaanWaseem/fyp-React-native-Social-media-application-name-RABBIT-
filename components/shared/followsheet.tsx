@@ -174,12 +174,12 @@ export default function FollowersScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#141414",
+    backgroundColor: "#0A0A0A",
     flex: 1,
   },
   centered: {
     flex: 1,
-    backgroundColor: "#141414",
+    backgroundColor: "#0A0A0A",
     justifyContent: "center",
     alignItems: "center",
   },

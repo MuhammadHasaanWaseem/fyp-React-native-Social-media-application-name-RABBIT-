@@ -95,6 +95,9 @@ export default function Followingsheet() {
                 {item?.username || "Unknown User"}
               </Text>
             </TouchableOpacity>
+            <Text style={{color:'white',fontSize:12}}>
+                  Following
+              </Text>
           </VStack>
         </HStack>
         <Button
@@ -133,11 +136,11 @@ export default function Followingsheet() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#141414",
+    backgroundColor: "#0A0A0A",
   },
   centered: {
     flex: 1,
-    backgroundColor: "#141414",
+    backgroundColor: "#0A0A0A",
     justifyContent: "center",
     alignItems: "center",
   },

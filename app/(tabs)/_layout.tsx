@@ -10,11 +10,11 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: 'white',
-        tabBarActiveBackgroundColor: '#141414',
+        tabBarActiveBackgroundColor: '#0A0A0A',
         headerShown: false,
         tabBarStyle: Platform.select({
           ios: { position: 'absolute' },
-          default: { backgroundColor: '#141414' },
+          default: { backgroundColor: '#0A0A0A' },
         }),
       }}
     >
@@ -25,7 +25,7 @@ export default function TabLayout() {
           title: '',
           tabBarIcon: ({ color, focused }) => (
             <View style={{ alignItems: 'center' }}>
-              <Home strokeWidth={focused ? 2.5 : 2} color={color} size={24} />
+              <Home strokeWidth={focused ? 4 : 2} color={color} size={24} />
               {focused && <View style={styles.activeIndicator} />}
             </View>
           ),
@@ -37,7 +37,7 @@ export default function TabLayout() {
           title: '',
           tabBarIcon: ({ color, focused }) => (
             <View style={{ alignItems: 'center' }}>
-              <Search strokeWidth={focused ? 2.5 : 2} color={color} size={24} />
+              <Search strokeWidth={focused ? 3 : 2} color={color} size={24} />
               {focused && <View style={styles.activeIndicator} />}
             </View>
           ),
@@ -48,8 +48,8 @@ export default function TabLayout() {
         options={{ 
           title: '',
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: 'center', backgroundColor:'#2f2f2f',padding:5,top:6,borderRadius:10 }}>
-              <Plus  strokeWidth={focused ? 2.5  : 2} color={color} size={34} />
+            <View style={{ alignItems: 'center', backgroundColor:'#1f1f1f',padding:5,top:6,borderRadius:10 }}>
+              <Plus  strokeWidth={focused ? 4  : 2} color={color} size={34} />
               {focused && <View style={styles.activeIndicator} />}
             </View>
           ),
@@ -67,7 +67,7 @@ export default function TabLayout() {
           title: '',
           tabBarIcon: ({ color, focused }) => (
             <View style={{ alignItems: 'center' }}>
-              <Heart strokeWidth={focused ? 2.5  : 2} color={color} size={24} />
+              <Heart fill={focused ? 'white'  : ''} color={color} size={24} />
               {focused && <View style={styles.activeIndicator} />}
             </View>
           ),
@@ -79,7 +79,7 @@ export default function TabLayout() {
           title: '',
           tabBarIcon: ({ color, focused }) => (
             <View style={{ alignItems: 'center' }}>
-              <User strokeWidth={focused ? 2.5  : 2} color={color} size={24} />
+              <User fill={focused ? 'white'  : ''} color={color} size={24} />
               {focused && <View style={styles.activeIndicator} />}
             </View>
           ),
@@ -95,6 +95,6 @@ const styles = {
     height: 1,
     backgroundColor: 'white',
     marginTop: 2,
-    borderRadius: 1,
+    borderRadius: 3,
   },
 };

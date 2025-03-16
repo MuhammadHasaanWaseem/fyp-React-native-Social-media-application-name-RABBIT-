@@ -33,7 +33,7 @@ export default ()=> {
                   setPhoto(photo.uri);
                   setMediaType('image/jpg');
 
-                  console.log(photo.uri)
+                  // console.log(photo.uri)
                   let filename = photo.uri.split('/').pop()
                   if(!filename) return
                   //uploading file to the supabase storage
@@ -101,5 +101,4 @@ export default ()=> {
                                 </CameraView>
                             );
                           }
-                          // onPress={()=>
-                          //   router.back()}
+                       

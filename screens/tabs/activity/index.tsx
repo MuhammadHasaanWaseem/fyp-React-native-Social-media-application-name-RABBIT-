@@ -11,9 +11,9 @@ export default ()=>{
   const [selectedtab,setselectedtab]=useState('Follows');
 return(
 
-<SafeAreaView style={{backgroundColor:'#141414'}} className="flex-1">
+<SafeAreaView style={{backgroundColor:'#0A0A0A'}} className="flex-1">
 
-<HStack space="md" style={{marginTop:10}} className="items-center justify-center p-3 ">
+<HStack space="md" style={{marginTop:10}} className="p-3 ">
   <BellIcon color={'grey'} size={24}/>
   <Text style={{color:'white',fontSize:22,fontWeight:'600'}}>Notifcations</Text>
   </HStack>
