@@ -32,6 +32,8 @@ user                User     @relation("User",fields: [user_id], references: [id
 parent_id           String?
 parent              Post?    @relation(name: "Posts", fields: [parent_id], references: [id], onDelete: Cascade)
 text                String
+status              String?      
+unlock_at        DateTime?
 file                String?
 repost_user_id      String?
 repost_user         User?    @relation("RepostUser",fields: [repost_user_id], references: [id])

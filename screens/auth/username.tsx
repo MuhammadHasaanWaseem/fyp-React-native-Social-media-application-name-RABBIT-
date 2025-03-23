@@ -23,7 +23,7 @@ export default function VerifyScreen() {
       setErrorMessage("Username cannot be empty");
       return;
     }
-    
+
     setIsLoading(true);
     const success = await createUser(username);
     setIsLoading(false);
@@ -36,8 +36,8 @@ export default function VerifyScreen() {
   };
 
   return (
-    <Layout 
-      onPress={handleUsername} 
+    <Layout
+      onPress={handleUsername}
       buttonText={isLoading ? <Spinner color="white" /> : "Create Account"}
       buttonDisabled={isLoading}
     >
@@ -61,7 +61,7 @@ export default function VerifyScreen() {
                 autoCorrect={false}
               />
             </Input>
-            
+
             {errorMessage ? (
               <Text style={styles.errorText}>{errorMessage}</Text>
             ) : (
@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: 'white',
+    marginTop:8,
     marginBottom: 8,
     textAlign: 'center',
   },

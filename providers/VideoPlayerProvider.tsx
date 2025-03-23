@@ -8,7 +8,7 @@ type VideoPlayerContextType = {
 
 const VideoPlayerContext = createContext<VideoPlayerContextType>({
   currentVideo: null,
-  playVideo: async () => {},
+  playVideo: async () => { },
 });
 
 export const VideoPlayerProvider = ({ children }: { children: React.ReactNode }) => {

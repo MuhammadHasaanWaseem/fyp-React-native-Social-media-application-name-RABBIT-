@@ -4,7 +4,7 @@ import { FlatList, Image, Keyboard, SafeAreaView, TouchableOpacity, Linking } fr
 import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input"
 import { VStack } from '@/components/ui/vstack'
 import { usegif } from '@/hooks/use-gif'
-import { router} from 'expo-router'
+import { router } from 'expo-router'
 import { useDebounce } from '@/hooks/use-debounce'
 export default () => {
   const [search, setSearch] = useState('')
@@ -31,16 +31,17 @@ export default () => {
             onChangeText={setSearch}
             value={search}
             placeholder="Download a gif"
-            />
+          />
           <InputSlot className="pt-3">
             <TouchableOpacity onPress={Keyboard.dismiss} onLongPress={() => router.back()}>
-             <InputIcon as={CircleX} size={24} />
+              <InputIcon as={CircleX} size={24} />
             </TouchableOpacity>
           </InputSlot>
         </Input>
         <FlatList
           data={data?.data}
           numColumns={3}
+
           contentContainerStyle={{ paddingBottom: 150 }}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
@@ -48,19 +49,21 @@ export default () => {
             const imageUrl =
               item.images.fixed_height?.url || item.images.original?.url
             return (
+              <SafeAreaView>
               <TouchableOpacity onPress={() => handleupload(imageUrl)}>
                 <Image
                   style={{
-                    width: 120,
-                    height: 130,
+                    
+                    width: 100,
+                    height: 105,
                     borderRadius: 9,
                     borderColor: 'white',
                     borderWidth: 1,
-                    margin: 5,
+                    margin:5,
                   }}
                   source={{ uri: imageUrl }}
                 />
-              </TouchableOpacity>
+              </TouchableOpacity></SafeAreaView>
             )
           }}
         />

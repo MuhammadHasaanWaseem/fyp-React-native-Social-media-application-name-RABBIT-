@@ -9,7 +9,7 @@ export default function Rabbiticon({ size = 90 }: RabbitIconProps) {
   return (
     <View>
       <TouchableOpacity>
-        <Image source={require("../../assets/logo/rabbitnew.png")} style={[styles.logo, { width: size, height: size }]} />
+        <Image source={require("../../assets/logo/rabbitnew.png")} style={[styles.logo, {width: size, height: size }]} />
       </TouchableOpacity>
     </View>
   );

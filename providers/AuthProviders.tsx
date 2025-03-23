@@ -12,11 +12,11 @@
 // // Define the context with a default value
 // export const AuthContext = React.createContext<{
 //   user: User;
-  
+
 //   setuser: React.Dispatch<React.SetStateAction<User>>;
 //   logOut: () => Promise<void>;
 //   createUser:(username:string)=> Promise<void>;
-  
+
 // }>({
 //   user: {}, // Default empty object for user
 //   setuser: () => {}, // Default no-op function for setuser
@@ -34,7 +34,7 @@
 // export const AuthProvider = ({ children }: AuthProviderProps) => {
 //   const [user, setuser] = useState<User>({}); // State with typed user
 //   const [session, setSession] = useState<Session | null>(null)
-  
+
 
 
 //   // const createUser = async (username:string)=>{
@@ -55,19 +55,19 @@
 //         username,
 //       })
 //       .select();
-    
+
 //     if (error) {
 //       console.error(error);
 //       return false;
 //     }
-    
+
 //     const user = data[0];
 //     setuser(user);
 //     return true;
 //   };
-  
+
 // // const  getUser = async (session:Session | null)=>{
-  
+
 // //   if(session){
 // //     const{data,error}= await supabase.from('User').select().eq('id',session?.user.id)
 // //     if(!error){setuser(data[0])}
@@ -107,14 +107,14 @@
 // }
 //   useEffect(() => {
 //     supabase.auth.getSession().then(({ data: { session } }) => {
-    
+
 //       setSession(session)
 //       getUser(session);
-      
+
 //     })
 
 //     supabase.auth.onAuthStateChange((_event, session) => {
-  
+
 //       setSession(session)
 //       getUser(session);
 
@@ -146,8 +146,8 @@ export const AuthContext = React.createContext<{
   createUser: (username: string) => Promise<boolean>;
 }>({
   user: null, // Default null for user
-  setuser: () => {},
-  logOut: async () => {},
+  setuser: () => { },
+  logOut: async () => { },
   createUser: async (username: string) => false,
 });
 
@@ -170,12 +170,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         username,
       })
       .select();
-    
+
     if (error) {
       console.error(error);
       return false;
     }
-    
+
     const newUser = data[0];
     setuser(newUser);
     return true;
@@ -187,12 +187,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .from('User')
         .select()
         .eq('id', session.user.id);
-  
+
       if (error) {
         console.error(error);
         return;
       }
-  
+
       if (data && data.length > 0) {
         // Check if the user already has a username set
         if (data[0].username) {
@@ -207,24 +207,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     }
   };
-  
+
   const logOut = async () => {
     await supabase.auth.signOut();
     router.push('/(auth)');
   };
-  
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       getUser(session);
     });
-  
+
     supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       getUser(session);
     });
   }, []);
-  
+
   return (
     <AuthContext.Provider value={{ user, setuser, logOut, createUser }}>
       {children}

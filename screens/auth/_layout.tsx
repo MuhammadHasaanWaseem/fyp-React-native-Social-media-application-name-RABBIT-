@@ -2,7 +2,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import RabbitIcon from '@/assets/logo/Rabbitlogo';
 import { VStack } from '@/components/ui/vstack';
 import { Button, ButtonText } from '@/components/ui/button';
-import { 
+import {
   StyleSheet,
   TouchableOpacity,
   View,
@@ -16,10 +16,10 @@ import {
 import { router } from 'expo-router';
 import { HStack } from '@/components/ui/hstack';
 
-export default ({ children, onPress, buttonText }: { 
-  children: React.ReactNode, 
+export default ({ children, onPress, buttonText }: {
+  children: React.ReactNode,
   onPress: () => void,
-  buttonText: string 
+  buttonText: string
 }) => {
   return (
     <SafeAreaView style={styles.container}>
@@ -31,14 +31,16 @@ export default ({ children, onPress, buttonText }: {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.innerContainer}>
             <VStack style={styles.header}>
-              <HStack style={{alignItems:'center'}} space='md'>
-              <RabbitIcon size={60}/>
-              <VStack>
-                <Text></Text>
-              <Text style={{color:'white',fontSize:20,fontWeight:'900'}}>Rabbit</Text>
-              <Text style={{color:'white',fontSize:20,fontWeight:'900'}}>Innovation of a new era</Text>
+              <HStack style={{ alignItems: 'center' }} space='md'>
+                <RabbitIcon size={60} />
+                <VStack>
+                  <Text></Text>
+                  <Text style={{ color: 'white', fontSize: 20, fontWeight: '900' }}>Rabbit</Text>
+                  <Text style={{ color: 'white', fontSize: 20, fontWeight: '900' }}>Leap Beyond the Ordinary
 
-              </VStack>
+                  </Text>
+
+                </VStack>
               </HStack>
             </VStack>
 
@@ -50,8 +52,8 @@ export default ({ children, onPress, buttonText }: {
               <Button onPress={onPress} style={styles.mainButton}>
                 <ButtonText style={styles.buttonText}>{buttonText}</ButtonText>
               </Button>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 onPress={() => router.back()}
                 style={styles.backButton}
               >
@@ -130,3 +132,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+

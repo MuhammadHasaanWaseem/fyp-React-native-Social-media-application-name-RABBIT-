@@ -6,7 +6,7 @@ export const onShareProfile = async (username: string) => {
     // Construct the profile link (modify the URL as required)
     const profileLink = `https://yourdomain.com/user/${username}`;
     const shareMessage = `Check out this profile: ${profileLink}`;
-    
+
     const result = await Share.share({
       message: shareMessage,
     });

@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: {
-    marginBottom: 40,
+    marginTop:40,
   },
   title: {
     fontSize: 24,
@@ -98,18 +98,18 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   otpContainer: {
-    marginBottom: 32,
+    marginBottom: 12,
   },
   otpInputsContainer: {
-    gap: 12,
+    gap: 6,
   },
   pinCodeContainer: {
     backgroundColor: '#1F2937',
     borderWidth: 1,
     borderColor: '#374151',
-    borderRadius: 12,
-    height: 56,
-    width: 48,
+    borderRadius: 8,
+    height: 40,
+    width: 40,
   },
   pinCodeText: {
     color: 'white',

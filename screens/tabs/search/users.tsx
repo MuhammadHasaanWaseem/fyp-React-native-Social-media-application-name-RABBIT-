@@ -1,5 +1,5 @@
 import { VStack } from "@/components/ui/vstack";
-import { FlatList } from "react-native";
+import { FlatList, Text } from "react-native";
 import { useUser } from "@/hooks/use-user";
 import UserRow from "@/components/shared/user-row";
 import { usefollowing } from "@/hooks/use-following";
@@ -24,11 +24,23 @@ export default ({ search = "" }: UsersProps) => {
     );
   }
 
+  // If there are no users after filtering, show a message
+  if (filteredData.length === 0) {
+    return (
+      <VStack style={{ alignItems: "center", marginTop: 20 }}>
+        <Text style={{ color: "white", fontSize: 16 }}>
+          No user available with name {search ? `"${search}"` : ""}
+        </Text>
+      </VStack>
+    );
+  }
+
   return (
     <VStack>
       <FlatList
         data={filteredData}
         keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ paddingBottom: 50 }}
         renderItem={({ item }) => (
           <UserRow user={item} followingdata={followingdata} refetchfollowing={refetchfollowing} />
         )}

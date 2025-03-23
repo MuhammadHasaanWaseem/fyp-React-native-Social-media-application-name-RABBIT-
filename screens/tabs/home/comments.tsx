@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  TextInput, 
-  FlatList, 
-  ActivityIndicator, 
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  FlatList,
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -69,14 +69,16 @@ const Comments = () => {
   const deleteComment = async (commentId) => {
     Alert.alert("Delete Comment", "Are you sure you want to delete this comment?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Delete", onPress: async () => {
-        setComments(comments.filter(comment => comment.id !== commentId));
-        const { error } = await supabase.from('Comment').delete().eq('id', commentId);
-        if (error) {
-          console.error("Error deleting comment:", error);
-          fetchComments();
-        }
-      }, style: "destructive" }
+      {
+        text: "Delete", onPress: async () => {
+          setComments(comments.filter(comment => comment.id !== commentId));
+          const { error } = await supabase.from('Comment').delete().eq('id', commentId);
+          if (error) {
+            console.error("Error deleting comment:", error);
+            fetchComments();
+          }
+        }, style: "destructive"
+      }
     ]);
   };
 
@@ -93,12 +95,12 @@ const Comments = () => {
               <Text style={{ color: 'white' }}>{item.user?.username?.charAt(0)}</Text>
             </View>
           )}
-         <TouchableOpacity onPress={()=>router.push({
-                  pathname:'/user',
-                  params:{userid:item?.user_id}
-                })}>
-                    <Text style={{ color: 'white', fontWeight: 'bold', marginRight: 10 }}>{item.user?.username}</Text>
-                    </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push({
+            pathname: '/user',
+            params: { userid: item?.user_id }
+          })}>
+            <Text style={{ color: 'white', fontWeight: 'bold', marginRight: 10 }}>{item.user?.username}</Text>
+          </TouchableOpacity>
           <Text style={{ color: 'grey', fontSize: 12 }}>{formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}</Text>
         </HStack>
         {item.user_id === user?.id && (

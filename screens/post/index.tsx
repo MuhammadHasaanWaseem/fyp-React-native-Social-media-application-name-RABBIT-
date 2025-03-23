@@ -17,7 +17,7 @@ import {
 import { Divider } from '@/components/ui/divider';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Button, ButtonText } from '@/components/ui/button';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import Card from './card';
 import { FlatList } from 'react-native';
 import { usePost } from '@/providers/PostProvider';
@@ -26,15 +26,17 @@ import { ArrowLeft } from 'lucide-react-native';
 export default () => {
   const { user } = useAuth();
   const { threadId } = useLocalSearchParams();
- 
+
   const { clearpost, PostCard, uploadpost, Photo, MediaType, audio } = usePost();
 
   // Function to clear the post and navigate back
   const backwithpostclear = () => {
-    clearpost();
+    // clearpost();
     router.push('/(tabs)');
   };
-
+  useEffect(() => {
+    clearpost();
+  }, [])
   // 1. Text: Check if any post in the PostCard array has nonempty text.
   const hasText = PostCard.some(post => post.text && post.text.trim().length > 0);
   // 2. Media: Check if a photo/video is selected.
@@ -83,6 +85,7 @@ export default () => {
               </Text>
               <View style={{ width: 1 }} />
             </HStack>
+            {/* need to verify it */}
             <Divider />
 
             {/* List of Post Cards */}
@@ -97,10 +100,12 @@ export default () => {
                     <AvatarFallbackText style={{ color: '#141414', fontWeight: '700' }}>
                       {user?.username}
                     </AvatarFallbackText>
-                    <AvatarImage source={{ uri: user?.avatar }} />
+                    {/* <AvatarImage source={{ uri: user?.avatar }} /> */}
+                                        <AvatarImage source={{ uri: `${user?.avatar}?t=${new Date().getTime()}` }}/>
+
                   </Avatar>
-                  <Button variant="link" onPress={() => Alert.alert('non functional')}>
-                    <ButtonText style={{ color: 'white' }}>Add to Premire</ButtonText>
+                  <Button variant="link" >
+                    <ButtonText style={{ color: 'white' }}>These actions cannot be reversed</ButtonText>
                   </Button>
                 </HStack>
               }

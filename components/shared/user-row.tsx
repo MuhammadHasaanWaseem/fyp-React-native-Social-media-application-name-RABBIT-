@@ -1,4 +1,4 @@
-import {  SafeAreaView,Text, TouchableOpacity, View } from "react-native"
+import { SafeAreaView, Text, TouchableOpacity, View } from "react-native"
 import { useAuth } from "@/providers/AuthProviders";
 import { HStack } from "@/components/ui/hstack";
 import { Avatar, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar";
@@ -9,76 +9,72 @@ import { router } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { User } from "@/lib/type";
 // export default ({user,followingdata,refetchfollowing}:{user:User,followingdata:string[],refetchfollowing:()=>void})=>{
-    export default ({user,followingdata,refetchfollowing}:{user:User,followingdata:string[],refetchfollowing:()=>void})=>{
-    
-    // //follow function
-      const followuser =async(following_user_id:string)=>{
-        const {error}= await supabase.from('Followers').insert({
-          user_id:userauth?.id,
-          following_user_id
-        })
-        if(!error) refetchfollowing();
+export default ({ user, followingdata, refetchfollowing }: { user: User, followingdata: string[], refetchfollowing: () => void }) => {
 
-    }
-    //   //unfollow function
-      const unfollowuser =async(following_user_id:string)=>{
-        const {error}= await supabase.from('Followers').delete().eq('user_id',userauth?.id).eq('following_user_id',following_user_id);
-        if(!error) refetchfollowing();
+  // //follow function
+  const followuser = async (following_user_id: string) => {
+    const { error } = await supabase.from('Followers').insert({
+      user_id: userauth?.id,
+      following_user_id
+    })
+    if (!error) refetchfollowing();
 
-      }
-      const { user: userauth } = useAuth();
+  }
+  //   //unfollow function
+  const unfollowuser = async (following_user_id: string) => {
+    const { error } = await supabase.from('Followers').delete().eq('user_id', userauth?.id).eq('following_user_id', following_user_id);
+    if (!error) refetchfollowing();
 
-return(
+  }
+  const { user: userauth } = useAuth();
+
+  return (
 
 
 
 
     <SafeAreaView>
 
-<HStack style={{marginTop:10}} space="md" className="items-center justify-between">
-<HStack space="md" className="items-center">
-    
-<Avatar size="lg">
-  <AvatarFallbackText style={{ color: "white" }}>
-    {user?.username}
-  </AvatarFallbackText>
-  <AvatarImage source={{ uri: user?.avatar  }} />
-</Avatar>
-<VStack>
-<TouchableOpacity onPress={()=>router.push({
-pathname:'/user',
-params:{userid:user?.id}
-})}>
-    
-<Text style={{color:'white',fontWeight:'700'}}>
-    {user?.username} 
-</Text>
-</TouchableOpacity>
+      <HStack style={{ marginTop: 10 }} space="md" className="items-center justify-between">
+        <HStack space="md" className="items-center m-5">
 
-<Text style={{color:'white',fontSize:10}}>
- {user?.bio}</Text>
-</VStack>
-</HStack>
-{  followingdata?.includes( user?.id)   ?(
-<Button onPress={()=>unfollowuser(user.id)} variant="outline" className=" rounded-lg ">
-    <ButtonText style={{color:'white',fontWeight:'900'}}>
-Unfollow</ButtonText>
-</Button>):(
-    <Button onPress={()=>followuser(user.id)} className="bg-white rounded-lg ">
-    <ButtonText style={{color:'#141414',fontWeight:'900'}}>
-        Follow Back
-    </ButtonText>
-</Button>
-)} 
+          <Avatar size="md">
+            <AvatarFallbackText style={{ color: "white" }}>
+              {user?.username}
+            </AvatarFallbackText>
+            <AvatarImage source={{ uri: user?.avatar }} />
+          </Avatar>
+          <VStack>
+            <TouchableOpacity onPress={() => router.push({
+              pathname: '/user',
+              params: { userid: user?.id }
+            })}>
 
-</HStack>
-<Divider  style={{borderWidth:1,borderColor:'grey',marginTop:5}}/>
+              <Text style={{ color: 'white', fontWeight: '700' }}>
+                {user?.username}
+              </Text>
+            </TouchableOpacity>
 
+            <Text style={{ color: 'white', fontSize: 10 }}>
+              nickname @{user?.nickname}</Text>
+          </VStack>
+        </HStack>
+        {followingdata?.includes(user?.id) ? (
+          <Button onPress={() => unfollowuser(user.id)} variant="outline" className=" rounded-lg" style={{ marginLeft: 4 }}>
+            <ButtonText style={{ color: 'white', fontWeight: '900' }}>
+              Unfollow</ButtonText>
+          </Button>) : (
+          <Button onPress={() => followuser(user.id)} className="bg-white rounded-lg " style={{ marginLeft: 4 }}>
+            <ButtonText style={{ color: '#141414', fontWeight: '900' }}>
+              Follow Back
+            </ButtonText>
+          </Button>
+        )}
 
+      </HStack>
+      <Divider style={{ borderWidth: 1, borderColor: 'grey', marginTop: 5 }} />
 
+    </SafeAreaView>
 
-  
-</SafeAreaView>
-
-)
+  )
 }

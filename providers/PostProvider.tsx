@@ -7,15 +7,15 @@ import { router } from 'expo-router';
 
 export const Postcontext = React.createContext({
   PostCard: [] as Post[],
-  updatepost: (id: string, key: string, value: string) => {},
-  uploadpost: () => {},
-  clearpost: () => {},
-  addthreads:()=>{},
-  uploadFile : ( id:string,uri: string, type: string,name: string) => {},
-  MediaType:'', 
-  setMediaType:(uri:string)=>{},
-  setPhoto:(uri:string)=>{},
-  Photo:'',
+  updatepost: (id: string, key: string, value: string) => { },
+  uploadpost: () => { },
+  clearpost: () => { },
+  addthreads: () => { },
+  uploadFile: (id: string, uri: string, type: string, name: string) => { },
+  MediaType: '',
+  setMediaType: (uri: string) => { },
+  setPhoto: (uri: string) => { },
+  Photo: '',
 });
 
 export const usePost = () => React.useContext(Postcontext);
@@ -29,7 +29,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     user_id: user?.id || '',
     parent_id: null,
     text: '',
-    
+
   };
 
   const [PostCard, SetPostCard] = useState<Post[]>([]);
@@ -45,40 +45,40 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
   const uploadpost = async () => {
     const { data, error } = await supabase
-    
+
       .from('Post')
       .insert(PostCard)
       .order('created_at', { ascending: false });
-      clearpost()
+    clearpost()
 
-      router.back();
+    router.back();
 
-    if (!error) 
+    if (!error)
       clearpost(),
-      setPhoto('')
-      return data;    
-    
-   
+        setPhoto('')
+    return data;
+
+
   };
   //...............
-  const uploadFile = async ( id:string,uri: string, type: string,name: string) => {
-         
-      // Extract filename from URI
-      // const fileName = uri.split('/').pop() || `upload_${Date.now()}`;
-  
-      let newFormData = new FormData();
-      newFormData.append('file', {
-        uri,
-        name,
-        type,
-      } ); // Adding `as any` to satisfy TypeScript FormData type
-  
-      const { data, error } = await supabase.storage
-        .from(`files/${user?.id}`)
-        .upload(name, newFormData);
-   if(data) updatepost(id,'file',data?.path);
-    };
- 
+  const uploadFile = async (id: string, uri: string, type: string, name: string) => {
+
+    // Extract filename from URI
+    // const fileName = uri.split('/').pop() || `upload_${Date.now()}`;
+
+    let newFormData = new FormData();
+    newFormData.append('file', {
+      uri,
+      name,
+      type,
+    }); // Adding `as any` to satisfy TypeScript FormData type
+
+    const { data, error } = await supabase.storage
+      .from(`files/${user?.id}`)
+      .upload(name, newFormData);
+    if (data) updatepost(id, 'file', data?.path);
+  };
+
 
   const updatepost = async (id: string, key: string, value: string) => {
 
@@ -91,19 +91,19 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const clearpost = () => {
-    
+
     SetPostCard([defaultpost]);
     setPhoto('')
     setMediaType('')
-    
-    
+
+
   };
-  const addthreads =()=>{
-    SetPostCard([...PostCard,{...defaultpost,parent_id: PostCard[0].id}])
+  const addthreads = () => {
+    SetPostCard([...PostCard, { ...defaultpost, parent_id: PostCard[0].id }])
   }
 
   return (
-    <Postcontext.Provider value={{ PostCard,MediaType, setMediaType,addthreads, updatepost, uploadpost, clearpost ,uploadFile,Photo,setPhoto}}>
+    <Postcontext.Provider value={{ PostCard, MediaType, setMediaType, addthreads, updatepost, uploadpost, clearpost, uploadFile, Photo, setPhoto }}>
       {children}
     </Postcontext.Provider>
   );

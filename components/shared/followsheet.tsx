@@ -10,6 +10,7 @@ import { Avatar, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar"
 import { VStack } from "@/components/ui/vstack";
 import { router, useLocalSearchParams } from "expo-router";
 import { supabase } from "@/lib/supabase";
+import { User } from "@/lib/type";
 
 export default function FollowersScreen() {
   // Get optional userid from route parameters.
@@ -98,7 +99,7 @@ export default function FollowersScreen() {
               <AvatarFallbackText style={styles.avatarFallback}>
                 {item?.user?.username ? item.user.username.charAt(0).toUpperCase() : "?"}
               </AvatarFallbackText>
-              <AvatarImage source={{ uri: item?.user?.avatar }} />
+              <AvatarImage source={{ uri: item.user?.avatar }} />
             </Avatar>
             <VStack>
               <TouchableOpacity
@@ -138,7 +139,7 @@ export default function FollowersScreen() {
                 </Button>
               ) : (
                 <Button onPress={() => followUser(item.user.id)} style={styles.button}>
-                  <ButtonText style={styles.buttonText}>Follow Back</ButtonText>
+                  <ButtonText style={styles.buttonText}>Follow</ButtonText>
                 </Button>
               )
             )

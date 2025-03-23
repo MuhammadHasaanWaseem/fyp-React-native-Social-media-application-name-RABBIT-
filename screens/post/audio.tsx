@@ -7,7 +7,7 @@ import * as Crypto from "expo-crypto";
 import { usePost } from "@/providers/PostProvider";
 import { useAuth } from "@/providers/AuthProviders";
 
-export default ({ id, uri,userid }: { id: string; uri?: string ,userid?:string}) => {
+export default ({ id, uri, userid }: { id: string; uri?: string, userid?: string }) => {
   const { user } = useAuth();
   const { uploadFile } = usePost();
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
@@ -18,9 +18,9 @@ export default ({ id, uri,userid }: { id: string; uri?: string ,userid?:string})
   useEffect(() => {
     requestAudioPermissions();
   }, []);
-  useEffect(()=>{
-    if(uri) setRecordingUri(uri)
-  },[uri])
+  useEffect(() => {
+    if (uri) setRecordingUri(uri)
+  }, [uri])
 
   // Request Audio Permissions
   const requestAudioPermissions = async () => {
@@ -59,7 +59,7 @@ export default ({ id, uri,userid }: { id: string; uri?: string ,userid?:string})
     if (!uri) return;
 
     setRecordingUri(uri);
-    
+
     let filename = `${Crypto.randomUUID()}.m4a`;
     await uploadFile(id, uri, "audio/m4a", filename);
 

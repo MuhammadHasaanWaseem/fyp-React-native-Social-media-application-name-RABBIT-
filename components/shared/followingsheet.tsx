@@ -95,9 +95,9 @@ export default function Followingsheet() {
                 {item?.username || "Unknown User"}
               </Text>
             </TouchableOpacity>
-            <Text style={{color:'white',fontSize:12}}>
-                  Following
-              </Text>
+            <Text style={{ color: 'white', fontSize: 12 }}>
+              Following
+            </Text>
           </VStack>
         </HStack>
         <Button
