@@ -26,7 +26,8 @@ import {
   RotateCcw,
   UserCheck2,
   Trash2,
-  LucideUnlock
+  LucideUnlock,
+  Timer
 } from 'lucide-react-native';
 import { Video } from 'expo-av';
 import ImageViewing from 'react-native-image-viewing';
@@ -181,6 +182,8 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
           </Text>
 
         </HStack>
+        {rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}
+
       </VStack>
     </HStack>
   );
@@ -188,7 +191,6 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
   // Build the main content of the post (this part will be blurred if scheduled)
   const content = (
     <VStack style={{ marginLeft: 60, marginBottom: 20 }}>
-      {rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}
 
       {item?.file && item.file.match(/\.(mp3|m4a)$/i) && (
         <View style={{ marginTop: 3 }}>
@@ -323,16 +325,21 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
         {content}
         {isScheduled && (
           <BlurView intensity={100} tint="dark" style={styles.blurOverlay}>
-
-            <Text style={{ color: '#FF4500', fontSize: 13, fontWeight: '800' }}>
+                <VStack style={{padding:5,backgroundColor:'#FF4500',justifyContent:'center',alignContent:'center',alignItems:'center',borderRadius:16}}>
+                  
+            <Text style={{ color: 'white', fontSize: 13, fontWeight: '800' }}>
               {item.User?.username}
             </Text>
-            <Text style={{ color: '#FF4500', fontSize: 13, fontWeight: '800' }}>
-              set this Post as premier.
+            <Text style={{ color: 'white', fontSize: 13, fontWeight: '800' }}>
+              has set this Post as premier.
             </Text>
-            <Text style={{ color: '#FF4500', fontSize: 13, fontWeight: '800' }}>
+              <HStack>
+              <Timer color={'white'} size={24}/>
+            <Text style={{ color: 'white', fontSize: 13, fontWeight: '800' }}>
               {timeLeft} left.
             </Text>
+            </HStack>
+                </VStack>
 
 
           </BlurView>
@@ -346,15 +353,16 @@ const styles = StyleSheet.create({
   blurContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0f0f0f'
+    backgroundColor: '#010118'
   },
   blurOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     marginLeft: '15%',
-    marginRight: '15%',
-backgroundColor:'#141414',
-    alignItems: 'center'
+    marginRight: '30%',
+backgroundColor:'#010118',
+    alignItems: 'center',
+    
 
   },
   viewSpoilerButton: {

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { BackHandler, ToastAndroid, Platform } from 'react-native';
+import { BackHandler, ToastAndroid, Platform, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/providers/AuthProviders';
 import Rabbiticon from '@/assets/logo/Rabbiticon';
@@ -61,6 +61,7 @@ export default () => {
 
   return (
     <SafeAreaView style={{ backgroundColor: '#0a0a0a' }} className="flex-1">
+
       {/* Top Logo */}
       <HStack className="justify-between items-center">
         {/* <TouchableOpacity onPress={() => router.push('/worldchat')}>
@@ -123,6 +124,7 @@ export default () => {
         renderItem={({ item }) => (
           <>
             <View item={item} refetch={refetch} />
+            
           </>
         )}
       />

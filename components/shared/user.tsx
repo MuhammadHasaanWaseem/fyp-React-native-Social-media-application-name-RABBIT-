@@ -200,6 +200,77 @@ export default ({ user }: { user: User }) => {
       setShowNicknameModal(true);
     }
   };
+  const handleavatarupload = async () => {
+    try {
+      // Request media library permissions
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission Required", "Permission to access media library is required!");
+        return;
+      }
+
+      // Launch the image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.2,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        const uri = asset.uri;
+        const mimeType = asset.mimeType || "image/jpeg"; // Fallback to JPEG
+        const extension = mimeType.split("/")[1];
+        const name = `avatar.${extension}`;
+        const filePath = `${user.id}/${name}`;
+
+        // Upload the image to Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("files")
+          .upload(filePath, { uri, name, type: mimeType }, {
+            cacheControl: "3600",
+            upsert: true,
+          });
+
+        if (uploadError) {
+          Alert.alert("Error", `Error uploading avatar: ${uploadError.message}`);
+          return;
+        }
+
+        // Get the public URL for the uploaded file
+        const { data: urlData, error: urlError } = supabase.storage
+          .from("files")
+          .getPublicUrl(filePath);
+
+        if (urlError) {
+          Alert.alert("Error", `Error getting public URL: ${urlError.message}`);
+          return;
+        }
+
+        const publicUrl = urlData.publicUrl;
+        // Append a unique query parameter to bust the cache
+        const avatarUrlWithCacheBuster = `${publicUrl}?t=${Date.now()}`;
+
+        // Update the avatar field in the User table
+        const { data: updateData, error: updateError } = await supabase
+          .from("User")
+          .update({ avatar: avatarUrlWithCacheBuster })
+          .eq("id", user.id);
+
+        if (updateError) {
+          Alert.alert("Error", `Error updating avatar: ${updateError.message}`);
+        } else {
+          // Update local state to reflect the new avatar immediately
+          setLocalAvatar(avatarUrlWithCacheBuster);
+          Alert.alert("Success", "Avatar updated successfully!");
+        }
+      }
+    } catch (error) {
+      console.error("Error in handleAvatarPress:", error);
+      Alert.alert("Error", "An unexpected error occurred while updating the avatar.");
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#0A0A0A" }}>
@@ -337,7 +408,7 @@ export default ({ user }: { user: User }) => {
             <ActionsheetItemText style={{ color: "white" }}>Add Nickname</ActionsheetItemText>
           </ActionsheetItem>
           <Divider />
-          <ActionsheetItem onPress={handleAvatarPress}>
+          <ActionsheetItem onPress={handleavatarupload}>
             <ActionsheetIcon color="white" as={DownloadIcon} />
             <ActionsheetItemText style={{ color: "white" }}>Upload Profile Picture</ActionsheetItemText>
           </ActionsheetItem>

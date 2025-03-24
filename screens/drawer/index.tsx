@@ -48,7 +48,7 @@ const Drawer = () => {
                     onPress={() => router.push('/worldchat')}
                 >
                     <HStack space="md" alignItems="center">
-                        <Globe color="#BB86FC" size={24} style={{ marginRight: 10 }} />
+                        <Globe color="#FF4500" size={24} style={{ marginRight: 10 }} />
                         <Text style={styles.menuText}>World Chat</Text>
                     </HStack>
                 </Pressable>
@@ -61,7 +61,7 @@ const Drawer = () => {
                     onPress={logOut}
                 >
                     <HStack space="md" alignItems="center">
-                        <LogOut color="#BB86FC" size={24} style={{ marginRight: 10 }} />
+                        <LogOut color="#FF4500" size={24} style={{ marginRight: 10 }} />
                         <Text style={styles.menuText}>Log Out</Text>
                     </HStack>
                 </Pressable>
@@ -74,7 +74,7 @@ const Drawer = () => {
                     onPress={() => router.push('/chatbot')}
                 >
                     <HStack space="md" alignItems="center">
-                        <MessageSquare color="#BB86FC" size={24} style={{ marginRight: 10 }} />
+                        <MessageSquare color="#FF4500" size={24} style={{ marginRight: 10 }} />
                         <Text style={styles.menuText}>Chat Bot</Text>
                     </HStack>
                 </Pressable>
@@ -87,7 +87,7 @@ const Drawer = () => {
                     onPress={() => router.push('/useterms')}
                 >
                     <HStack space="md" alignItems="center">
-                        <EditIcon color="#BB86FC" size={24} style={{ marginRight: 10 }} />
+                        <EditIcon color="#FF4500" size={24} style={{ marginRight: 10 }} />
                         <Text style={styles.menuText}>Terms of use</Text>
                     </HStack>
                 </Pressable><Divider style={styles.divider} />
@@ -99,7 +99,7 @@ const Drawer = () => {
                     onPress={() => router.push('/policies')}
                 >
                     <HStack space="md" alignItems="center">
-                        <LucideAward color="#BB86FC" size={24} style={{ marginRight: 10 }} />
+                        <LucideAward color="#FF4500" size={24} style={{ marginRight: 10 }} />
                         <Text style={styles.menuText}>Privacy Policies</Text>
                     </HStack>
                 </Pressable>
@@ -121,7 +121,7 @@ export default Drawer;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0A0A0A',
+        backgroundColor: '#0a0a0a',
         paddingHorizontal: 20,
         paddingVertical: 10,
     },

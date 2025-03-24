@@ -66,7 +66,7 @@ export default ({ user, followingdata, refetchfollowing }: { user: User, followi
           </Button>) : (
           <Button onPress={() => followuser(user.id)} className="bg-white rounded-lg " style={{ marginLeft: 4 }}>
             <ButtonText style={{ color: '#141414', fontWeight: '900' }}>
-              Follow Back
+              Follow
             </ButtonText>
           </Button>
         )}
