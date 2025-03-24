@@ -10,7 +10,9 @@ import { Avatar, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar"
 import { VStack } from "@/components/ui/vstack";
 import { router, useLocalSearchParams } from "expo-router";
 import { supabase } from "@/lib/supabase";
-import { User } from "@/lib/type";
+import { Heading } from "@/components/ui/heading";
+import React, { useState } from "react";
+import { AlertDialog, AlertDialogBackdrop, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter } from "../ui/alert-dialog";
 
 export default function FollowersScreen() {
   // Get optional userid from route parameters.
@@ -19,6 +21,15 @@ export default function FollowersScreen() {
   const { user: authUser } = useAuth();
   const profileUserId = userid || authUser?.id;
   const isOwner = profileUserId === authUser?.id;
+
+  // State to control the confirmation dialog and store the selected follower to remove.
+  const [showAlertDialog, setShowAlertDialog] = useState(false);
+  const [selectedFollowerId, setSelectedFollowerId] = useState<string | null>(null);
+
+  const handleClose = () => {
+    setShowAlertDialog(false);
+    setSelectedFollowerId(null);
+  };
 
   // Fetch followers for the profile user.
   // The usefollowers hook returns rows where each row has:
@@ -90,7 +101,6 @@ export default function FollowersScreen() {
   }
 
   const renderItem = ({ item }: { item: any }) => {
-    // item.user contains the follower's details.
     return (
       <SafeAreaView style={styles.itemContainer}>
         <HStack style={styles.itemRow} space="md">
@@ -118,9 +128,12 @@ export default function FollowersScreen() {
             </VStack>
           </HStack>
           {isOwner ? (
-            // For your own followers, show a "Remove" button.
+            // For your own followers, show a "Remove" button that triggers a confirmation dialog.
             <Button
-              onPress={() => removeFollower(item.user.id)}
+              onPress={() => {
+                setSelectedFollowerId(item.user.id);
+                setShowAlertDialog(true);
+              }}
               variant="outline"
               style={styles.button}
             >
@@ -128,21 +141,20 @@ export default function FollowersScreen() {
             </Button>
           ) : (
             // For non-owner view, show follow/unfollow buttons.
-            authUser?.id !== item.user.id && (
-              followingData?.includes(item.user.id) ? (
-                <Button
-                  onPress={() => unfollowUser(item.user.id)}
-                  variant="outline"
-                  style={styles.button}
-                >
-                  <ButtonText style={styles.buttonTextOutline}>Unfollow</ButtonText>
-                </Button>
-              ) : (
-                <Button onPress={() => followUser(item.user.id)} style={styles.button}>
-                  <ButtonText style={styles.buttonText}>Follow</ButtonText>
-                </Button>
-              )
-            )
+            authUser?.id !== item.user.id &&
+            (followingData?.includes(item.user.id) ? (
+              <Button
+                onPress={() => unfollowUser(item.user.id)}
+                variant="outline"
+                style={styles.button}
+              >
+                <ButtonText style={styles.buttonTextOutline}>Unfollow</ButtonText>
+              </Button>
+            ) : (
+              <Button onPress={() => followUser(item.user.id)} style={styles.button}>
+                <ButtonText style={styles.buttonText}>Follow</ButtonText>
+              </Button>
+            ))
           )}
         </HStack>
         <Divider style={styles.itemDivider} />
@@ -169,6 +181,39 @@ export default function FollowersScreen() {
         onRefresh={refetchFollowers}
         contentContainerStyle={styles.listContent}
       />
+
+      {/* Confirmation Dialog for Removing a Follower */}
+      <AlertDialog isOpen={showAlertDialog} onClose={handleClose} size="md">
+        <AlertDialogBackdrop />
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <Heading className="text-typography-950 font-semibold" size="md">
+              Confirmation
+            </Heading>
+          </AlertDialogHeader>
+          <AlertDialogBody className="mt-3 mb-4">
+            <Text size="sm">
+              Are you sure you want to remove this follower?
+            </Text>
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button variant="outline" action="secondary" onPress={handleClose} size="sm">
+              <ButtonText>Cancel</ButtonText>
+            </Button>
+            <Button
+              size="sm"
+              onPress={async () => {
+                if (selectedFollowerId) {
+                  await removeFollower(selectedFollowerId);
+                }
+                handleClose();
+              }}
+            >
+              <ButtonText>Delete</ButtonText>
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </SafeAreaView>
   );
 }

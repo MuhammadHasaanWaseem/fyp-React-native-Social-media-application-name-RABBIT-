@@ -25,7 +25,8 @@ import {
   Play,
   RotateCcw,
   UserCheck2,
-  Trash2
+  Trash2,
+  LucideUnlock
 } from 'lucide-react-native';
 import { Video } from 'expo-av';
 import ImageViewing from 'react-native-image-viewing';
@@ -152,7 +153,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
 
   // Separate the header (non-blurred) from the main content.
   const header = (
-    <HStack style={{}} space="lg">
+    <HStack style={{alignItems:'center'}} space="lg">
       <Avatar style={{ borderColor: 'white', backgroundColor: 'white' }} size="md">
         {item.User?.avatar ? (
           <AvatarImage source={{ uri: item.User.avatar }} />
@@ -253,10 +254,10 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
             />
             {item.tag_name === 'spoiler' && !spoilerRevealed && (
               <>
-                <Text style={{ color: 'white' }}>This post might contain a spoiler</Text>
                 <BlurView intensity={50} tint="dark" style={[StyleSheet.absoluteFill, styles.blurContainer]}>
                   <TouchableOpacity onPress={() => setSpoilerRevealed(true)} style={styles.viewSpoilerButton}>
                     <Text style={styles.viewSpoilerText}>View Spoiler</Text>
+                    <LucideUnlock color={'white'} strokeWidth={2} size={20}/>
                   </TouchableOpacity>
                 </BlurView>
               </>
@@ -323,13 +324,13 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
         {isScheduled && (
           <BlurView intensity={100} tint="dark" style={styles.blurOverlay}>
 
-            <Text style={{ color: 'orange', fontSize: 13, fontWeight: '800' }}>
+            <Text style={{ color: '#FF4500', fontSize: 13, fontWeight: '800' }}>
               {item.User?.username}
             </Text>
-            <Text style={{ color: 'orange', fontSize: 13, fontWeight: '800' }}>
+            <Text style={{ color: '#FF4500', fontSize: 13, fontWeight: '800' }}>
               set this Post as premier.
             </Text>
-            <Text style={{ color: 'orange', fontSize: 13, fontWeight: '800' }}>
+            <Text style={{ color: '#FF4500', fontSize: 13, fontWeight: '800' }}>
               {timeLeft} left.
             </Text>
 
@@ -352,18 +353,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginLeft: '15%',
     marginRight: '15%',
+backgroundColor:'#141414',
+    alignItems: 'center'
 
-    alignItems: 'center',
-
-    backgroundColor: '#0A0A0A'
   },
   viewSpoilerButton: {
     padding: 8,
-    backgroundColor: 'rgba(255,255,255,0.7)',
-    borderRadius: 5
+    backgroundColor: '#FF4500',
+    borderRadius: 5,
+    alignContent:'center',
+    alignItems:'center'
+  
   },
   viewSpoilerText: {
-    color: '#141414'
+    color: 'white',
+    textAlign:'center',
+    fontWeight:'900',
+    fontSize:11,
+    marginBottom:3
   },
   videoControls: {
     position: 'absolute',

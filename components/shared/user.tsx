@@ -24,7 +24,7 @@ import { usePosts } from "@/hooks/use-posts";
 import BottomSheet from "./bottom-sheet";
 import { useAuth } from "@/providers/AuthProviders";
 import { usefollowers } from "@/hooks/use-followers";
-// IMPORTANT: use the auth user’s following list so that you can check if you’re following the profile user.
+import ImageViewing from "react-native-image-viewing";
 import { usefollowing } from "@/hooks/use-following";
 import { router } from "expo-router";
 import { onShareProfile } from "@/lib/shareprofile";
@@ -56,7 +56,7 @@ export default ({ user }: { user: User }) => {
   const [tab, setTab] = useState<typeof tabs[number]>(tabs[0]);
   const [showActionsheet, setShowActionsheet] = useState(false);
   const { data, refetch, isLoading } = usePosts({ key: tab.key, value: user?.id, type: "eq" });
-
+  const [isImageVisible, setImageVisible] = useState(false);
   // For editing profile sheet (e.g., adding bio, nickname, upload profile picture)
   const [editSheet, setEditSheet] = useState(false);
   const handleClose = () => setEditSheet(false);
@@ -112,74 +112,12 @@ export default ({ user }: { user: User }) => {
   };
 
   const handleAvatarPress = async () => {
-    try {
-      // Request media library permissions
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Permission Required", "Permission to access media library is required!");
-        return;
-      }
-
-      // Launch the image picker
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.2,
-      });
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const asset = result.assets[0];
-        const uri = asset.uri;
-        const mimeType = asset.mimeType || "image/jpeg"; // Fallback to JPEG
-        const extension = mimeType.split("/")[1];
-        const name = `avatar.${extension}`;
-        const filePath = `${user.id}/${name}`;
-
-        // Upload the image to Supabase Storage
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("files")
-          .upload(filePath, { uri, name, type: mimeType }, {
-            cacheControl: "3600",
-            upsert: true,
-          });
-
-        if (uploadError) {
-          Alert.alert("Error", `Error uploading avatar: ${uploadError.message}`);
-          return;
-        }
-
-        // Get the public URL for the uploaded file
-        const { data: urlData, error: urlError } = supabase.storage
-          .from("files")
-          .getPublicUrl(filePath);
-
-        if (urlError) {
-          Alert.alert("Error", `Error getting public URL: ${urlError.message}`);
-          return;
-        }
-
-        const publicUrl = urlData.publicUrl;
-        // Append a unique query parameter to bust the cache
-        const avatarUrlWithCacheBuster = `${publicUrl}?t=${Date.now()}`;
-
-        // Update the avatar field in the User table
-        const { data: updateData, error: updateError } = await supabase
-          .from("User")
-          .update({ avatar: avatarUrlWithCacheBuster })
-          .eq("id", user.id);
-
-        if (updateError) {
-          Alert.alert("Error", `Error updating avatar: ${updateError.message}`);
-        } else {
-          // Update local state to reflect the new avatar immediately
-          setLocalAvatar(avatarUrlWithCacheBuster);
-          Alert.alert("Success", "Avatar updated successfully!");
-        }
-      }
-    } catch (error) {
-      console.error("Error in handleAvatarPress:", error);
-      Alert.alert("Error", "An unexpected error occurred while updating the avatar.");
+    if (isOwner) {
+      // If the owner taps, open the zoomable view
+      setImageVisible(true);
+    } else {
+      // For non-owners, you can either open the zoomable view or do nothing
+      setImageVisible(true);
     }
   };
 
@@ -196,7 +134,7 @@ export default ({ user }: { user: User }) => {
         Alert.alert("Success", "Bio updated successfully!");
       }
     } catch (err) {
-      Alert.alert("Error", "An unexpected error occurred while updating bio.");
+      Alert.alert("Error", "An unexpected error occurred while updating the bio.");
     }
   };
 
@@ -213,7 +151,7 @@ export default ({ user }: { user: User }) => {
         Alert.alert("Success", "Nickname updated successfully!");
       }
     } catch (err) {
-      Alert.alert("Error", "An unexpected error occurred while updating nickname.");
+      Alert.alert("Error", "An unexpected error occurred while updating the nickname.");
     }
   };
 
@@ -268,43 +206,34 @@ export default ({ user }: { user: User }) => {
       <Text></Text>
       <Text></Text>
       <HStack className="items-center justify-between p-6">
-
         <VStack>
-          <Text style={{ fontSize: 24, marginLeft: 8, fontWeight: "bold", color: "white" }}>
-            {user?.username}
-          </Text>
-
+          <Text style={{ fontSize: 24, marginLeft: 8, fontWeight: "bold", color: "white" }}>{user?.username} </Text>
           <HStack className="items-center" style={{ marginTop: 5 }}>
             <Text style={{ color: "white", fontSize: 12, fontWeight: "900" }}>Bio : </Text>
             <Text style={{ color: "white", fontSize: 12 }}> {user?.bio || "Not set"}</Text>
           </HStack>
           <HStack className="items-center" style={{ marginTop: 5 }}>
-            <Text style={{ color: "white", fontSize: 12, fontWeight: "900" }}>nickname : </Text>
+            <Text style={{ color: "white", fontSize: 12, fontWeight: "900" }}>Nickname : </Text>
             <Text style={{ color: "white", fontSize: 12 }}>{user?.nickname || "Not set"}</Text>
           </HStack>
         </VStack>
-        {/* Clickable avatar */}
-        {isOwner && <Pressable onPress={() => { }}>
+        {/* Clickable, zoomable avatar */}
+        <Pressable onPress={handleAvatarPress}>
           <Avatar size="lg">
             <AvatarFallbackText style={{ color: "white" }}>
               {user?.username}
             </AvatarFallbackText>
             <AvatarImage source={{ uri: localAvatar || user?.avatar }} />
           </Avatar>
-
-        </Pressable>}
-        {
-          !isOwner && <Pressable onPress={() => { }}>
-            <Avatar size="lg">
-              <AvatarFallbackText style={{ color: "white" }}>
-                {user?.username}
-              </AvatarFallbackText>
-              <AvatarImage source={{ uri: user?.avatar }} />
-            </Avatar>
-
-          </Pressable>
-        }
+        </Pressable>
       </HStack>
+      {/* Zoomable Profile Avatar Modal */}
+      <ImageViewing
+        images={[{ uri: localAvatar || user?.avatar }]}
+        imageIndex={0}
+        visible={isImageVisible}
+        onRequestClose={() => setImageVisible(false)}
+      />
       <HStack style={{ marginLeft: 40 }} space="md">
         {followers && (
           <AvatarGroup>
@@ -323,7 +252,6 @@ export default ({ user }: { user: User }) => {
             )}
           </AvatarGroup>
         )}
-
         {/* Navigate to follower sheet */}
         <Pressable onPress={() => router.push({ pathname: "/followsheet", params: { userid: user?.id } })}>
           <Text style={{ color: "grey" }}>Follower {followers?.length}</Text>
@@ -383,17 +311,13 @@ export default ({ user }: { user: User }) => {
           refreshing={isLoading}
           onRefresh={refetch}
           contentContainerStyle={{ paddingBottom: 200 }}
-
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <>
               <View item={item} refetch={refetch} />
-              
-
             </>
           )}
         />
-
       </VStack>
       <BottomSheet showActionsheet={showActionsheet} setShowActionsheet={setShowActionsheet} />
       {/* Edit Profile Actionsheet */}
@@ -425,7 +349,6 @@ export default ({ user }: { user: User }) => {
           <Divider />
         </ActionsheetContent>
       </Actionsheet>
-
       {/* Android Bio Modal */}
       {Platform.OS !== "ios" && (
         <Modal transparent visible={showBioModal} animationType="slide">
@@ -457,7 +380,6 @@ export default ({ user }: { user: User }) => {
           </RNView>
         </Modal>
       )}
-
       {/* Android Nickname Modal */}
       {Platform.OS !== "ios" && (
         <Modal transparent visible={showNicknameModal} animationType="slide">
@@ -492,7 +414,6 @@ export default ({ user }: { user: User }) => {
           </RNView>
         </Modal>
       )}
-
     </SafeAreaView>
   );
 };
@@ -522,6 +443,3 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
 });
-
-
-

@@ -10,7 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
-  Alert
+  Alert,
+  StatusBar
 } from 'react-native';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
@@ -115,8 +116,9 @@ const Comments = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
+      <StatusBar hidden={true}/>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={80}>
-        <View style={{ flex: 1, backgroundColor: '#141414' }}>
+        <View style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
           <HStack style={{ marginTop: 43, marginHorizontal: 14, alignItems: 'center' }}>
             <TouchableOpacity onPress={() => router.back()}>
               <ArrowLeft color='white' />

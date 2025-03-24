@@ -1,7 +1,7 @@
 import { View, Text, Pressable, StyleSheet, SafeAreaView } from 'react-native';
 import React from 'react';
 import { router } from 'expo-router';
-import { ArrowLeft, Globe, LogOut, MessageSquare } from 'lucide-react-native';
+import { ArrowLeft, EditIcon, Globe, LogOut, LucideAward, MessageSquare } from 'lucide-react-native';
 import { HStack } from '@/components/ui/hstack';
 import { Divider } from '@/components/ui/divider';
 import { useAuth } from '@/providers/AuthProviders';
@@ -76,6 +76,31 @@ const Drawer = () => {
                     <HStack space="md" alignItems="center">
                         <MessageSquare color="#BB86FC" size={24} style={{ marginRight: 10 }} />
                         <Text style={styles.menuText}>Chat Bot</Text>
+                    </HStack>
+                </Pressable>
+                <Divider style={styles.divider} />
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.menuItem,
+                        pressed && styles.menuItemPressed,
+                    ]}
+                    onPress={() => router.push('/useterms')}
+                >
+                    <HStack space="md" alignItems="center">
+                        <EditIcon color="#BB86FC" size={24} style={{ marginRight: 10 }} />
+                        <Text style={styles.menuText}>Terms of use</Text>
+                    </HStack>
+                </Pressable><Divider style={styles.divider} />
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.menuItem,
+                        pressed && styles.menuItemPressed,
+                    ]}
+                    onPress={() => router.push('/policies')}
+                >
+                    <HStack space="md" alignItems="center">
+                        <LucideAward color="#BB86FC" size={24} style={{ marginRight: 10 }} />
+                        <Text style={styles.menuText}>Privacy Policies</Text>
                     </HStack>
                 </Pressable>
             </View>

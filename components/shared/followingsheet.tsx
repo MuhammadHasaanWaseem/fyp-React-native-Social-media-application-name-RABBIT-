@@ -5,6 +5,8 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   StyleSheet,
+  Animated,
+  Alert,
 } from "react-native";
 import { Divider } from "@/components/ui/divider";
 import { HStack } from "@/components/ui/hstack";
@@ -22,14 +24,11 @@ import { supabase } from "@/lib/supabase";
 
 export default function Followingsheet() {
   const { user: authUser } = useAuth();
-  // Get following IDs of the logged-in user
   const { data: followingIDs, isLoading, error, refetch } = usefollowing(
     authUser?.id
   );
-  // Remove duplicates (if any)
   const uniqueFollowingIDs = Array.from(new Set(followingIDs || []));
 
-  // Use useQueries to fetch detailed user data for each following ID
   const userQueries = useQueries({
     queries: uniqueFollowingIDs.map((id) => ({
       queryKey: ["user", id],
@@ -38,11 +37,9 @@ export default function Followingsheet() {
     })),
   });
 
-  // Check if any queries are loading
   const queriesLoading = userQueries.some((q) => q.isLoading);
   const users = userQueries.map((q) => q.data).filter(Boolean);
 
-  // Function to unfollow a user (remove from your following list)
   const handleUnfollow = async (targetId: string) => {
     const { error } = await supabase
       .from("Followers")
@@ -55,6 +52,91 @@ export default function Followingsheet() {
       console.error("Error unfollowing:", error);
     }
   };
+
+  const confirmUnfollow = (targetId: string) => {
+    Alert.alert(
+      "Unfollow Confirmation",
+      "Are you sure you want to unfollow this user?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Unfollow", style: "destructive", onPress: () => handleUnfollow(targetId) },
+      ]
+    );
+  };
+
+  const AnimatedListItem = ({ item, index }) => {
+    const opacity = React.useRef(new Animated.Value(0)).current;
+    const buttonScale = React.useRef(new Animated.Value(1)).current;
+
+    React.useEffect(() => {
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 300,
+        delay: index * 100,
+        useNativeDriver: true,
+      }).start();
+    }, []);
+
+    const handlePressIn = () => {
+      Animated.spring(buttonScale, {
+        toValue: 0.95,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    const handlePressOut = () => {
+      Animated.spring(buttonScale, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    return (
+      <Animated.View style={[styles.itemContainer, { opacity }]}>
+        <HStack style={styles.itemRow} space="md">
+          <HStack style={styles.userInfo} space="md">
+            <Avatar size="lg">
+              <AvatarFallbackText style={styles.avatarFallback}>
+                {item?.username ? item.username.charAt(0).toUpperCase() : "?"}
+              </AvatarFallbackText>
+              <AvatarImage source={{ uri: item?.avatar }} />
+            </Avatar>
+            <VStack>
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/user",
+                    params: { userid: item.id },
+                  })
+                }
+              >
+                <Text style={styles.usernameText}>
+                  {item?.username || "Unknown User"}
+                </Text>
+              </TouchableOpacity>
+              <Text style={{ color: "white", fontSize: 12 }}>You are Following</Text>
+            </VStack>
+          </HStack>
+          <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+            <Button
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+              onPress={() => confirmUnfollow(item.id)}
+              variant="outline"
+              style={styles.button}
+            >
+              <ButtonText style={styles.buttonTextOutline}>Unfollow</ButtonText>
+            </Button>
+          </Animated.View>
+        </HStack>
+        <Divider style={styles.itemDivider} />
+      </Animated.View>
+    );
+  };
+
+  const renderItem = ({ item, index }) => (
+    <AnimatedListItem item={item} index={index} />
+  );
 
   if (isLoading || queriesLoading) {
     return (
@@ -71,46 +153,6 @@ export default function Followingsheet() {
       </SafeAreaView>
     );
   }
-
-  const renderItem = ({ item }: { item: any }) => (
-    <SafeAreaView style={styles.itemContainer}>
-      <HStack style={styles.itemRow} space="md">
-        <HStack style={styles.userInfo} space="md">
-          <Avatar size="lg">
-            <AvatarFallbackText style={styles.avatarFallback}>
-              {item?.username ? item.username.charAt(0).toUpperCase() : "?"}
-            </AvatarFallbackText>
-            <AvatarImage source={{ uri: item?.avatar }} />
-          </Avatar>
-          <VStack>
-            <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: "/user",
-                  params: { userid: item.id },
-                })
-              }
-            >
-              <Text style={styles.usernameText}>
-                {item?.username || "Unknown User"}
-              </Text>
-            </TouchableOpacity>
-            <Text style={{ color: 'white', fontSize: 12 }}>
-              Following
-            </Text>
-          </VStack>
-        </HStack>
-        <Button
-          onPress={() => handleUnfollow(item.id)}
-          variant="outline"
-          style={styles.button}
-        >
-          <ButtonText style={styles.buttonTextOutline}>Unfollow</ButtonText>
-        </Button>
-      </HStack>
-      <Divider style={styles.itemDivider} />
-    </SafeAreaView>
-  );
 
   return (
     <SafeAreaView style={styles.container}>

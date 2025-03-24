@@ -84,6 +84,8 @@ export default function RootLayout() {
               <Stack.Screen name="followsheet" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} />
               <Stack.Screen name="followingsheet" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} />
               <Stack.Screen name="drawer" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_left' }} />
+              <Stack.Screen name="policies" options={{headerTitle : '', presentation: 'modal', animation: 'slide_from_left' }} />
+              <Stack.Screen name="useterms" options={{ headerTitle: '', presentation: 'modal', animation: 'slide_from_bottom' }} />
               <Stack.Screen name="+not-found" />
             </Stack>
           </PostProvider>

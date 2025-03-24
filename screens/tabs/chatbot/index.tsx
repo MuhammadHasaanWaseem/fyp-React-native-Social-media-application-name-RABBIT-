@@ -10,7 +10,7 @@ import { ArrowLeft, Send } from "lucide-react-native";
 import { HStack } from "@/components/ui/hstack";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const API_KEY = "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";
+const API_KEY = "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";
 
 if (Platform.OS === "android") {
   UIManager.setLayoutAnimationEnabledExperimental(true);
