@@ -74,7 +74,7 @@ export default ({ children, onPress, buttonText }: {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: '#010118',
   },
   innerContainer: {
     flex: 1,
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   mainButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#FF4500',
     borderRadius: 14,
     height: 56,
     shadowColor: '#3B82F6',

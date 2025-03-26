@@ -115,16 +115,16 @@ const Comments = () => {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#010118' }}>
       <StatusBar hidden={true}/>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={80}>
-        <View style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
+        <View style={{ flex: 1, backgroundColor: '#010118' }}>
           <HStack style={{ marginTop: 43, marginHorizontal: 14, alignItems: 'center' }}>
             <TouchableOpacity onPress={() => router.back()}>
               <ArrowLeft color='white' />
             </TouchableOpacity>
             <View style={{ flex: 1, alignItems: 'center', position: 'absolute', left: 0, right: 0 }}>
-              <Text style={{ color: 'white', fontWeight: '900', fontSize: 16 }}>Comments</Text>
+              <Text style={{ color: '#ff4500', fontWeight: '900', fontSize: 16 }}>Comments</Text>
             </View>
           </HStack>
           <Divider style={{ marginVertical: 10, backgroundColor: '#333' }} />

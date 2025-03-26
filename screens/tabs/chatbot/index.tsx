@@ -123,7 +123,7 @@ export default function ChatScreen() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.innerContainer}>
           <HStack style={styles.header}>
-            <TouchableOpacity onPress={() => router.push("/(tabs)")} style={styles.backButton}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <ArrowLeft size={24} color={"#E0E0E0"} />
             </TouchableOpacity>
             <Text style={styles.title}>Rabbit AI</Text>
@@ -167,7 +167,7 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
+    backgroundColor: "#010118",
   },
   innerContainer: {
     flex: 1,

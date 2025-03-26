@@ -18,7 +18,7 @@ export default () => {
     }
   }
   return (
-    <SafeAreaView style={{ backgroundColor: '#0A0A0A' }} className="flex-1">
+    <SafeAreaView style={{ backgroundColor: '#010118' }} className="flex-1">
       <VStack space="3xl" className="items-center p-5">
         <Input
           className="p-2 rounded-lg"

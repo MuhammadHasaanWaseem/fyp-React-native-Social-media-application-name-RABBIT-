@@ -243,11 +243,6 @@ const Worldchat = () => {
     setShowAlertDialog(true);
   };
 
-  // Dedicated cancel function for Clear Chat alert (only closes alert)
-  const cancelClearChat = () => {
-    setShowAlertDialog(false);
-  };
-
   const handleClearAndBack = async () => {
     const { error } = await supabase
       .from('WorldChatMessage')
@@ -265,8 +260,7 @@ const Worldchat = () => {
   };
 
   const handleBackWithoutClearing = () => {
-    // This function can be used if you need to navigate back without clearing,
-    // but now we are using cancelClearChat for simply closing the dialog.
+    setShowAlertDialog(false);
     router.back();
   };
 
@@ -351,8 +345,7 @@ const Worldchat = () => {
               <SendIcon color={'#4FC3F7'} />
             </TouchableOpacity>
           </Animated.View>
-          {/* Clear Chat Alert Dialog */}
-          <AlertDialog isOpen={showAlertDialog} onClose={cancelClearChat} size="lg">
+          <AlertDialog isOpen={showAlertDialog} onClose={handleBackWithoutClearing} size="lg">
             <AlertDialogBackdrop />
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -366,7 +359,7 @@ const Worldchat = () => {
                 </Text>
               </AlertDialogBody>
               <AlertDialogFooter>
-                <Button variant="outline" action="secondary" onPress={cancelClearChat} size="sm">
+                <Button variant="outline" action="secondary" onPress={handleBackWithoutClearing} size="sm">
                   <ButtonText>Cancel</ButtonText>
                 </Button>
                 <Button onPress={handleClearAndBack} size="sm">
@@ -375,7 +368,6 @@ const Worldchat = () => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          {/* Delete Message Alert Dialog */}
           <AlertDialog isOpen={deleteAlertVisible} onClose={cancelDeleteAlert} size="lg">
             <AlertDialogBackdrop />
             <AlertDialogContent>
@@ -407,14 +399,14 @@ const Worldchat = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#010118',
+    backgroundColor: '#0a0a0a',
   },
   keyboardAvoiding: {
     flex: 1,
   },
   container: {
     flex: 1,
-    backgroundColor: '#010118',
+    backgroundColor: '#0a0a0a',
   },
   header: {
     flexDirection: 'row',
@@ -424,11 +416,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderBottomWidth: 0.5,
     borderBottomColor: '#2D2D2D',
-    backgroundColor: '#010118',
+    backgroundColor: '#0a0a0a',
   },
   headerTitle: {
     fontSize: 20,
-    color: '#f0f0f0',
+    color: '#F0F0F0',
     fontWeight: '600',
     letterSpacing: 0.5,
   },
@@ -450,7 +442,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.5,
     borderTopColor: '#2D2D2D',
     alignItems: 'center',
-    backgroundColor: '#0a0a0a',
+    backgroundColor: '#1A1A1A',
     gap: 12,
     borderRadius: 24,
     marginHorizontal: 16,
@@ -458,7 +450,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    backgroundColor: '#010119',
+    backgroundColor: '#262626',
     color: '#F0F0F0',
     borderRadius: 24,
     paddingVertical: 12,
@@ -478,7 +470,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   messageCurrent: {
-    backgroundColor: '#ff4500',
+    backgroundColor: '#2B2B2B',
     alignSelf: 'flex-end',
     borderTopRightRadius: 4,
   },
@@ -530,4 +522,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Worldchat;
+export default Worldchat; 

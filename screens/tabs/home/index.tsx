@@ -60,7 +60,7 @@ export default () => {
 
 
   return (
-    <SafeAreaView style={{ backgroundColor: '#0a0a0a' }} className="flex-1">
+    <SafeAreaView style={{ backgroundColor: '#010118' }} className="flex-1">
 
       {/* Top Logo */}
       <HStack className="justify-between items-center">

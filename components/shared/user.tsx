@@ -273,7 +273,7 @@ export default ({ user }: { user: User }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#0A0A0A" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#010118" }}>
       <Text></Text>
       <Text></Text>
       <HStack className="items-center justify-between p-6">

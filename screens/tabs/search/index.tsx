@@ -11,20 +11,20 @@ export default () => {
   const debounceSearch = useDebounce(search, 500);
 
   return (
-    <SafeAreaView style={{ backgroundColor: "#0A0A0A" }} className="flex-1">
+    <SafeAreaView style={{ backgroundColor: "#010118" }} className="flex-1">
       <VStack space="md" style={{ marginTop: 30 }}>
         <Text
           style={{
             fontSize: 24,
-            fontWeight: "700",
+            fontWeight: "900",
             marginBottom: 3,
-            marginLeft: 5,
-            color: "white",
+            marginLeft: '5%',
+            color: "#ff4500",
           }}
         >
           Search
         </Text>
-        <Input className="rounded-lg" style={{ backgroundColor: "#242424", margin: 5 }}>
+        <Input className="rounded-lg" style={{ backgroundColor: "#141414", margin: 5 }}>
           <InputSlot style={{ paddingLeft: 6 }}>
             <InputIcon as={SearchIcon} />
           </InputSlot>

@@ -42,7 +42,7 @@ export default () => {
 
         renderItem={({ item }) => {
           return (
-            <SafeAreaView>
+            <SafeAreaView >
 
               <HStack style={{ marginTop: 10 }} space="md" className="items-center justify-between">
                 <HStack space="md" className="items-center">

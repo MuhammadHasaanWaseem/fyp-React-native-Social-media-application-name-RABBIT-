@@ -68,7 +68,7 @@ export default () => {
   );
 
   return (
-    <SafeAreaView style={{ backgroundColor: '#0A0A0A' }} className="flex-1">
+    <SafeAreaView style={{ backgroundColor: '#010118' }} className="flex-1">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -105,7 +105,7 @@ export default () => {
 
                   </Avatar>
                   <Button variant="link" >
-                    <ButtonText style={{ color: 'white' }}>These actions cannot be reversed</ButtonText>
+                    <ButtonText style={{ color: '#ff4500' }}>These actions cannot be reversed</ButtonText>
                   </Button>
                 </HStack>
               }
@@ -122,7 +122,7 @@ export default () => {
               }}
             >
               <HStack className="items-center justify-between p-3">
-                <Text style={{ color: 'white' }} className="text-gray-500">
+                <Text style={{ color: '#ff4500' }} className="text-gray-500">
                   ᴬⁿʸᵒⁿᵉ ᶜᵃⁿ ʳᵉᵖˡʸ & qᵘᵒᵗᵉ!
                 </Text>
                 <Button

@@ -46,7 +46,7 @@ export default ({ showActionsheet, setShowActionsheet }: { showActionsheet: bool
         
 
         <ActionsheetItem onPress={handlelogout}>
-          <ActionsheetItemText style={{ color: 'red' }}>Logout?</ActionsheetItemText>
+          <ActionsheetItemText style={{ color: '#FF4500' }}>Logout?</ActionsheetItemText>
         </ActionsheetItem>
         <Divider />
         <ActionsheetItem onPress={() =>{}}>

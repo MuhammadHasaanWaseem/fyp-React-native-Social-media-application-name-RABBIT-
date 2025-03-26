@@ -37,9 +37,7 @@ import { supabase } from '@/lib/supabase';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/providers/AuthProviders';
 import { router } from 'expo-router';
-import { usefollowing } from '@/hooks/use-following';
 import { BlurView } from 'expo-blur';
-
 export default function ShareView({ item, refetch }: { item: any; refetch: () => void }) {
   const { user } = useAuth();
   const isliked = item?.Like?.some((like: { user_id: string }) => like.user_id === user?.id);
@@ -286,10 +284,10 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
           <TouchableOpacity onPress={isliked ? removelike : addlike}>
             <HStack>
               <Heart
-                color={isliked ? 'red' : 'white'}
+                color={isliked ? '#ff4500' : '#ff4500'}
                 size={20}
                 strokeWidth={1}
-                fill={isliked ? 'red' : 'transparent'}
+                fill={isliked ? '#ff4500' : 'transparent'}
               />
               <Text style={{ color: 'white', marginLeft: 4 }}>
                 {item.Like ? item.Like.length : 0}
@@ -298,7 +296,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push({ pathname: '/comments', params: { id: item.id } })}>
             <HStack>
-              <MessageCircle color="white" size={20} strokeWidth={1} />
+              <MessageCircle color="#ff4500" size={20} strokeWidth={1} />
               <Text style={{ color: 'white', marginLeft: 4 }}>
                 {item.Comment ? item.Comment.length : 0}
               </Text>
@@ -309,7 +307,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
           </TouchableOpacity>
           {user?.id === item.user_id && (
             <TouchableOpacity onPress={deletePost}>
-              <Trash2 color="white" size={20} strokeWidth={1} />
+              <Trash2 color="#ff4500" size={20} strokeWidth={1} />
             </TouchableOpacity>
           )}
         </HStack>
@@ -319,7 +317,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
 
   // The overall card includes the header (non-blurred) and the content (which may be blurred if scheduled)
   return (
-    <Card style={{ backgroundColor: '#0A0A0A' }}>
+    <Card style={{ backgroundColor: '#010118' }}>
       {header}
       <View style={{}}>
         {content}
@@ -353,15 +351,20 @@ const styles = StyleSheet.create({
   blurContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#010118'
+    backgroundColor: '#010122',
+    borderWidth:0.5,
+    borderColor:'grey'
   },
   blurOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
-    marginLeft: '15%',
+    marginLeft: '13%',
     marginRight: '30%',
-backgroundColor:'#010118',
+backgroundColor:'#010122',
     alignItems: 'center',
+    borderWidth:0.5,
+    borderColor:'grey',
+    marginTop:2
     
 
   },

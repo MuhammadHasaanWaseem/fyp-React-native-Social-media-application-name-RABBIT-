@@ -8,7 +8,7 @@ export const rendertext = (textArray: string[]) => {
     return (
         <Text className=' my-2'>
             {textArray?.map((part, index) => {
-                if (part?.startsWith('#')) {
+                if (part?.startsWith('#') || part.startsWith('@')) {
                     const tag = part?.toUpperCase()
                     return <Text style={{ color: 'white' }} size="md" key={index} className='font-bold'>{tag}</Text>
 
