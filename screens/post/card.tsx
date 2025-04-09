@@ -309,7 +309,7 @@ const [showActionsheet, setShowActionsheet] = useState(false);
                 <Mic color="white" size={20} strokeWidth={1.5} />
               </TouchableOpacity>
             
-              {/* private post icon */}
+              {/* private post icon with conditions*/}
               {post.text && post.text.trim().length > 0 && ( <TouchableOpacity onPress={() => setShowActionsheet(true)}>
 
               <Lock color={'white'} size={20} strokeWidth={1.5} />
