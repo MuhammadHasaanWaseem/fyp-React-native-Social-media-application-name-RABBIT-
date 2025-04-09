@@ -45,6 +45,10 @@ place_id            String?
 place               Place?   @relation(fields: [place_id], references: [id], onDelete: Cascade)
 likes               Like[]
 comments            Comment[]
+Availablity         String? //handleing private post status
+password         String? //handleing private post status
+hint         String? //handleing private post status
+   
 
 }
 

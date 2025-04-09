@@ -2,15 +2,17 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
   KeyboardAvoidingView, Platform, TouchableWithoutFeedback,
-  Keyboard, Animated, Easing, StyleSheet, LayoutAnimation, UIManager
+  Keyboard, Animated, Easing, StyleSheet, LayoutAnimation, UIManager,
+  Image, ActivityIndicator
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Divider } from "@/components/ui/divider";
-import { ArrowLeft, Send } from "lucide-react-native";
+import { ArrowLeft, Send, Image as ImageIcon } from "lucide-react-native";
 import { HStack } from "@/components/ui/hstack";
+import * as ImagePicker from 'expo-image-picker';
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const API_KEY = "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";
+const API_KEY = "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";
 
 if (Platform.OS === "android") {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -20,22 +22,64 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   const router = useRouter();
   const flatListRef = useRef(null);
   const sendScale = useRef(new Animated.Value(1)).current;
+
+  // Request permission for image picker
+  useEffect(() => {
+    (async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to make this work!');
+      }
+    })();
+  }, []);
 
   const addMessage = (message) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setMessages((prev) => [...prev, message]);
   };
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+      base64: true,
+    });
 
-    const userMessage = { role: "user", content: input };
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0]);
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!input.trim() && !selectedImage) return;
+
+    let userMessage;
+    if (selectedImage) {
+      userMessage = {
+        role: "user",
+        content: [
+          { type: "text", text: input || "Analyze this image" },
+          { 
+            type: "image_url", 
+            image_url: { 
+              url: `data:image/jpeg;base64,${selectedImage.base64}`
+            }
+          }
+        ]
+      };
+    } else {
+      userMessage = { role: "user", content: input };
+    }
+
     addMessage(userMessage);
     const currentInput = input;
     setInput("");
+    setSelectedImage(null);
     setLoading(true);
 
     try {
@@ -46,14 +90,14 @@ export default function ChatScreen() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "deepseek/deepseek-r1-distill-qwen-32b:free",
+          model: "google/gemma-3-1b-it:free", // Changed to a model that might support images
           messages: [
             {
               role: "system",
               content: "Answer briefly & Do not use s*/ as bullets or headings. Instead, use numbers and dots (e.g., 1., 2., 3.) without headings.",
             },
             ...messages,
-            { role: "user", content: currentInput }
+            userMessage
           ],
         }),
       });
@@ -79,10 +123,22 @@ export default function ChatScreen() {
   const MessageBubble = ({ item }) => {
     const isUser = item.role === "user";
     const label = isUser ? "You" : "AI";
+    const hasImage = Array.isArray(item.content) && item.content.some(c => c.type === "image_url");
+
     return (
       <View style={[styles.bubble, isUser ? styles.userBubble : styles.botBubble]}>
         <Text style={styles.labelText}>{label}</Text>
-        <Text style={styles.messageText}>{item.content}</Text>
+        {hasImage && (
+          <Image
+            source={{ uri: item.content.find(c => c.type === "image_url").image_url.url }}
+            style={styles.messageImage}
+          />
+        )}
+        <Text style={styles.messageText}>
+          {Array.isArray(item.content) 
+            ? item.content.find(c => c.type === "text")?.text || ""
+            : item.content}
+        </Text>
       </View>
     );
   };
@@ -142,7 +198,21 @@ export default function ChatScreen() {
               keyboardShouldPersistTaps="always"
             />
           </View>
+          {selectedImage && (
+            <View style={styles.imagePreviewContainer}>
+              <Image source={{ uri: selectedImage.uri }} style={styles.imagePreview} />
+              <TouchableOpacity
+                style={styles.removeImageButton}
+                onPress={() => setSelectedImage(null)}
+              >
+                <Text style={styles.removeImageText}>×</Text>
+              </TouchableOpacity>
+            </View>
+          )}
           <View style={styles.inputContainer}>
+            <TouchableOpacity onPress={pickImage} style={styles.imageButton}>
+              <ImageIcon size={20} color="#E0E0E0" />
+            </TouchableOpacity>
             <TextInput
               style={styles.input}
               placeholder="Message Rabbit AI..."
@@ -154,7 +224,7 @@ export default function ChatScreen() {
             />
             <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
               <Animated.View style={{ transform: [{ scale: sendScale }] }}>
-                <Send size={20} color={input.trim() ? "#BB86FC" : "#616161"} />
+                <Send size={20} color={input.trim() || selectedImage ? "#BB86FC" : "#616161"} />
               </Animated.View>
             </TouchableOpacity>
           </View>
@@ -222,14 +292,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 22,
   },
+  messageImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 8,
+  },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#1E1E1E",
     borderRadius: 24,
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
     marginBottom: "3%",
     marginHorizontal: 8,
+  },
+  imageButton: {
+    padding: 8,
   },
   input: {
     flex: 1,
@@ -253,5 +332,31 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "#E0E0E0",
     marginHorizontal: 4,
+  },
+  imagePreviewContainer: {
+    position: 'relative',
+    marginBottom: 8,
+    alignSelf: 'center',
+  },
+  imagePreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+  },
+  removeImageButton: {
+    position: 'absolute',
+    right: -8,
+    top: -8,
+    backgroundColor: '#BB86FC',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removeImageText: {
+    color: '#121212',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

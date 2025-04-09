@@ -1,3 +1,4 @@
+//-->post/audio.tsx
 import { HStack } from "@/components/ui/hstack";
 import { AudioLines, Circle, CirclePause, CirclePlay } from "lucide-react-native";
 import { useEffect, useState } from "react";

@@ -83,9 +83,9 @@ import {
       },
       {
         id: 'privateUpload',
-        title: 'Upload as Private',
+        title: `What's new`,
         Icon: Shield,
-        action: () => () => {},
+        action: () => router.push('/post'),
       },
       {
         id: 'terms',
@@ -130,7 +130,7 @@ import {
             />
           </Avatar>
           <Text style={styles.username}>{user?.username}</Text>
-          <Text style={styles.infoText}>ID: {user?.id}</Text>
+          <Text style={{fontSize:11,color:'white',marginTop:'4%'}}>ID: {user?.id}</Text>
           <Text style={styles.infoText}>
             Account created in {user?.created_at ? new Date(user.created_at).getFullYear() : 'Unknown'}
           </Text>

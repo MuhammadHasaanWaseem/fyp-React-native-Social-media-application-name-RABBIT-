@@ -19,6 +19,7 @@ export interface Post {
   User?: User;
   Post?: Post[];
   tag_name?: string | null
+  
 }
 export interface Place {
   id: string;

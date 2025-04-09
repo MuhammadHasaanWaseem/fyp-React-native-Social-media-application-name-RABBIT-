@@ -4,62 +4,13 @@ import React, { useState } from 'react';
 import { Input, InputField } from '@/components/ui/input';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
-import { View, Text, StyleSheet, Keyboard, Pressable, FlatList, Modal } from 'react-native';
+import { View, Text, StyleSheet, Keyboard, Pressable, FlatList, Modal, StatusBar, TouchableOpacity } from 'react-native';
 import Layout from './_layout';
 import { VStack } from '@/components/ui/vstack';
 import { HStack } from '@/components/ui/hstack';
-import { ChevronDown } from 'lucide-react-native';
-//countries code array
-const countries = [
-  { name: 'Pakistan', code: 'PK', dial_code: '+92', symbol: '🇵🇰' },
-  { name: 'China', code: 'CN', dial_code: '+86', symbol: '🇨🇳' },
-  { name: 'Canada', code: 'CA', dial_code: '+1', symbol: '🇨🇦' },
-  { name: 'Germany', code: 'DE', dial_code: '+49', symbol: '🇩🇪' },
-  { name: 'France', code: 'FR', dial_code: '+33', symbol: '🇫🇷' },
-  { name: 'Brazil', code: 'BR', dial_code: '+55', symbol: '🇧🇷' },
-  { name: 'Japan', code: 'JP', dial_code: '+81', symbol: '🇯🇵' },
-  { name: 'South Korea', code: 'KR', dial_code: '+82', symbol: '🇰🇷' },
-  { name: 'Spain', code: 'ES', dial_code: '+34', symbol: '🇪🇸' },
-  { name: 'Italy', code: 'IT', dial_code: '+39', symbol: '🇮🇹' },
-  { name: 'Australia', code: 'AU', dial_code: '+61', symbol: '🇦🇺' },
-  { name: 'Russia', code: 'RU', dial_code: '+7', symbol: '🇷🇺' },
-  { name: 'Mexico', code: 'MX', dial_code: '+52', symbol: '🇲🇽' },
-  { name: 'Indonesia', code: 'ID', dial_code: '+62', symbol: '🇮🇩' },
-  { name: 'Turkey', code: 'TR', dial_code: '+90', symbol: '🇹🇷' },
-  { name: 'Saudi Arabia', code: 'SA', dial_code: '+966', symbol: '🇸🇦' },
-  { name: 'Argentina', code: 'AR', dial_code: '+54', symbol: '🇦🇷' },
-  { name: 'South Africa', code: 'ZA', dial_code: '+27', symbol: '🇿🇦' },
-  { name: 'Egypt', code: 'EG', dial_code: '+20', symbol: '🇪🇬' },
-  { name: 'Nigeria', code: 'NG', dial_code: '+234', symbol: '🇳🇬' },
-  { name: 'Sweden', code: 'SE', dial_code: '+46', symbol: '🇸🇪' },
-  { name: 'Norway', code: 'NO', dial_code: '+47', symbol: '🇳🇴' },
-  { name: 'Netherlands', code: 'NL', dial_code: '+31', symbol: '🇳🇱' },
-  { name: 'Switzerland', code: 'CH', dial_code: '+41', symbol: '🇨🇭' },
-  { name: 'Belgium', code: 'BE', dial_code: '+32', symbol: '🇧🇪' },
-  { name: 'Thailand', code: 'TH', dial_code: '+66', symbol: '🇹🇭' },
-  { name: 'Philippines', code: 'PH', dial_code: '+63', symbol: '🇵🇭' },
-  { name: 'Malaysia', code: 'MY', dial_code: '+60', symbol: '🇲🇾' },
-  { name: 'Vietnam', code: 'VN', dial_code: '+84', symbol: '🇻🇳' },
-  { name: 'Chile', code: 'CL', dial_code: '+56', symbol: '🇨🇱' },
-  { name: 'Colombia', code: 'CO', dial_code: '+57', symbol: '🇨🇴' },
-  { name: 'Peru', code: 'PE', dial_code: '+51', symbol: '🇵🇪' },
-  { name: 'Greece', code: 'GR', dial_code: '+30', symbol: '🇬🇷' },
-  { name: 'Ukraine', code: 'UA', dial_code: '+380', symbol: '🇺🇦' },
-  { name: 'Poland', code: 'PL', dial_code: '+48', symbol: '🇵🇱' },
-  { name: 'Portugal', code: 'PT', dial_code: '+351', symbol: '🇵🇹' },
-  { name: 'New Zealand', code: 'NZ', dial_code: '+64', symbol: '🇳🇿' },
-  { name: 'Singapore', code: 'SG', dial_code: '+65', symbol: '🇸🇬' },
-  { name: 'Bangladesh', code: 'BD', dial_code: '+880', symbol: '🇧🇩' },
-  { name: 'Sri Lanka', code: 'LK', dial_code: '+94', symbol: '🇱🇰' },
-  { name: 'Nepal', code: 'NP', dial_code: '+977', symbol: '🇳🇵' },
-  { name: 'Kenya', code: 'KE', dial_code: '+254', symbol: '🇰🇪' },
-  { name: 'Ghana', code: 'GH', dial_code: '+233', symbol: '🇬🇭' },
-  { name: 'Morocco', code: 'MA', dial_code: '+212', symbol: '🇲🇦' },
-  { name: 'Algeria', code: 'DZ', dial_code: '+213', symbol: '🇩🇿' },
-  { name: 'Qatar', code: 'QA', dial_code: '+974', symbol: '🇶🇦' },
-  { name: 'United Arab Emirates', code: 'AE', dial_code: '+971', symbol: '🇦🇪' }
-];
-// contry code array ends here
+import { ChevronDown, Minus, XIcon } from 'lucide-react-native';
+import {countries} from './contries'
+import { Divider } from '@/components/ui/divider';
 
 export default function SignIn() {
   const [phone, setPhone] = useState('');
@@ -85,6 +36,10 @@ export default function SignIn() {
     setSelectedCountry(country);
     setShowCountryPicker(false);
   };
+  const pickercloser =()=>{
+    setShowCountryPicker(false);
+
+  }
 
   return (
     <Layout onPress={handleSignIn} buttonText='Continue'>
@@ -133,7 +88,13 @@ export default function SignIn() {
           transparent={true}
         >
           <View style={styles.modalContainer}>
+         
             <View style={styles.modalContent}>
+            <View className='items-center'>
+           <TouchableOpacity onPress={pickercloser}>
+              <Minus color={'#FF4500'} size={24} strokeWidth={5} />
+            </TouchableOpacity>
+           </View>
               <FlatList
                 data={countries}
                 keyExtractor={(item) => item.code}

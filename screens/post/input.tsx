@@ -1,3 +1,4 @@
+//post input.tsx
 import { Post } from '@/lib/type'
 import { Text } from '@/components/ui/text'
 import { TextInput } from 'react-native'

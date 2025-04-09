@@ -86,6 +86,7 @@ export default function RootLayout() {
               <Stack.Screen name="drawer" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_left' }} />
               <Stack.Screen name="policies" options={{headerShown:false, presentation: 'modal', animation: 'slide_from_left' }} />
               <Stack.Screen name="useterms" options={{ headerShown:false, presentation: 'modal', animation: 'slide_from_bottom' }} />
+              <Stack.Screen name="privatepost" options={{headerShown:false, presentation: 'modal', animation: 'slide_from_left' }} />
               <Stack.Screen name="+not-found" />
             </Stack>
           </PostProvider>

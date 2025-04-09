@@ -17,8 +17,9 @@ import {
   MessageCircleCodeIcon,
   Timer,
   AtSignIcon,
-  Globe,
-  MenuIcon
+  MenuIcon,
+  EyeOff,
+  CalendarClock
 } from 'lucide-react-native';
 import { Pressable, FlatList, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -100,13 +101,14 @@ export default () => {
                   What's new?
                 </Text>
               </VStack>
-              <HStack className="items-center" space="2xl">
+              <HStack className="items-center" space="lg">
                 <ImageIcon color="white" size={20} strokeWidth={1.5} />
                 <Camera color="white" size={20} strokeWidth={1.5} />
                 <ImagePlay color="white" size={20} strokeWidth={1.5} />
                 <LockIcon color="white" size={20} strokeWidth={1.5} />
                 <Mic color="white" size={20} strokeWidth={1.5} />
-                <Timer color="white" size={20} strokeWidth={1.5} />
+                <EyeOff color="white" size={20} strokeWidth={1.5} />
+                <CalendarClock color="white" size={20} strokeWidth={1.5} />
                 <AtSignIcon color="white" size={20} strokeWidth={1.5} />
               </HStack>
             </VStack>
