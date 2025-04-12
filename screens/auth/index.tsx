@@ -10,7 +10,6 @@ import { VStack } from '@/components/ui/vstack';
 import { HStack } from '@/components/ui/hstack';
 import { ChevronDown, Minus, XIcon } from 'lucide-react-native';
 import {countries} from './contries'
-import { Divider } from '@/components/ui/divider';
 
 export default function SignIn() {
   const [phone, setPhone] = useState('');

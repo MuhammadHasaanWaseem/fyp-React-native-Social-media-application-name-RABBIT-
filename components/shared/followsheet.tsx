@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabase";
 import { Heading } from "@/components/ui/heading";
 import React, { useState } from "react";
 import { AlertDialog, AlertDialogBackdrop, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter } from "../ui/alert-dialog";
+import { Spinner } from "../ui/spinner";
 
 export default function FollowersScreen() {
   // Get optional userid from route parameters.
@@ -87,7 +88,7 @@ export default function FollowersScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.centered}>
-        <Text style={styles.loadingText}>Loading...</Text>
+      <Spinner color={'white'} size={24}/>
       </SafeAreaView>
     );
   }
@@ -286,13 +287,14 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     paddingVertical: 4,
     paddingHorizontal: 8,
+    backgroundColor:'white'
   },
   buttonText: {
     color: "#141414",
     fontWeight: "900",
   },
   buttonTextOutline: {
-    color: "white",
+    color: "black",
     fontWeight: "900",
   },
   itemDivider: {

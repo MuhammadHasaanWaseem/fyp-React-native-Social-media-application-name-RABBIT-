@@ -1,4 +1,4 @@
-//card.tsx 
+//post/card.tsx 
 import React, { useState, useRef } from 'react';
 import {
   View,
@@ -14,12 +14,10 @@ import { VStack } from '@/components/ui/vstack';
 import {
   Camera,
   Mic,
+  Hourglass,
   ImageIcon,
   ImagePlay,
-  
   AtSignIcon,
-  Timer,
-  
   Lock,
   EyeOff,
   CalendarClock
@@ -44,8 +42,6 @@ import MentionActionSheet from '../tabs/activity/MentionActionSheet';
 import {
   Actionsheet,
   ActionsheetContent,
-  ActionsheetItem,
-  ActionsheetItemText,
   ActionsheetDragIndicator,
   ActionsheetDragIndicatorWrapper,
   ActionsheetBackdrop,
@@ -78,8 +74,8 @@ export default function PostCard({ post }: PostCardProps) {
   // Spoiler state
   const [isSpoiler, setIsSpoiler] = useState(false);
   const [spoilerRevealed, setSpoilerRevealed] = useState(false);
-//private post action sheet
-const [showActionsheet, setShowActionsheet] = useState(false);
+  //private post action sheet
+  const [showActionsheet, setShowActionsheet] = useState(false);
   const [password, setPassword] = useState('');
   const [hint, setHint] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -89,6 +85,7 @@ const [showActionsheet, setShowActionsheet] = useState(false);
     setHint('');
     setError(null);
   };
+
 
   const uploadPrivatePost = async () => {
     if (password.length !== 6) {
@@ -196,7 +193,30 @@ const [showActionsheet, setShowActionsheet] = useState(false);
       router.back();
     }
   };
+//handle time capsule
+const uploadTimeCapsulePost = async () => {
+  if (!scheduledTime) {
+    Alert.alert('Error', 'Please set a time for the time capsule.');
+    return;
+  }
+  updatepost(post.id, 'unlock_at', scheduledTime.toISOString());
+  updatepost(post.id, 'status', 'time_capsule');
 
+  const { data, error } = await supabase
+    .from('Post')
+    .insert({
+      ...post,
+      unlock_at: scheduledTime.toISOString(),
+      status: 'time_capsule',
+    });
+
+  if (error) {
+    console.error('Error uploading time capsule post:', error);
+    Alert.alert('Error', 'Failed to upload time capsule post.');
+  } else {
+    router.back();
+  }
+};
   return (
     <HStack className="items-center p-0">
       <VStack className="items-center">
@@ -205,7 +225,7 @@ const [showActionsheet, setShowActionsheet] = useState(false);
             {user?.username}
           </AvatarFallbackText>
           {/* <AvatarImage source={{ uri: user?.avatar }} /> */}
-          <AvatarImage source={{ uri: `${user?.avatar}?t=${new Date().getTime()}` }}/>
+          <AvatarImage source={{ uri: `${user?.avatar}?t=${new Date().getTime()}` }} />
         </Avatar>
         <View style={{ height: 40, borderLeftWidth: 1, borderColor: '#e2e8f0' }} />
       </VStack>
@@ -278,50 +298,58 @@ const [showActionsheet, setShowActionsheet] = useState(false);
               {showaudio && <Audio id={post.id} />}
             </VStack>
             <VStack>
-            <HStack className="items-center gap-3">
-              {/* Select media from local storage */}
-              <TouchableOpacity onPress={addPhotoAndVideo}>
-                <ImageIcon color="white" size={20} strokeWidth={1.5} />
-              </TouchableOpacity>
-              {/* Capture from camera */}
-              <TouchableOpacity
-                onPress={() => {
-                  setPhoto('');
-                  router.push({ pathname: '/camera', params: { threadId: post.id } });
-                }}
-              >
-                <Camera color="white" size={20} strokeWidth={1.5} />
-              </TouchableOpacity>
-              {/* Choose GIF */}
-              <TouchableOpacity onPress={() => router.push('/gif')}>
-                <ImagePlay color="white" size={20} strokeWidth={1.5} />
-              </TouchableOpacity>
-              {/* Mention */}
-              <TouchableOpacity>
-                <AtSignIcon color="white" size={20} strokeWidth={1.5} onPress={() => setShowMentionSheet(true)} />
-              </TouchableOpacity>
-              {/* Spoiler toggle */}
-              <TouchableOpacity onPress={handleSpoilerToggle}>
-                <EyeOff color="white" size={20} strokeWidth={1.5} />
-              </TouchableOpacity>
-              {/* Audio record */}
-              <TouchableOpacity onPress={() => setShowaudio(!showaudio)}>
-                <Mic color="white" size={20} strokeWidth={1.5} />
-              </TouchableOpacity>
-            
-              {/* private post icon with conditions*/}
-              {post.text && post.text.trim().length > 0 && ( <TouchableOpacity onPress={() => setShowActionsheet(true)}>
+              <HStack className="items-center gap-3">
+                {/* Select media from local storage */}
+                <TouchableOpacity onPress={addPhotoAndVideo}>
+                  <ImageIcon color="white" size={20} strokeWidth={1.5} />
+                </TouchableOpacity>
+                {/* Capture from camera */}
+                <TouchableOpacity
+                  onPress={() => {
+                    setPhoto('');
+                    router.push({ pathname: '/camera', params: { threadId: post.id } });
+                  }}
+                >
+                  <Camera color="white" size={20} strokeWidth={1.5} />
+                </TouchableOpacity>
+                {/* Choose GIF */}
+                <TouchableOpacity onPress={() => router.push('/gif')}>
+                  <ImagePlay color="white" size={20} strokeWidth={1.5} />
+                </TouchableOpacity>
+                {/* Mention */}
+                <TouchableOpacity>
+                  <AtSignIcon color="white" size={20} strokeWidth={1.5} onPress={() => setShowMentionSheet(true)} />
+                </TouchableOpacity>
+                {/* Spoiler toggle */}
+                <TouchableOpacity onPress={handleSpoilerToggle}>
+                  <EyeOff color="white" size={20} strokeWidth={1.5} />
+                </TouchableOpacity>
+                {/* Audio record */}
+                <TouchableOpacity onPress={() => setShowaudio(!showaudio)}>
+                  <Mic color="white" size={20} strokeWidth={1.5} />
+                </TouchableOpacity>
+                {/* time capsule with conditions */}
+                {post.text && post.text.trim().length > 0 && (<TouchableOpacity onPress={handleTimerPress}>
 
-              <Lock color={'white'} size={20} strokeWidth={1.5} />
-              </TouchableOpacity>)}
-              {post.text  === '' && ( <TouchableOpacity onPress={()=>Alert.alert('Add captions to use this feature')}>
-              <Lock color={'grey'} size={20} strokeWidth={1.5} />
-              </TouchableOpacity>)}
+                  <Hourglass color={'white'} size={20} strokeWidth={1.5} />
+                </TouchableOpacity>)}
+                {post.text === '' && (<TouchableOpacity onPress={() => Alert.alert('Add captions to use this feature')}>
+                  <Hourglass color={'grey'} size={20} strokeWidth={1.5} />
+                </TouchableOpacity>)}
+
+                {/* private post icon with conditions*/}
+                {post.text && post.text.trim().length > 0 && (<TouchableOpacity onPress={() => setShowActionsheet(true)}>
+
+                  <Lock color={'white'} size={20} strokeWidth={1.5} />
+                </TouchableOpacity>)}
+                {post.text === '' && (<TouchableOpacity onPress={() => Alert.alert('Add captions to use this feature')}>
+                  <Lock color={'grey'} size={20} strokeWidth={1.5} />
+                </TouchableOpacity>)}
                 {/*  (premiere) icon */}
                 <TouchableOpacity onPress={handleTimerPress}>
-                <CalendarClock color={scheduledTime ? '#ff4500' : 'white'} size={20} strokeWidth={1.5} />
-              </TouchableOpacity>
-            </HStack>
+                  <CalendarClock color={scheduledTime ? '#ff4500' : 'white'} size={20} strokeWidth={1.5} />
+                </TouchableOpacity>
+              </HStack>
             </VStack>
             {/* Conditionally render DateTimePicker for iOS */}
             {Platform.OS === 'ios' && showDatePicker && (
@@ -345,45 +373,84 @@ const [showActionsheet, setShowActionsheet] = useState(false);
               Premiere at: {scheduledTime.toLocaleString()}
             </Text>
           )}
-          {/* New button for uploading premier posts */}
-          {post.text && post.text.trim().length > 0 && (
-            <TouchableOpacity
-              style={{ backgroundColor: 'white', marginTop: 17, borderRadius: 10, width: '50%' }}
-              onPress={uploadPremierPost}
-            >
-              <Text style={{ color: 'black', padding: 7, textAlign: 'center', fontWeight: '500',fontSize:12 }}>
-                Upload Premier Post
-              </Text>
-            </TouchableOpacity>
+         <HStack space='lg'>
+           {/* New button for uploading premier posts */}
+           {scheduledTime && (
+            (Photo && post.text && post.text.trim().length > 0) ? (
+              <TouchableOpacity
+                style={{ backgroundColor: 'white', marginTop: 17, borderRadius: 6, width: '45%' }}
+                onPress={uploadPremierPost}
+              >
+                <Text style={styles.buttonText}>
+                   Premier 
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={{ backgroundColor: 'grey', marginTop: 17, borderRadius: 6, width: '45%' }}
+                onPress={() => Alert.alert('Can not proceed', 'Select a file & Catch title first')}
+              >
+                <Text style={styles.buttonText}>
+                   Premier 
+                </Text>
+              </TouchableOpacity>
+            )
           )}
+          {/* New button for Time capsule posts */}
+          {scheduledTime && (
+            (Photo && post.text && post.text.trim().length > 0) ? (
+              <TouchableOpacity
+                style={{ backgroundColor: 'white', marginTop: 17, borderRadius: 6, width: '45%' }}
+                onPress={uploadTimeCapsulePost}
+              >
+                <Text style={styles.buttonText}>
+                Time Capsule
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={{ backgroundColor: 'grey', marginTop: 17, borderRadius: 6, width: '45%' }}
+                onPress={() => Alert.alert('Can not proceed', 'Select a file & Catch title first')}
+              >
+                <Text style={styles.buttonText}>
+                  Time Capsule
+                </Text>
+              </TouchableOpacity>
+            )
+          )}
+         </HStack>
         </Card>
-        {/* Private Post Action Sheet */}
         <Actionsheet isOpen={showActionsheet} onClose={handleClose}>
           <ActionsheetBackdrop />
-          <ActionsheetContent style={{ backgroundColor: '#010118' }}>
-            <ActionsheetDragIndicatorWrapper><ActionsheetDragIndicator /></ActionsheetDragIndicatorWrapper>
-            <VStack space="md" className="p-4 w-full">
-              <Text style={{ color: 'white', fontWeight: 'bold' }}>Set Private Post</Text>
+          <ActionsheetContent style={styles.sheetContent}>
+            <ActionsheetDragIndicatorWrapper>
+              <ActionsheetDragIndicator />
+            </ActionsheetDragIndicatorWrapper>
+            <VStack space="md" style={styles.sheetContainer}>
+              <Text style={styles.sheetTitle}>Set Private Post</Text>
               <TextInput
-                style={{ color: 'white', borderWidth: 1, borderColor: '#fff', padding: 8, borderRadius: 5 }}
-                placeholder="Enter 6-digit password"
+                style={styles.input}
+                placeholder="Enter 8-digit password"
                 placeholderTextColor="#ccc"
                 value={password}
                 onChangeText={setPassword}
-                maxLength={6}
-                keyboardType="numeric"
+                maxLength={8}
               />
               <TextInput
-                style={{ color: 'white', borderWidth: 1, borderColor: '#fff', padding: 8, borderRadius: 5 }}
+                style={styles.input}
                 placeholder="Enter hint (required)"
                 placeholderTextColor="#ccc"
                 value={hint}
                 onChangeText={setHint}
               />
-              {error && <Text style={{ color: '#ff4500' }}>{error}</Text>}
+              {error && <Text style={styles.errorText}>{error}</Text>}
               <HStack space="md">
-                <Button style={{backgroundColor:'white',borderRadius:10}} onPress={uploadPrivatePost}><ButtonText className='text-black font-bold'>Post</ButtonText></Button>
-                <Button style={{backgroundColor:'white',borderRadius:10}} onPress={handleClose}><ButtonText className='text-black font-bold'>Cancel</ButtonText></Button>
+                <Button style={styles.button} onPress={uploadPrivatePost}>
+                  <ButtonText style={styles.buttonText}>Post</ButtonText>
+                </Button>
+                <Button style={styles.button} onPress={handleClose}>
+                  <ButtonText style={styles.buttonText}>Cancel</ButtonText>
+                </Button>
               </HStack>
             </VStack>
           </ActionsheetContent>
@@ -403,6 +470,50 @@ const [showActionsheet, setShowActionsheet] = useState(false);
 }
 
 const styles = StyleSheet.create({
+  sheetContent: {
+    backgroundColor: '#010118',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+  },
+  sheetContainer: {
+    width: '100%',
+  },
+  sheetTitle: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  input: {
+    color: 'white',
+    borderWidth: 1,
+    borderColor: '#fff',
+    padding: 12,
+    borderRadius: 5,
+    fontSize: 16,
+    marginBottom: 12,
+    backgroundColor: '#010118'
+  },
+  errorText: {
+    color: '#ff4500',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  button: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: 'black',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    paddingVertical: 8,
+  },
   blurContainer: {
     borderRadius: 10,
     justifyContent: 'center',

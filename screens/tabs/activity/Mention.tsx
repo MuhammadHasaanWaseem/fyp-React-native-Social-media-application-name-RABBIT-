@@ -1,6 +1,6 @@
 // Mention.tsx
 import React, { useState } from 'react';
-import { FlatList, SafeAreaView, Text, TouchableOpacity } from 'react-native';
+import { FlatList, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/providers/AuthProviders';
@@ -8,6 +8,7 @@ import { HStack } from '@/components/ui/hstack';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
+import { Spinner } from '@/components/ui/spinner';
 
 const fetchMentions = async (username: string) => {
   const { data, error } = await supabase
@@ -61,9 +62,14 @@ export default function Mention() {
         refreshing={refreshing}
         onRefresh={handleRefresh}
         ListEmptyComponent={
-          <Text style={{ color: 'white', textAlign: 'center', padding: 20 }}>
-            {isLoading ? 'Loading...' : 'No mentions yet.'}
-          </Text>
+        
+          isLoading ? (
+            <Spinner color={'white'} size={24} />
+          ) : (
+            <Text style={{ color: 'white', textAlign: 'center', padding: 20 }}>
+              No mentions yet.
+            </Text>
+          )
         }
       />
     </SafeAreaView>

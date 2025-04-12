@@ -77,13 +77,13 @@ import {
       },
       {
         id: 'timeCapsule',
-        title: 'Time Capsule',
+        title: `What's new introduced`,
         Icon: Timer,
-        action: () => {},
+        action: () => router.push('/introduction'),
       },
       {
         id: 'privateUpload',
-        title: `What's new`,
+        title: `Create a Post`,
         Icon: Shield,
         action: () => router.push('/post'),
       },

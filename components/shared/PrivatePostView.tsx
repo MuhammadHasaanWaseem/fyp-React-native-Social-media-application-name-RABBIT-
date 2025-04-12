@@ -8,7 +8,6 @@ import {
   View,
   Image,
   Modal,
-  Alert,
   Share,
 } from 'react-native';
 import { HStack } from '@/components/ui/hstack';
@@ -27,6 +26,7 @@ import { useAuth } from '@/providers/AuthProviders';
 import { router } from 'expo-router';
 import Audio from '@/screens/post/audio';
 import { rendertext } from '@/screens/post/input';
+import { Spinner } from '../ui/spinner';
 
 interface PrivatePostViewProps {
   item: any;
@@ -39,6 +39,9 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
   const [error, setError] = useState<string | null>(null);
   const [unlocked, setUnlocked] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // State for delete confirmation modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Video states
   const videoRef = useRef<Video>(null);
@@ -105,19 +108,22 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
     }
   };
 
+  // Instead of Alert.alert, we open our custom modal
   const deletePost = () => {
-    Alert.alert('Delete Post', 'Are you sure you want to delete this post?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          const { error } = await supabase.from('Post').delete().eq('id', item.id);
-          if (!error) refetch();
-          else Alert.alert('Error', 'Failed to delete post.');
-        },
-      },
-    ]);
+    setShowDeleteModal(true);
+  };
+
+  // Function to actually delete the post
+  const confirmDeletePost = async () => {
+    const { error } = await supabase.from('Post').delete().eq('id', item.id);
+    if (!error) {
+      refetch();
+      setShowDeleteModal(false);
+    } else {
+      // Optional: you can display an error message in the modal or use alert if needed.
+      setShowDeleteModal(false);
+      alert('Error: Failed to delete post.');
+    }
   };
 
   const header = (
@@ -134,7 +140,7 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
       <VStack style={{ flex: 1 }}>
         <Text style={{ fontWeight: 'bold', color: 'white', fontSize: 17 }}>{item.User?.username || ''}</Text>
         <HStack style={{ marginBottom: 10 }}>
-          <Text style={{ color: 'white', fontSize: 12 }}>Password hint: </Text>
+          <Text style={{ color: 'white', fontSize: 12 }}>Solve this Puzzele to unlock it : </Text>
           <Text style={{ color: 'white', fontSize: 12 }}>{item.hint}</Text>
         </HStack>
       </VStack>
@@ -149,19 +155,17 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
           <Text style={{ color: 'white', marginTop: 10 }}>This post is private</Text>
           <TextInput
             style={styles.passwordInput}
-            placeholder="Enter 6-digit password"
+            placeholder="Enter 8-digit password"
             placeholderTextColor="#ccc"
             value={passwordInput}
             onChangeText={setPasswordInput}
-            maxLength={6}
-            keyboardType="numeric"
-            secureTextEntry
+            maxLength={8}
           />
           {error && <Text style={{ color: '#ff4500', marginTop: 5 }}>{error}</Text>}
           {loading ? (
-            <Text style={{ color: 'white', marginTop: 10 }}>Loading...</Text>
+            <Spinner color={'white'} style={{ marginTop: 10 }} />
           ) : (
-            <Button onPress={handleUnlock} style={{ marginTop: 10 }}>
+            <Button onPress={handleUnlock} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20, backgroundColor: '#ff4500', marginTop: 10 }}>
               <ButtonText>Unlock</ButtonText>
             </Button>
           )}
@@ -309,7 +313,7 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
   const isPrivate = item.Availablity === 'private';
 
   return (
-    <Card style={{ backgroundColor: '#010118' }}>
+    <Card style={{ backgroundColor: '#010118' , borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: 10}}>
       {isPrivate ? (
         <>
           {!unlocked && header}
@@ -318,28 +322,51 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
       ) : (
         noPrivateContent
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal visible={showDeleteModal} transparent animationType="fade" onRequestClose={() => setShowDeleteModal(false)}>
+        <View style={styles.modalOverlay}>
+          <BlurView intensity={100} tint="dark" style={styles.modalBlur}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Delete Post</Text>
+              <Text style={styles.modalMessage}>Are you sure you want to delete this post? This action cannot be undone.</Text>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity style={styles.cancelButton} onPress={() => setShowDeleteModal(false)}>
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.deleteButton} onPress={confirmDeletePost}>
+                  <Text style={styles.deleteButtonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </BlurView>
+        </View>
+      </Modal>
     </Card>
   );
 }
 
 const styles = StyleSheet.create({
   blurContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
-    padding: 20,
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,107,53,0.3)',
+    backgroundColor: '#010118',
   },
   passwordInput: {
-    borderWidth: 1,
-    borderColor: '#fff',
+    backgroundColor: '#0A0A0A',
     color: 'white',
-    padding: 8,
-    borderRadius: 5,
-    width: 150,
+    padding: 14,
+    borderRadius: 12,
+    width: '100%',
     textAlign: 'center',
-    marginTop: 10,
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#1A1A1A',
   },
-  noPrivateContent: {
+  noPrivateContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -372,4 +399,60 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     padding: 2,
   },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBlur: {
+    width: '90%',
+    padding: 20,
+    borderRadius: 20,
+  },
+  modalContainer: {
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    color: '#FF4500',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalMessage: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  cancelButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    backgroundColor: '#444',
+  },
+  cancelButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  deleteButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    backgroundColor: '#FF4500',
+  },
+  deleteButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
+

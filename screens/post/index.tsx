@@ -1,3 +1,4 @@
+//post/index
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui/text';
 import { HStack } from '@/components/ui/hstack';
@@ -12,12 +13,13 @@ import {
   Platform,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View
+  View,
+  ActivityIndicator
 } from 'react-native';
 import { Divider } from '@/components/ui/divider';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Button, ButtonText } from '@/components/ui/button';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect,useState } from 'react';
 import Card from './card';
 import { FlatList } from 'react-native';
 import { usePost } from '@/providers/PostProvider';
@@ -26,7 +28,7 @@ import { ArrowLeft } from 'lucide-react-native';
 export default () => {
   const { user } = useAuth();
   const { threadId } = useLocalSearchParams();
-
+  const [loading, setLoading] = useState(false);
   const { clearpost, PostCard, uploadpost, Photo, MediaType, audio } = usePost();
 
   // Function to clear the post and navigate back
@@ -66,6 +68,17 @@ export default () => {
       return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
     }, [])
   );
+  const handlePost = async () => {
+    if (!isValid || loading) return;
+    setLoading(true);
+    try {
+      await uploadpost();
+    } catch (err) {
+      Alert.alert('Error', 'Failed to post. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={{ backgroundColor: '#010118' }} className="flex-1">
@@ -128,9 +141,14 @@ export default () => {
                 <Button
                   disabled={!isValid}
                   style={postButtonStyle}
-                  onPress={uploadpost}
+                  onPress={handlePost}
+                  // onPress calling this function inderectly => uploadpost()
+
                 >
-                  <ButtonText style={{ color: '#141414' }}>Post</ButtonText>
+                   {loading
+                    ? <ActivityIndicator size="small" color="#141414" />
+                    : <ButtonText style={{ color: '#141414' }}>Post</ButtonText>
+                  }
                 </Button>
               </HStack>
             </View>

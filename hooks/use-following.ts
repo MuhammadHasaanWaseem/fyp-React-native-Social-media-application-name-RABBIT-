@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-//following_user:User!following_user_id(*)
+
 
 export const getfollowing = async (userid: string) => {
     if (!userid) return null

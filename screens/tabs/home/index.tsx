@@ -19,15 +19,16 @@ import {
   AtSignIcon,
   MenuIcon,
   EyeOff,
-  CalendarClock
+  CalendarClock,
+  Hourglass
 } from 'lucide-react-native';
-import { Pressable, FlatList, TouchableOpacity } from 'react-native';
+import { Pressable, FlatList, Image,StyleSheet, TouchableOpacity,Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
 import { usePosts } from '@/hooks/use-posts';
 import View from '@/components/shared/sharedview';
 import { Menu } from '@/components/ui/menu';
-
+const { width } = Dimensions.get('window');
 export default () => {
   const { user } = useAuth();
   const router = useRouter();
@@ -62,7 +63,6 @@ export default () => {
 
   return (
     <SafeAreaView style={{ backgroundColor: '#010118' }} className="flex-1">
-
       {/* Top Logo */}
       <HStack className="justify-between items-center">
         {/* <TouchableOpacity onPress={() => router.push('/worldchat')}>
@@ -71,8 +71,11 @@ export default () => {
         <TouchableOpacity onPress={() => router.push('/drawer')}>
           <MenuIcon style={{ marginTop: 20, marginLeft: 10 }} size={25} color={'white'} />
         </TouchableOpacity>
-
-        <Rabbiticon size={40} />
+        <Image
+          source={require('../../../assets/gif/RAB.gif')}
+          style={styles.image}
+        />
+        {/* <Rabbiticon size={40} /> */}
 
         <TouchableOpacity onPress={() => router.push('/chatbot')}>
           <MessageCircleCodeIcon style={{ marginTop: 20, marginRight: 10 }} size={25} color={'white'} />
@@ -109,6 +112,7 @@ export default () => {
                 <Mic color="white" size={20} strokeWidth={1.5} />
                 <EyeOff color="white" size={20} strokeWidth={1.5} />
                 <CalendarClock color="white" size={20} strokeWidth={1.5} />
+                <Hourglass color="white" size={20} strokeWidth={1.5} />
                 <AtSignIcon color="white" size={20} strokeWidth={1.5} />
               </HStack>
             </VStack>
@@ -126,10 +130,21 @@ export default () => {
         renderItem={({ item }) => (
           <>
             <View item={item} refetch={refetch} />
-            
+
           </>
         )}
       />
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  
+  image: {
+    width: width * 0.1,  // 10 of the screen width
+    height: width * 0.1, // 10% of the screen width
+    marginTop:'3%'
+  },
+});
+
+

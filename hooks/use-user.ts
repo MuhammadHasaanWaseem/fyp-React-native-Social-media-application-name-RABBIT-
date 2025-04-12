@@ -13,7 +13,7 @@ export const getSearchUsers = async () => {
       const { data, error } = await supabase
             .from('User')
             .select()
-            .order('created_at', { ascending: true }).limit(50);
+            .order('created_at', { ascending: false });
       if (!error) return data;
 };
 

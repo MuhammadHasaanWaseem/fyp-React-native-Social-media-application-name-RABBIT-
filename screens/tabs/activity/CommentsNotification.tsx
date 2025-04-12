@@ -137,7 +137,7 @@ const CommentsNotification = () => {
           data={notifications}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
-          contentContainerStyle={{ paddingHorizontal: 14 }}
+          contentContainerStyle={{ paddingHorizontal: 14,paddingBottom:500 }}
           refreshing={loading}
           onRefresh={fetchNotifications}
         />

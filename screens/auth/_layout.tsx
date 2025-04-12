@@ -11,9 +11,13 @@ import {
   Platform,
   Keyboard,
   StatusBar,
-  Text
+  Image,
+  Text,
+  Dimensions
 } from 'react-native';
 import { router } from 'expo-router';
+//getting dimensions of the current screen
+const { width } = Dimensions.get('window');
 
 export default ({ children, onPress, buttonText }: {
   children: React.ReactNode,
@@ -23,14 +27,14 @@ export default ({ children, onPress, buttonText }: {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={'#010118'}/>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      
           <View style={styles.innerContainer}>
             <VStack style={styles.header}>
-                <RabbitIcon size={60} />
+                <Image
+                      source={require('../../assets/gif/RAB.gif')}
+                      style={styles.image}
+                    />
+                {/* <RabbitIcon size={60} /> */}
                 <VStack>
                  
                   <Text style={{ color: 'white', fontSize: 20, fontWeight: '900' }}>Welcome to Rabbit
@@ -61,8 +65,6 @@ export default ({ children, onPress, buttonText }: {
               <Text style={styles.brandText}>Contact on instagram @im_hasaan_</Text>
             </View>
           </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -127,5 +129,9 @@ const styles = StyleSheet.create({
     color: '#374151',
     fontWeight: '500',
   },
+  image: {
+    width: width * 0.15,  // 15% of the screen width
+    height: width * 0.15, // 15% of the screen width
+  }
 });
 

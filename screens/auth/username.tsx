@@ -1,10 +1,9 @@
-
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Input } from "@/components/ui/input";
 import { InputField } from "@/components/ui/input";
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Text, Keyboard } from "react-native";
-import Layout from './_layout';
+import Layout from "./_layout";
 import { useAuth } from "@/providers/AuthProviders";
 import { useRouter } from "expo-router";
 import { Spinner } from "@/components/ui/spinner";
@@ -16,11 +15,27 @@ export default function VerifyScreen() {
   const { user, createUser } = useAuth();
   const router = useRouter();
 
-
   const handleUsername = async () => {
     Keyboard.dismiss();
+
+    // Validation checks
     if (!username.trim()) {
       setErrorMessage("Username cannot be empty");
+      return;
+    }
+
+    if (username.includes(" ")) {
+      setErrorMessage("Username cannot contain spaces");
+      return;
+    }
+
+    if (username.length < 4 || username.length > 20) {
+      setErrorMessage("Username must be 4-20 characters long");
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+      setErrorMessage("Username can only contain letters and numbers");
       return;
     }
 
@@ -29,7 +44,7 @@ export default function VerifyScreen() {
     setIsLoading(false);
 
     if (success) {
-      router.push('/(tabs)');
+      router.push("/(tabs)");
     } else {
       setErrorMessage("Username is already taken");
     }
@@ -65,7 +80,9 @@ export default function VerifyScreen() {
             {errorMessage ? (
               <Text style={styles.errorText}>{errorMessage}</Text>
             ) : (
-              <Text style={styles.note}>4-20 characters, letters and numbers only</Text>
+              <Text style={styles.note}>
+                4-20 characters, letters and numbers only, no spaces
+              </Text>
             )}
           </View>
         </View>
@@ -78,57 +95,53 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    backgroundColor: '#010118',
+    backgroundColor: "#010118",
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
-    color: 'white',
-    marginTop:8,
+    fontWeight: "700",
+    color: "white",
+    marginTop: 8,
     marginBottom: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 14,
-    color: '#6B7280',
-    textAlign: 'center',
+    color: "#6B7280",
+    textAlign: "center",
     marginBottom: 40,
   },
   inputContainer: {
     marginBottom: 24,
   },
   input: {
-    backgroundColor: '#1F2937',
-    borderColor: '#374151',
+    backgroundColor: "#1F2937",
+    borderColor: "#374151",
     borderWidth: 1,
     borderRadius: 12,
   },
   inputField: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
     paddingVertical: 14,
     paddingHorizontal: 16,
   },
   errorText: {
-    color: '#EF4444',
+    color: "#EF4444",
     fontSize: 12,
     marginTop: 8,
     paddingHorizontal: 4,
-    textAlign: 'center',
+    textAlign: "center",
   },
   note: {
-    color: '#6B7280',
+    color: "#6B7280",
     fontSize: 12,
     marginTop: 8,
     paddingHorizontal: 4,
-    textAlign: 'left',
+    textAlign: "left",
   },
 });
-
-
-
-

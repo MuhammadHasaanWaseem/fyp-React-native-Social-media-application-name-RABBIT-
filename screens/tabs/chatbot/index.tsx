@@ -12,7 +12,9 @@ import { HStack } from "@/components/ui/hstack";
 import * as ImagePicker from 'expo-image-picker';
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const API_KEY = "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";
+const API_KEY = "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";
+const SITE_URL = "https://yourwebsite.com"; // Replace with your actual site URL
+const SITE_NAME = "Rabbit"; // Replace with your actual site name
 
 if (Platform.OS === "android") {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -63,7 +65,7 @@ export default function ChatScreen() {
       userMessage = {
         role: "user",
         content: [
-          { type: "text", text: input || "Analyze this image" },
+          { type: "text", text: input || "Analyze this image correctly" },
           { 
             type: "image_url", 
             image_url: { 
@@ -87,10 +89,12 @@ export default function ChatScreen() {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${API_KEY}`,
+          "HTTP-Referer": SITE_URL,
+          "X-Title": SITE_NAME,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemma-3-1b-it:free", // Changed to a model that might support images
+          model: "deepseek/deepseek-r1:free",
           messages: [
             {
               role: "system",
@@ -175,61 +179,62 @@ export default function ChatScreen() {
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0} // Adjust this value as needed
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.innerContainer}>
-          <HStack style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <ArrowLeft size={24} color={"#E0E0E0"} />
-            </TouchableOpacity>
-            <Text style={styles.title}>Rabbit AI</Text>
-            <View style={styles.headerIconPlaceholder} />
-          </HStack>
-          <Divider style={styles.divider} />
-          <View style={{ flex: 1 }}>
-            <FlatList
-              ref={flatListRef}
-              data={messages}
-              keyExtractor={(_, i) => i.toString()}
-              renderItem={({ item }) => <MessageBubble item={item} />}
-              contentContainerStyle={styles.messagesContainer}
-              onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
-              ListFooterComponent={loading ? <TypingIndicator /> : null}
-              keyboardShouldPersistTaps="always"
-            />
-          </View>
-          {selectedImage && (
-            <View style={styles.imagePreviewContainer}>
-              <Image source={{ uri: selectedImage.uri }} style={styles.imagePreview} />
-              <TouchableOpacity
-                style={styles.removeImageButton}
-                onPress={() => setSelectedImage(null)}
-              >
-                <Text style={styles.removeImageText}>×</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          <View style={styles.inputContainer}>
-            <TouchableOpacity onPress={pickImage} style={styles.imageButton}>
-              <ImageIcon size={20} color="#E0E0E0" />
-            </TouchableOpacity>
-            <TextInput
-              style={styles.input}
-              placeholder="Message Rabbit AI..."
-              placeholderTextColor="#616161"
-              value={input}
-              onChangeText={setInput}
-              multiline
-              blurOnSubmit={false}
-            />
-            <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
-              <Animated.View style={{ transform: [{ scale: sendScale }] }}>
-                <Send size={20} color={input.trim() || selectedImage ? "#BB86FC" : "#616161"} />
-              </Animated.View>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.innerContainer}>
+        <HStack style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ArrowLeft size={24} color={"#E0E0E0"} />
+          </TouchableOpacity>
+          <Text style={styles.title}>Rabbit AI</Text>
+          <View style={styles.headerIconPlaceholder} />
+        </HStack>
+        <Divider style={styles.divider} />
+        <View style={{ flex: 1 }}>
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            keyExtractor={(_, i) => i.toString()}
+            renderItem={({ item }) => <MessageBubble item={item} />}
+            contentContainerStyle={styles.messagesContainer}
+            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+            ListFooterComponent={loading ? <TypingIndicator /> : null}
+            keyboardShouldPersistTaps="handled" // Changed to 'handled' to allow scrolling
+            scrollEnabled={true} // Explicitly ensure scrolling is enabled
+          />
         </View>
-      </TouchableWithoutFeedback>
+        {selectedImage && (
+          <View style={styles.imagePreviewContainer}>
+            <Image source={{ uri: selectedImage.uri }} style={styles.imagePreview} />
+            <TouchableOpacity
+              style={styles.removeImageButton}
+              onPress={() => setSelectedImage(null)}
+            >
+              <Text style={styles.removeImageText}>×</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        <View style={styles.inputContainer}>
+          <TouchableOpacity onPress={pickImage} style={styles.imageButton}>
+            <ImageIcon size={20} color="#E0E0E0" />
+          </TouchableOpacity>
+          <TextInput
+            style={styles.input}
+            placeholder="Message Rabbit AI..."
+            placeholderTextColor="#616161"
+            value={input}
+            onChangeText={setInput}
+            multiline
+            blurOnSubmit={false}
+            onSubmitEditing={() => Keyboard.dismiss()} // Dismiss keyboard on submit
+          />
+          <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
+            <Animated.View style={{ transform: [{ scale: sendScale }] }}>
+              <Send size={20} color={input.trim() || selectedImage ? "#BB86FC" : "#616161"} />
+            </Animated.View>
+          </TouchableOpacity>
+        </View>
+      </View>
     </KeyboardAvoidingView>
   );
 }

@@ -9,7 +9,7 @@ import CommentsNotification from "./CommentsNotification"; // Newly created
 import LikesNotification from "./LikesNotification";
 import Mention from "./Mention";
 
-const tabs = ['Follows', 'Likes', 'Mentions', 'Comments'];
+const tabs = ['Rabbit Follows', 'Likes on your Post', 'User Mentions', 'Comments on your Post'];
 
 export default () => {
   const [selectedTab, setSelectedTab] = useState('Follows');
@@ -17,13 +17,13 @@ export default () => {
   // Renders the component corresponding to the active tab
   const renderTabComponent = () => {
     switch(selectedTab) {
-      case 'Follows':
+      case 'Rabbit Follows':
         return <Follows />;
-      case 'Comments':
+      case 'Comments on your Post':
         return <CommentsNotification />;
-        case 'Likes':
+        case 'Likes on your Post':
           return <LikesNotification/>;
-          case 'Mentions':
+          case 'User Mentions':
             return <Mention/>
         default:
         return <Follows />;

@@ -46,7 +46,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/1newlogo-Photoroom.png",
+          "image": "./assets/images/Photoroom.png",
           "imageWidth": 100,
           "resizeMode": "contain",
           "backgroundColor": "#FFFFFF"
