@@ -107,6 +107,7 @@ export default function RootLayout() {
               <Stack.Screen name="useterms" options={{ headerShown:false, presentation: 'modal', animation: 'slide_from_bottom' }} />
               <Stack.Screen name='starter' options={{headerShown:false,animation:'slide_from_right'}}/>
               <Stack.Screen name="introduction" options={{headerShown:false, presentation: 'modal', animation: 'slide_from_left' }} />
+              <Stack.Screen name="display" options={{headerShown:true,headerTitle:'',headerTintColor:'black', presentation: 'modal', animation: 'slide_from_right' }} />
               <Stack.Screen name="+not-found" />
             </Stack>
           </PostProvider>

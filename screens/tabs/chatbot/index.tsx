@@ -12,7 +12,7 @@ import { HStack } from "@/components/ui/hstack";
 import * as ImagePicker from 'expo-image-picker';
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const API_KEY = "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";
+const API_KEY = "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";
 const SITE_URL = "https://yourwebsite.com"; // Replace with your actual site URL
 const SITE_NAME = "Rabbit"; // Replace with your actual site name
 

@@ -38,8 +38,10 @@ export default function Mention() {
 
   const renderItem = ({ item }: { item: any }) => (
     <TouchableOpacity
-      onPress={() => router.push({ pathname: '/user', params: { userid: item.user.id } })}
-    >
+    onPress={() => router.push({ pathname: '/display', params: { postId: item.id,postname:item.username } })} 
+    //onPress={() => router.push({ pathname: '/display', params: { userid: item.user.id } })}
+
+   >
       <HStack space="md" className="items-center p-3">
         <Avatar size="md">
           <AvatarFallbackText>{item.user.username[0]}</AvatarFallbackText>

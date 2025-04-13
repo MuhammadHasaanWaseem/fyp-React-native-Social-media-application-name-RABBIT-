@@ -1,4 +1,3 @@
-//post/card.tsx 
 import React, { useState, useRef } from 'react';
 import {
   View,
@@ -88,8 +87,8 @@ export default function PostCard({ post }: PostCardProps) {
 
 
   const uploadPrivatePost = async () => {
-    if (password.length !== 6) {
-      setError('Password must be exactly 6 characters long.');
+    if (password.length !== 8) {
+      setError('Password must be exactly 8 characters long.');
       return;
     }
     if (!hint.trim()) {
@@ -193,30 +192,30 @@ export default function PostCard({ post }: PostCardProps) {
       router.back();
     }
   };
-//handle time capsule
-const uploadTimeCapsulePost = async () => {
-  if (!scheduledTime) {
-    Alert.alert('Error', 'Please set a time for the time capsule.');
-    return;
-  }
-  updatepost(post.id, 'unlock_at', scheduledTime.toISOString());
-  updatepost(post.id, 'status', 'time_capsule');
+  //handle time capsule
+  const uploadTimeCapsulePost = async () => {
+    if (!scheduledTime) {
+      Alert.alert('Error', 'Please set a time for the time capsule.');
+      return;
+    }
+    updatepost(post.id, 'unlock_at', scheduledTime.toISOString());
+    updatepost(post.id, 'status', 'time_capsule');
 
-  const { data, error } = await supabase
-    .from('Post')
-    .insert({
-      ...post,
-      unlock_at: scheduledTime.toISOString(),
-      status: 'time_capsule',
-    });
+    const { data, error } = await supabase
+      .from('Post')
+      .insert({
+        ...post,
+        unlock_at: scheduledTime.toISOString(),
+        status: 'time_capsule',
+      });
 
-  if (error) {
-    console.error('Error uploading time capsule post:', error);
-    Alert.alert('Error', 'Failed to upload time capsule post.');
-  } else {
-    router.back();
-  }
-};
+    if (error) {
+      console.error('Error uploading time capsule post:', error);
+      Alert.alert('Error', 'Failed to upload time capsule post.');
+    } else {
+      router.back();
+    }
+  };
   return (
     <HStack className="items-center p-0">
       <VStack className="items-center">
@@ -373,52 +372,52 @@ const uploadTimeCapsulePost = async () => {
               Premiere at: {scheduledTime.toLocaleString()}
             </Text>
           )}
-         <HStack space='lg'>
-           {/* New button for uploading premier posts */}
-           {scheduledTime && (
-            (Photo && post.text && post.text.trim().length > 0) ? (
-              <TouchableOpacity
-                style={{ backgroundColor: 'white', marginTop: 17, borderRadius: 6, width: '45%' }}
-                onPress={uploadPremierPost}
-              >
-                <Text style={styles.buttonText}>
-                   Premier 
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={{ backgroundColor: 'grey', marginTop: 17, borderRadius: 6, width: '45%' }}
-                onPress={() => Alert.alert('Can not proceed', 'Select a file & Catch title first')}
-              >
-                <Text style={styles.buttonText}>
-                   Premier 
-                </Text>
-              </TouchableOpacity>
-            )
-          )}
-          {/* New button for Time capsule posts */}
-          {scheduledTime && (
-            (Photo && post.text && post.text.trim().length > 0) ? (
-              <TouchableOpacity
-                style={{ backgroundColor: 'white', marginTop: 17, borderRadius: 6, width: '45%' }}
-                onPress={uploadTimeCapsulePost}
-              >
-                <Text style={styles.buttonText}>
-                Time Capsule
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={{ backgroundColor: 'grey', marginTop: 17, borderRadius: 6, width: '45%' }}
-                onPress={() => Alert.alert('Can not proceed', 'Select a file & Catch title first')}
-              >
-                <Text style={styles.buttonText}>
-                  Time Capsule
-                </Text>
-              </TouchableOpacity>
-            )
-          )}
-         </HStack>
+          <HStack space='lg'>
+            {/* New button for uploading premier posts */}
+            {scheduledTime && (
+              (Photo && post.text && post.text.trim().length > 0) ? (
+                <TouchableOpacity
+                  style={{ backgroundColor: 'white', marginTop: 17, borderRadius: 6, width: '45%' }}
+                  onPress={uploadPremierPost}
+                >
+                  <Text style={styles.buttonText}>
+                    Premier
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={{ backgroundColor: 'grey', marginTop: 17, borderRadius: 6, width: '45%' }}
+                  onPress={() => Alert.alert('Can not proceed', 'Select a file & Catch title first')}
+                >
+                  <Text style={styles.buttonText}>
+                    Premier
+                  </Text>
+                </TouchableOpacity>
+              )
+            )}
+            {/* New button for Time capsule posts */}
+            {scheduledTime && (
+              (Photo && post.text && post.text.trim().length > 0) ? (
+                <TouchableOpacity
+                  style={{ backgroundColor: 'white', marginTop: 17, borderRadius: 6, width: '45%' }}
+                  onPress={uploadTimeCapsulePost}
+                >
+                  <Text style={styles.buttonText}>
+                    Time Capsule
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={{ backgroundColor: 'grey', marginTop: 17, borderRadius: 6, width: '45%' }}
+                  onPress={() => Alert.alert('Can not proceed', 'Select a file & Catch title first')}
+                >
+                  <Text style={styles.buttonText}>
+                    Time Capsule
+                  </Text>
+                </TouchableOpacity>
+              )
+            )}
+          </HStack>
         </Card>
         <Actionsheet isOpen={showActionsheet} onClose={handleClose}>
           <ActionsheetBackdrop />

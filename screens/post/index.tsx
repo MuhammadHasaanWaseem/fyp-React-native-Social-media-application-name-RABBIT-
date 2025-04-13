@@ -19,7 +19,7 @@ import {
 import { Divider } from '@/components/ui/divider';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Button, ButtonText } from '@/components/ui/button';
-import { useCallback, useEffect,useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Card from './card';
 import { FlatList } from 'react-native';
 import { usePost } from '@/providers/PostProvider';
@@ -114,7 +114,7 @@ export default () => {
                       {user?.username}
                     </AvatarFallbackText>
                     {/* <AvatarImage source={{ uri: user?.avatar }} /> */}
-                                        <AvatarImage source={{ uri: `${user?.avatar}?t=${new Date().getTime()}` }}/>
+                    <AvatarImage source={{ uri: `${user?.avatar}?t=${new Date().getTime()}` }} />
 
                   </Avatar>
                   <Button variant="link" >
@@ -142,10 +142,10 @@ export default () => {
                   disabled={!isValid}
                   style={postButtonStyle}
                   onPress={handlePost}
-                  // onPress calling this function inderectly => uploadpost()
+                // onPress calling this function inderectly => uploadpost()
 
                 >
-                   {loading
+                  {loading
                     ? <ActivityIndicator size="small" color="#141414" />
                     : <ButtonText style={{ color: '#141414' }}>Post</ButtonText>
                   }

@@ -104,7 +104,7 @@ export default () => {
                   What's new?
                 </Text>
               </VStack>
-              <HStack className="items-center" space="lg">
+              <HStack className="items-center" space="md">
                 <ImageIcon color="white" size={20} strokeWidth={1.5} />
                 <Camera color="white" size={20} strokeWidth={1.5} />
                 <ImagePlay color="white" size={20} strokeWidth={1.5} />
