@@ -94,7 +94,7 @@ export default () => {
             />
           </Avatar>
 
-          <Card size="lg" className="m-3 bg-transparent">
+          <Card size="lg" className="m-1 bg-transparent">
             <VStack space="sm" className="p-2">
               <VStack>
                 <Text style={{ color: 'white' }} className="mb-1 font-bold text-lg">
@@ -104,7 +104,7 @@ export default () => {
                   What's new?
                 </Text>
               </VStack>
-              <HStack className="items-center" space="md">
+              <HStack className="items-center" space="sm">
                 <ImageIcon color="white" size={20} strokeWidth={1.5} />
                 <Camera color="white" size={20} strokeWidth={1.5} />
                 <ImagePlay color="white" size={20} strokeWidth={1.5} />
