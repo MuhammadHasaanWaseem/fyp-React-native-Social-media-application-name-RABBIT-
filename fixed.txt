@@ -1,6 +1,0 @@
-  // const pathname = usePathname();  
-  // useEffect(() => {
-  //   if (pathname === '/') {
-  //   refetch();
-  //   }
-  // }, [pathname]);
