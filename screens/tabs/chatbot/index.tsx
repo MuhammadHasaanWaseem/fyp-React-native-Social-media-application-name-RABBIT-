@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
-  KeyboardAvoidingView, Platform, TouchableWithoutFeedback,
-  Keyboard, Animated, Easing, StyleSheet, LayoutAnimation, UIManager,
-  Image, ActivityIndicator
+  KeyboardAvoidingView, Platform,
+  Keyboard, Animated, StyleSheet, LayoutAnimation, UIManager,
+  Image
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Divider } from "@/components/ui/divider";
@@ -12,7 +12,7 @@ import { HStack } from "@/components/ui/hstack";
 import * as ImagePicker from 'expo-image-picker';
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const API_KEY = "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";
+const API_KEY = "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";
 const SITE_URL = "https://yourwebsite.com"; // Replace with your actual site URL
 const SITE_NAME = "Rabbit"; // Replace with your actual site name
 
@@ -203,21 +203,9 @@ export default function ChatScreen() {
             scrollEnabled={true} // Explicitly ensure scrolling is enabled
           />
         </View>
-        {selectedImage && (
-          <View style={styles.imagePreviewContainer}>
-            <Image source={{ uri: selectedImage.uri }} style={styles.imagePreview} />
-            <TouchableOpacity
-              style={styles.removeImageButton}
-              onPress={() => setSelectedImage(null)}
-            >
-              <Text style={styles.removeImageText}>×</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        
         <View style={styles.inputContainer}>
-          <TouchableOpacity onPress={pickImage} style={styles.imageButton}>
-            <ImageIcon size={20} color="#E0E0E0" />
-          </TouchableOpacity>
+         
           <TextInput
             style={styles.input}
             placeholder="Message Rabbit AI..."
