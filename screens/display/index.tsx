@@ -455,7 +455,7 @@ export default () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#010118' }}>
-      <Divider style={{ marginTop: '10%', marginBottom: '5%' }} />
+      <Divider style={{ marginTop: '10%', marginBottom: '10%' }} />
       <Text
         style={{
           fontSize: 16,
