@@ -12,7 +12,7 @@ import { HStack } from "@/components/ui/hstack";
 import * as ImagePicker from 'expo-image-picker';
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const API_KEY = "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";
+const API_KEY = "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";
 const SITE_URL = "https://yourwebsite.com"; // Replace with your actual site URL
 const SITE_NAME = "Rabbit"; // Replace with your actual site name
 
@@ -94,7 +94,7 @@ export default function ChatScreen() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "deepseek/deepseek-r1:free",
+          model: "google/gemma-3-1b-it:free",
           messages: [
             {
               role: "system",

@@ -137,10 +137,10 @@ const Drawer = () => {
           />
         </Avatar>
         <Text style={styles.username}>{user?.username}</Text>
-        <Text style={{ fontSize: 11, color: 'white', marginTop: '4%' }}>ID: {user?.id}</Text>
         <Text style={styles.infoText}>
           Account created in {user?.created_at ? new Date(user.created_at).getFullYear() : 'Unknown'}
         </Text>
+        <Text style={styles.infoText}>" {user?.bio} "</Text>
       </View>
 
       <Divider style={styles.divider} />
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   footerIcon: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 10
   },
   brandText: {
     fontSize: 12,

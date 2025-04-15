@@ -270,7 +270,7 @@ export default ({ user }: { user: User }) => {
         <Pressable onPress={handleAvatarPress}>
           <Avatar size="lg">
             <AvatarFallbackText style={{ color: "white" }}>{user?.username}</AvatarFallbackText>
-            <AvatarImage source={{ uri: localAvatar || user?.avatar }} />
+            <AvatarImage source={{ uri: `${localAvatar ||user?.avatar} ?t=${new Date().getTime()}` }} />
           </Avatar>
         </Pressable>
       </HStack>

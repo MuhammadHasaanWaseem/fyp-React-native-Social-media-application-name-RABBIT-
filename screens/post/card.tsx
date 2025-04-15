@@ -296,56 +296,58 @@ export default function PostCard({ post }: PostCardProps) {
 
               {showaudio && <Audio id={post.id} />}
             </VStack>
-            <VStack>
-              <HStack className="items-center gap-3">
+            <VStack space='lg'>
+              <HStack className="items-center " space='lg'>
                 {/* Select media from local storage */}
-                <TouchableOpacity onPress={addPhotoAndVideo}>
-                  <ImageIcon color="white" size={20} strokeWidth={1.5} />
+<TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}}onPress={addPhotoAndVideo}>
+                  <ImageIcon color="white"  size={20} strokeWidth={1.5} />
                 </TouchableOpacity>
                 {/* Capture from camera */}
-                <TouchableOpacity
+                <TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}}
                   onPress={() => {
                     setPhoto('');
                     router.push({ pathname: '/camera', params: { threadId: post.id } });
                   }}
                 >
                   <Camera color="white" size={20} strokeWidth={1.5} />
-                </TouchableOpacity>
+                </TouchableOpacity >
                 {/* Choose GIF */}
-                <TouchableOpacity onPress={() => router.push('/gif')}>
+                <TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}} onPress={() => router.push('/gif')}>
                   <ImagePlay color="white" size={20} strokeWidth={1.5} />
                 </TouchableOpacity>
                 {/* Mention */}
-                <TouchableOpacity>
+                <TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}}>
                   <AtSignIcon color="white" size={20} strokeWidth={1.5} onPress={() => setShowMentionSheet(true)} />
                 </TouchableOpacity>
                 {/* Spoiler toggle */}
-                <TouchableOpacity onPress={handleSpoilerToggle}>
+                <TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}}  onPress={handleSpoilerToggle}>
                   <EyeOff color="white" size={20} strokeWidth={1.5} />
                 </TouchableOpacity>
                 {/* Audio record */}
-                <TouchableOpacity onPress={() => setShowaudio(!showaudio)}>
+                <TouchableOpacity onPress={() => setShowaudio(!showaudio)} style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}}>
                   <Mic color="white" size={20} strokeWidth={1.5} />
                 </TouchableOpacity>
+                </HStack>
+                <HStack space='lg'>
                 {/* time capsule with conditions */}
-                {post.text && post.text.trim().length > 0 && (<TouchableOpacity onPress={handleTimerPress}>
+                {post.text && post.text.trim().length > 0 && (<TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}} onPress={handleTimerPress}>
 
                   <Hourglass color={'white'} size={20} strokeWidth={1.5} />
                 </TouchableOpacity>)}
-                {post.text === '' && (<TouchableOpacity onPress={() => Alert.alert('Add captions to use this feature')}>
+                {post.text === '' && (<TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}} onPress={() => Alert.alert('Add captions to use this feature')}>
                   <Hourglass color={'grey'} size={20} strokeWidth={1.5} />
                 </TouchableOpacity>)}
 
                 {/* private post icon with conditions*/}
-                {post.text && post.text.trim().length > 0 && (<TouchableOpacity onPress={() => setShowActionsheet(true)}>
+                {post.text && post.text.trim().length > 0 && (<TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}} onPress={() => setShowActionsheet(true)}>
 
                   <Lock color={'white'} size={20} strokeWidth={1.5} />
                 </TouchableOpacity>)}
-                {post.text === '' && (<TouchableOpacity onPress={() => Alert.alert('Add captions to use this feature')}>
+                {post.text === '' && (<TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}} onPress={() => Alert.alert('Add captions to use this feature')}>
                   <Lock color={'grey'} size={20} strokeWidth={1.5} />
                 </TouchableOpacity>)}
                 {/*  (premiere) icon */}
-                <TouchableOpacity onPress={handleTimerPress}>
+                <TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}} onPress={handleTimerPress}>
                   <CalendarClock color={scheduledTime ? '#ff4500' : 'white'} size={20} strokeWidth={1.5} />
                 </TouchableOpacity>
               </HStack>

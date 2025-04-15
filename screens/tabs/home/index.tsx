@@ -89,7 +89,7 @@ export default () => {
             <AvatarFallbackText style={{ color: 'black' }}>{user?.username || ''}</AvatarFallbackText>
             {/* <AvatarImage source={{ uri: user?.avatar }} /> */}
             <AvatarImage
-              source={{ uri: `${user?.avatar}?t=${new Date().getTime()}` }}
+              source={{ uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${user?.id}/avatar.jpeg?t=${new Date().getTime()}` }}
 
             />
           </Avatar>

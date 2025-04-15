@@ -12,10 +12,11 @@ export default function TabLayout() {
         tabBarActiveTintColor: 'white',
         tabBarActiveBackgroundColor: '#010118',
         headerShown: false,
-        tabBarStyle: Platform.select({
+        tabBarStyle: [styles.tabBar,Platform.select({
+          
           ios: { position: 'absolute' },
           default: { backgroundColor: '#010118' },
-        }),
+        }),]
       }}
     >
     
@@ -46,10 +47,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="empty"
         options={{ 
+          
           title: '',
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: 'center', backgroundColor:'#141414',padding:5,top:6,borderRadius:10 }}>
-              <Plus  strokeWidth={focused ? 4  : 2} color={'#FF4500'} size={34} />
+            <View style={{ alignItems: 'center', backgroundColor:'#E56713',padding:10,top:-6,borderRadius:30 }}>
+              <Plus  strokeWidth={focused ? 4  : 2} color={'white'} size={34} />
               {focused && <View style={styles.activeIndicator} />}
             </View>
           ),
@@ -96,5 +98,16 @@ const styles = {
     backgroundColor: 'white',
     marginTop: 2,
     borderRadius: 3,
+  },
+  tabBar: {
+    backgroundColor: '#010118',
+    borderTopWidth: 0,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    height: 60,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 5,
+    paddingTop: 5,
   },
 };
