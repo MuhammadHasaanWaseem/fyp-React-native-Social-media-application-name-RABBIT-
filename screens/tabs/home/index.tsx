@@ -27,7 +27,6 @@ import { useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
 import { usePosts } from '@/hooks/use-posts';
 import View from '@/components/shared/sharedview';
-import { Menu } from '@/components/ui/menu';
 const { width } = Dimensions.get('window');
 export default () => {
   const { user } = useAuth();
@@ -63,11 +62,8 @@ export default () => {
 
   return (
     <SafeAreaView style={{ backgroundColor: '#010118' }} className="flex-1">
-      {/* Top Logo */}
       <HStack className="justify-between items-center">
-        {/* <TouchableOpacity onPress={() => router.push('/worldchat')}>
-          <Globe style={{ marginTop: 20, marginLeft: 10 }} size={25} color={'white'} />
-        </TouchableOpacity> */}
+        
         <TouchableOpacity onPress={() => router.push('/drawer')}>
           <MenuIcon style={{ marginTop: 20, marginLeft: 10 }} size={25} color={'white'} />
         </TouchableOpacity>
@@ -75,16 +71,14 @@ export default () => {
           source={require('../../../assets/gif/RAB.gif')}
           style={styles.image}
         />
-        {/* <Rabbiticon size={40} /> */}
 
         <TouchableOpacity onPress={() => router.push('/chatbot')}>
           <MessageCircleCodeIcon style={{ marginTop: 20, marginRight: 10 }} size={25} color={'white'} />
         </TouchableOpacity>
       </HStack>
-
       {/* "What's New?" Card for the logged-in user */}
       <Pressable onPress={() => router.push('/post')}>
-        <HStack className="items-center p-4">
+        <HStack className="items-center " style={{paddingHorizontal:'5%'}}>
           <Avatar size="md" style={{ borderColor: 'white', backgroundColor: 'white' }}>
             <AvatarFallbackText style={{ color: 'black' }}>{user?.username || ''}</AvatarFallbackText>
             {/* <AvatarImage source={{ uri: user?.avatar }} /> */}
@@ -94,7 +88,7 @@ export default () => {
             />
           </Avatar>
 
-          <Card size="lg" className="m-1 bg-transparent">
+          <Card size="lg" className=" bg-transparent">
             <VStack space="sm" className="p-2">
               <VStack>
                 <Text style={{ color: 'white' }} className="mb-1 font-bold text-lg">

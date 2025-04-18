@@ -94,7 +94,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   footer: {
-    paddingBottom: 40,
+    paddingTop:'10%',
+    paddingBottom: '20%',
     gap: 16,
   },
   mainButton: {

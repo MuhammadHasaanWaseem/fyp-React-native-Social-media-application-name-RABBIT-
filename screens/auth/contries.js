@@ -1,4 +1,5 @@
 export const countries = [
+  { name: 'Pakistan', code: 'PK', dial_code: '+92', symbol: '🇵🇰' },
   { name: 'Afghanistan', code: 'AF', dial_code: '+93', symbol: '🇦🇫' },
   { name: 'Algeria', code: 'DZ', dial_code: '+213', symbol: '🇩🇿' },
   { name: 'Argentina', code: 'AR', dial_code: '+54', symbol: '🇦🇷' },
@@ -41,7 +42,6 @@ export const countries = [
   { name: 'Nigeria', code: 'NG', dial_code: '+234', symbol: '🇳🇬' },
   { name: 'Norway', code: 'NO', dial_code: '+47', symbol: '🇳🇴' },
   { name: 'Oman', code: 'OM', dial_code: '+968', symbol: '🇴🇲' },
-  { name: 'Pakistan', code: 'PK', dial_code: '+92', symbol: '🇵🇰' },
   { name: 'Peru', code: 'PE', dial_code: '+51', symbol: '🇵🇪' },
   { name: 'Philippines', code: 'PH', dial_code: '+63', symbol: '🇵🇭' },
   { name: 'Poland', code: 'PL', dial_code: '+48', symbol: '🇵🇱' },

@@ -128,7 +128,7 @@ export default ({ id, uri, userid }: { id: string; uri?: string, userid?: string
       <HStack className="items-center">
         <TouchableOpacity onPress={recording ? stopRecording : startRecording}>
           {recording ? (
-            <Circle fill={"red"} color={"green"} size={20} />
+            <Circle fill={"blue"} color={"green"} size={20} />
           ) : (
             <Circle color={"red"} fill={"red"} size={20} />
           )}

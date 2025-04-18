@@ -22,7 +22,7 @@ import {
 } from "../ui/avatar";
 import { Button, ButtonText } from "../ui/button";
 import { Divider } from "../ui/divider";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { VStack } from "../ui/vstack";
 import { supabase } from "@/lib/supabase";
@@ -46,6 +46,7 @@ import {
   ActionsheetIcon,
 } from "@/components/ui/actionsheet";
 import { CloseCircleIcon, DownloadIcon, EditIcon } from "@/components/ui/icon";
+import { Spinner } from "../ui/spinner";
 
 enum Tab {
   PUBLIC = "Public",
@@ -60,8 +61,32 @@ const tabs = [
 ];
 
 export default ({ user }: { user: User }) => {
+useEffect(() => {
+  const fetchUserData = async () => {
+    const { data, error } = await supabase
+      .from("User")
+      .select("username, nickname, bio")
+      .eq("id", user?.id) // assuming you have the user id
+
+    if (error) {
+      Alert.alert("Error fetching user data ", error.message);
+    } else if (data && data.length > 0) {
+      const userData = data[0];
+      setlocalnickname(userData.nickname);
+      setlocalbio(userData.bio);
+      // setLocalAvatar(userData.avatar); // if you want avatar too
+    }
+  };
+
+  if (user?.id) {
+    fetchUserData();
+  }
+}, [user?.id]);
+
   const [tab, setTab] = useState<typeof tabs[number]>(tabs[0]);
   const [showActionsheet, setShowActionsheet] = useState(false);
+  const [localnickname, setlocalnickname] = useState<string>(user?.nickname || '');
+  const [localbio, setlocalbio] = useState<string>(user?.bio || '');
   const { data, refetch, isLoading } = usePosts({
     key: "user_id",
     value: user?.id,
@@ -73,17 +98,19 @@ export default ({ user }: { user: User }) => {
   const [localAvatar, setLocalAvatar] = useState<string>(user?.avatar || "");
   const { data: followers } = usefollowers(user?.id);
   const { user: userauth } = useAuth();
+  const [loader, setloader] = useState(false)
   const { data: followingData, refetch: refetchFollowing } = usefollowing(
     userauth?.id
   );
   const isOwner = userauth?.id === user?.id;
   const isFollowing = followingData?.includes(user?.id);
+
   const isFollower = followers?.some((f: any) => f.user.id === userauth?.id);
   const followButtonText = isFollowing
     ? "Unfollow"
     : isFollower
-    ? "Follow Back"
-    : "Follow";
+      ? "Follow Back"
+      : "Follow";
 
   // Filter posts based on the current tab
   const filteredPosts = data?.filter((item) => {
@@ -92,6 +119,17 @@ export default ({ user }: { user: User }) => {
     return false;
   }) || [];
 
+  const functionloader = () => {
+    if (!loader)
+      setTimeout(() => {
+        setloader(true)
+        return <Spinner color={'white'} />
+      }, 3000);
+    else if (loader)
+      setTimeout(() => {
+        setloader(false)
+      }, 3000);
+  }
   const followUser = async () => {
     try {
       const { error } = await supabase
@@ -132,7 +170,10 @@ export default ({ user }: { user: User }) => {
         .update({ bio: newBio })
         .eq("id", userId);
       if (error) Alert.alert("Error", error.message);
-      else Alert.alert("Success", "Bio updated successfully!");
+      else {
+        setlocalbio(newBio)
+        Alert.alert("Success", "Bio updated successfully!");
+      }
     } catch (err) {
       Alert.alert("Error", "An unexpected error occurred while updating the bio.");
     }
@@ -145,7 +186,10 @@ export default ({ user }: { user: User }) => {
         .update({ nickname: newNickname })
         .eq("id", userId);
       if (error) Alert.alert("Error", error.message);
-      else Alert.alert("Success", "Nickname updated successfully!");
+      else {
+        setlocalnickname(newNickname)
+        Alert.alert("Success", "Nickname updated successfully!");
+      }
     } catch (err) {
       Alert.alert(
         "Error",
@@ -256,21 +300,21 @@ export default ({ user }: { user: User }) => {
           </Text>
           <HStack className="items-center" style={{ marginTop: 5 }}>
             <Text style={{ color: "white", fontSize: 12, fontWeight: "900" }}>Bio: </Text>
-            <Text style={{ color: "white", fontSize: 12 }}>{user?.bio || "Not set"}</Text>
+            <Text style={{ color: "white", fontSize: 12 }}>{localbio || "Not set"}</Text>
           </HStack>
           <HStack className="items-center" style={{ marginTop: 5 }}>
             <Text style={{ color: "white", fontSize: 12, fontWeight: "900" }}>
               Nickname:{" "}
             </Text>
             <Text style={{ color: "white", fontSize: 12 }}>
-              {user?.nickname || "Not set"}
+              {localnickname || "Not set"}
             </Text>
           </HStack>
         </VStack>
         <Pressable onPress={handleAvatarPress}>
           <Avatar size="lg">
             <AvatarFallbackText style={{ color: "white" }}>{user?.username}</AvatarFallbackText>
-            <AvatarImage source={{ uri: `${localAvatar ||user?.avatar} ?t=${new Date().getTime()}` }} />
+            <AvatarImage source={{ uri: `${localAvatar || user?.avatar} ?t=${new Date().getTime()}` }} />
           </Avatar>
         </Pressable>
       </HStack>
@@ -402,18 +446,18 @@ export default ({ user }: { user: User }) => {
           </ActionsheetDragIndicatorWrapper>
           <ActionsheetItem onPress={openBioPrompt}>
             <ActionsheetIcon color="white" as={EditIcon} />
-            <ActionsheetItemText style={{ color: "white" }}>Add/change Bio</ActionsheetItemText>
+            <ActionsheetItemText style={{ color: "white" }}>Update Bio</ActionsheetItemText>
           </ActionsheetItem>
           <Divider />
           <ActionsheetItem onPress={openNicknamePrompt}>
             <ActionsheetIcon color="white" as={EditIcon} />
-            <ActionsheetItemText style={{ color: "white" }}>Add Nickname</ActionsheetItemText>
+            <ActionsheetItemText style={{ color: "white" }}>Update Nickname</ActionsheetItemText>
           </ActionsheetItem>
           <Divider />
           <ActionsheetItem onPress={handleavatarupload}>
             <ActionsheetIcon color="white" as={DownloadIcon} />
             <ActionsheetItemText style={{ color: "white" }}>
-              Upload Profile Picture
+              Update Profile Picture
             </ActionsheetItemText>
           </ActionsheetItem>
           <Divider />
@@ -444,6 +488,7 @@ export default ({ user }: { user: User }) => {
                   variant="outline"
                   onPress={() => {
                     handleBio(bioInput, user.id);
+                    functionloader;
                     setShowBioModal(false);
                   }}
                 >
@@ -474,6 +519,7 @@ export default ({ user }: { user: User }) => {
                   variant="outline"
                   onPress={() => {
                     handleNickname(nicknameInput, user.id);
+                    functionloader;
                     setShowNicknameModal(false);
                   }}
                 >

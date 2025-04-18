@@ -21,12 +21,13 @@ import {
   Timer,
   FileText,
   Shield,
-  LucideAward
+  LucideAward,
+  User
 } from 'lucide-react-native';
 import { HStack } from '@/components/ui/hstack';
 import { Divider } from '@/components/ui/divider';
 import { useAuth } from '@/providers/AuthProviders';
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 const { width } = Dimensions.get('window');
 
 
@@ -67,6 +68,7 @@ const Drawer = () => {
       Icon: Globe,
       action: () => router.push('/worldchat'),
     },
+    
     {
       id: 'logout',
       title: 'Log Out',
@@ -122,7 +124,7 @@ const Drawer = () => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <HStack style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
+        <TouchableOpacity onPress={() => router.push('/(tabs)')} style={styles.backButton} activeOpacity={0.7}>
           <ArrowLeft color="#FFFFFF" size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Explore</Text>
@@ -131,16 +133,19 @@ const Drawer = () => {
       {/* Profile Section */}
       <View style={styles.profileSection}>
         <Avatar size="xl">
+              <AvatarFallbackText style={{ color: 'white' }}>{user?.username || ''}</AvatarFallbackText>
+          
           <AvatarImage
             source={{ uri: `${user?.avatar}?t=${new Date().getTime()}` }}
             style={styles.avatar}
           />
+          
         </Avatar>
         <Text style={styles.username}>{user?.username}</Text>
         <Text style={styles.infoText}>
           Account created in {user?.created_at ? new Date(user.created_at).getFullYear() : 'Unknown'}
         </Text>
-        <Text style={styles.infoText}>" {user?.bio} "</Text>
+        <Text style={styles.infoText}>" {user?.bio || "not set yet"} "</Text>
       </View>
 
       <Divider style={styles.divider} />

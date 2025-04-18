@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
+import PrivatePostActionSheet from './privatepost';
 import {
   Camera,
   Mic,
@@ -58,6 +59,7 @@ export default function PostCard({ post }: PostCardProps) {
   const regex = /([#@]\w+)|([^#@]+)/g;
   const textArray = post.text?.match(regex) || [];
   const [showMentionSheet, setShowMentionSheet] = useState(false); // State for mention action sheet
+  const [showprivateActionsheet, setShowprivateActionsheet] = useState(false); //private post action sheet --> imported
   const [showaudio, setShowaudio] = useState(false);
   const {
     updatepost,
@@ -128,7 +130,30 @@ export default function PostCard({ post }: PostCardProps) {
     setIsSpoiler(newState);
     updatepost(post.id, 'tag_name', newState ? 'spoiler' : '');
   };
+  //handle priavte post separetley for action sheat
+  const handlePrivatePostSubmit = async (password: string, hint: string) => {
+    // Update post fields locally
+    updatepost(post.id, 'password', password);
+    updatepost(post.id, 'hint', hint);
+    updatepost(post.id, 'Availablity', 'private');
 
+    const { data, error } = await supabase
+      .from('Post')
+      .insert({
+        ...post,
+        password,
+        hint,
+        Availablity: 'private',
+      });
+
+    if (error) {
+      console.error('Error uploading private post:', error);
+      throw new Error('Failed to upload private post.');
+    } else {
+      handleClose();
+      router.back();
+    }
+  };
   // ----- Image/Video picker
   const addPhotoAndVideo = async () => {
     setPhoto('');
@@ -299,11 +324,11 @@ export default function PostCard({ post }: PostCardProps) {
             <VStack space='lg'>
               <HStack className="items-center " space='lg'>
                 {/* Select media from local storage */}
-<TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}}onPress={addPhotoAndVideo}>
-                  <ImageIcon color="white"  size={20} strokeWidth={1.5} />
+                <TouchableOpacity style={styles.igniteicon} onPress={addPhotoAndVideo}>
+                  <ImageIcon color="white" size={20} strokeWidth={1.5} />
                 </TouchableOpacity>
                 {/* Capture from camera */}
-                <TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}}
+                <TouchableOpacity style={styles.igniteicon}
                   onPress={() => {
                     setPhoto('');
                     router.push({ pathname: '/camera', params: { threadId: post.id } });
@@ -312,42 +337,44 @@ export default function PostCard({ post }: PostCardProps) {
                   <Camera color="white" size={20} strokeWidth={1.5} />
                 </TouchableOpacity >
                 {/* Choose GIF */}
-                <TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}} onPress={() => router.push('/gif')}>
+                <TouchableOpacity style={styles.igniteicon} onPress={() => router.push('/gif')}>
                   <ImagePlay color="white" size={20} strokeWidth={1.5} />
                 </TouchableOpacity>
                 {/* Mention */}
-                <TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}}>
+                <TouchableOpacity style={styles.igniteicon}>
                   <AtSignIcon color="white" size={20} strokeWidth={1.5} onPress={() => setShowMentionSheet(true)} />
                 </TouchableOpacity>
                 {/* Spoiler toggle */}
-                <TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}}  onPress={handleSpoilerToggle}>
+                <TouchableOpacity style={styles.igniteicon} onPress={handleSpoilerToggle}>
                   <EyeOff color="white" size={20} strokeWidth={1.5} />
                 </TouchableOpacity>
                 {/* Audio record */}
-                <TouchableOpacity onPress={() => setShowaudio(!showaudio)} style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}}>
+                <TouchableOpacity onPress={() => setShowaudio(!showaudio)}
+                  style={styles.igniteicon}>
                   <Mic color="white" size={20} strokeWidth={1.5} />
                 </TouchableOpacity>
-                </HStack>
-                <HStack space='lg'>
+              </HStack>
+              <HStack space='lg'>
                 {/* time capsule with conditions */}
-                {post.text && post.text.trim().length > 0 && (<TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}} onPress={handleTimerPress}>
+                {post.text && post.text.trim().length > 0 && (
+                  <TouchableOpacity style={styles.igniteicon} onPress={handleTimerPress}>
 
-                  <Hourglass color={'white'} size={20} strokeWidth={1.5} />
-                </TouchableOpacity>)}
-                {post.text === '' && (<TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}} onPress={() => Alert.alert('Add captions to use this feature')}>
+                    <Hourglass color={'white'} size={20} strokeWidth={1.5} />
+                  </TouchableOpacity>)}
+                {post.text === '' && (<TouchableOpacity style={styles.igniteicon} onPress={() => Alert.alert('Add captions to use this feature')}>
                   <Hourglass color={'grey'} size={20} strokeWidth={1.5} />
                 </TouchableOpacity>)}
 
                 {/* private post icon with conditions*/}
-                {post.text && post.text.trim().length > 0 && (<TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}} onPress={() => setShowActionsheet(true)}>
+                {post.text && post.text.trim().length > 0 && (<TouchableOpacity style={styles.igniteicon} onPress={() => setShowActionsheet(true)}>
 
                   <Lock color={'white'} size={20} strokeWidth={1.5} />
                 </TouchableOpacity>)}
-                {post.text === '' && (<TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}} onPress={() => Alert.alert('Add captions to use this feature')}>
+                {post.text === '' && (<TouchableOpacity style={styles.igniteicon} onPress={() => Alert.alert('Add captions to use this feature')}>
                   <Lock color={'grey'} size={20} strokeWidth={1.5} />
                 </TouchableOpacity>)}
                 {/*  (premiere) icon */}
-                <TouchableOpacity style={{borderRadius:30,padding:4,backgroundColor:'black',borderWidth:0.5,borderColor:'grey'}} onPress={handleTimerPress}>
+                <TouchableOpacity style={styles.igniteicon} onPress={handleTimerPress}>
                   <CalendarClock color={scheduledTime ? '#ff4500' : 'white'} size={20} strokeWidth={1.5} />
                 </TouchableOpacity>
               </HStack>
@@ -421,7 +448,12 @@ export default function PostCard({ post }: PostCardProps) {
             )}
           </HStack>
         </Card>
-        <Actionsheet isOpen={showActionsheet} onClose={handleClose}>
+        <PrivatePostActionSheet
+          visible={showActionsheet}
+          onClose={handleClose}
+          onSubmit={handlePrivatePostSubmit}
+        />
+        {/* <Actionsheet isOpen={showActionsheet} onClose={handleClose}>
           <ActionsheetBackdrop />
           <ActionsheetContent style={styles.sheetContent}>
             <ActionsheetDragIndicatorWrapper>
@@ -455,7 +487,7 @@ export default function PostCard({ post }: PostCardProps) {
               </HStack>
             </VStack>
           </ActionsheetContent>
-        </Actionsheet>
+        </Actionsheet> */}
         {/* action sheet for mentions */}
         <MentionActionSheet
           visible={showMentionSheet}
@@ -527,6 +559,13 @@ const styles = StyleSheet.create({
   },
   viewSpoilerText: {
     color: '#141414'
+  },
+  igniteicon: {
+    borderRadius: 30,
+    padding: 4,
+    backgroundColor: 'black',
+    borderWidth: 0.5,
+    borderColor: 'grey'
   },
   scheduledText: {
     color: '#ff4500',
