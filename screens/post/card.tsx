@@ -6,7 +6,8 @@ import {
   Text,
   StyleSheet,
   Platform,
-  TextInput
+  TextInput,
+  Modal
 } from 'react-native';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
@@ -87,7 +88,18 @@ export default function PostCard({ post }: PostCardProps) {
     setError(null);
   };
 
-
+//alert box
+const [showFileAlertModal, setShowFileAlertModal] = useState(false); //alert states
+//alert functions
+const showFileAlert=()=> {
+  setShowFileAlertModal(true);
+}
+//alert on icons
+const [showaltermodal, setshowaltermodal] = useState(false); //alert states
+const showiconalert=()=> {
+  setshowaltermodal(true);
+}
+//upload private post
   const uploadPrivatePost = async () => {
     if (password.length !== 8) {
       setError('Password must be exactly 8 characters long.');
@@ -97,7 +109,7 @@ export default function PostCard({ post }: PostCardProps) {
       setError('Hint is required.');
       return;
     }
-
+// updating database
     updatepost(post.id, 'password', password);
     updatepost(post.id, 'hint', hint);
     updatepost(post.id, 'Availablity', 'private');
@@ -361,7 +373,7 @@ export default function PostCard({ post }: PostCardProps) {
 
                     <Hourglass color={'white'} size={20} strokeWidth={1.5} />
                   </TouchableOpacity>)}
-                {post.text === '' && (<TouchableOpacity style={styles.igniteicon} onPress={() => Alert.alert('Add captions to use this feature')}>
+                {post.text === '' && (<TouchableOpacity style={styles.igniteicon} onPress={showiconalert}>
                   <Hourglass color={'grey'} size={20} strokeWidth={1.5} />
                 </TouchableOpacity>)}
 
@@ -370,7 +382,7 @@ export default function PostCard({ post }: PostCardProps) {
 
                   <Lock color={'white'} size={20} strokeWidth={1.5} />
                 </TouchableOpacity>)}
-                {post.text === '' && (<TouchableOpacity style={styles.igniteicon} onPress={() => Alert.alert('Add captions to use this feature')}>
+                {post.text === '' && (<TouchableOpacity style={styles.igniteicon} onPress={showiconalert}>
                   <Lock color={'grey'} size={20} strokeWidth={1.5} />
                 </TouchableOpacity>)}
                 {/*  (premiere) icon */}
@@ -416,7 +428,7 @@ export default function PostCard({ post }: PostCardProps) {
               ) : (
                 <TouchableOpacity
                   style={{ backgroundColor: 'grey', marginTop: 17, borderRadius: 6, width: '45%' }}
-                  onPress={() => Alert.alert('Can not proceed', 'Select a file & Catch title first')}
+                  onPress={showFileAlert}
                 >
                   <Text style={styles.buttonText}>
                     Premier
@@ -438,7 +450,7 @@ export default function PostCard({ post }: PostCardProps) {
               ) : (
                 <TouchableOpacity
                   style={{ backgroundColor: 'grey', marginTop: 17, borderRadius: 6, width: '45%' }}
-                  onPress={() => Alert.alert('Can not proceed', 'Select a file & Catch title first')}
+                  onPress={showFileAlert}
                 >
                   <Text style={styles.buttonText}>
                     Time Capsule
@@ -488,6 +500,7 @@ export default function PostCard({ post }: PostCardProps) {
             </VStack>
           </ActionsheetContent>
         </Actionsheet> */}
+
         {/* action sheet for mentions */}
         <MentionActionSheet
           visible={showMentionSheet}
@@ -497,6 +510,45 @@ export default function PostCard({ post }: PostCardProps) {
             updatepost(post.id, 'text', newText);
           }}
         />
+        {/* Modal sheet for alert function */}
+        <Modal
+    visible={showFileAlertModal}
+    transparent
+    animationType="fade"
+    onRequestClose={() => setShowFileAlertModal(false)}
+  >
+    <View style={styles.alertBackdrop}>
+      <View style={styles.alertContainer}>
+        <Text style={styles.alertTitle}>Cannot Proceed</Text>
+        <Text style={styles.alertMessage}>
+          Please add a title and select a non‑audio file before submitting.
+        </Text>
+        <Button style={{backgroundColor:'white',borderRadius:10}} onPress={() => setShowFileAlertModal(false)}>
+          <ButtonText className='text-black'>OK</ButtonText>
+        </Button>
+      </View>
+    </View>
+  </Modal>
+  {/* private and hore glass modal */}
+  <Modal
+    visible={showaltermodal}
+    transparent
+    animationType="fade"
+    onRequestClose={() => setshowaltermodal(false)}
+  >
+    <View style={styles.alertBackdrop}>
+      <View style={styles.alertContainer}>
+      <Text style={styles.alertTitle}>Oops</Text>
+        <Text style={styles.alertTitle}>Cannot Proceed</Text>
+        <Text style={styles.alertMessage}>
+          Please add a title or captions
+        </Text>
+        <Button style={{backgroundColor:'white',borderRadius:10}} onPress={() => setshowaltermodal(false)}>
+          <ButtonText className='text-black'>OK</ButtonText>
+        </Button>
+      </View>
+    </View>
+  </Modal>
       </VStack>
     </HStack>
   );
@@ -583,6 +635,38 @@ const styles = StyleSheet.create({
   uploadButtonText: {
     color: 'white',
     fontWeight: '600'
+  },
+  //alert modal styling
+  alertBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  alertContainer: {
+    width: '80%',
+    backgroundColor: '#010118',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  alertTitle: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  alertMessage: {
+    color: 'white',
+    fontSize: 14,
+    marginBottom: 20,
+    textAlign: 'center',
   }
 });
 

@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OnboardingScreen from './(onboarding)';
 import Starter from './starter';  // adjust path if needed
+import { AudioProvider } from '@/providers/AudioProvider';
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <PostProvider>
+          <AudioProvider>
             <Stack initialRouteName='(auth)' screenOptions={{
               headerTransparent: true, headerLeft: ({ canGoBack }) => (
                 <Pressable onPress={canGoBack ? () => router.back() : undefined}>
@@ -110,6 +112,7 @@ export default function RootLayout() {
               <Stack.Screen name="display" options={{headerShown:true,headerTitle:'',headerTintColor:'black', presentation: 'modal', animation: 'slide_from_right' }} />
               <Stack.Screen name="+not-found" />
             </Stack>
+            </AudioProvider>
           </PostProvider>
         </AuthProvider>
       </QueryClientProvider>

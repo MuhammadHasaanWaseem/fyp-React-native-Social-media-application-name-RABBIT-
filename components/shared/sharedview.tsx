@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card'; //card view
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/text'; // text
 import { VStack } from '@/components/ui/vstack'; //vertical view 
-import { Heart, Send, MessageCircle, Volume2, VolumeX, Pause, Play, RotateCcw, Trash2, Timer, EyeOff, ThumbsUp } from 'lucide-react-native'; //lucid icons
+import { Heart, Send, MessageCircle, Volume2, VolumeX, Pause, Play, RotateCcw, Trash2, Timer, EyeOff, ThumbsUp, Share2, LucideTrash2 } from 'lucide-react-native'; //lucid icons
 import { Video } from 'expo-av'; //video
 import ImageViewing from 'react-native-image-viewing'; // image zoom
 import { rendertext } from '@/screens/post/input'; //text
@@ -139,7 +139,17 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
             {item?.created_at && formatDistanceToNowStrict(new Date(new Date(item.created_at).getTime() - new Date().getTimezoneOffset() * 60000)) + ' ago'}
           </Text>
         </HStack>
-        {rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}
+        {item.tag_name==='spoiler' && !spoilerRevealed ?(
+<HStack> 
+  <Text style={{color:'white',fontWeight:'700'}}>Post Captions : </Text>
+   <>{rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}</>
+</HStack>
+):(
+  <>{rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}</>
+
+)
+}
+        
       </VStack>
     </HStack>
   );
@@ -149,6 +159,14 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
       {item?.file && item.file.match(/\.(mp3|m4a)$/i) && (
         <View style={{ marginTop: 3 }}>
           <Audio userId={item?.user_id} id={item.id} uri={`https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`} />
+          {item.tag_name === 'spoiler' && !spoilerRevealed && (
+              <BlurView intensity={50} tint="dark" style={[styles.audiospoiler]}>
+                <TouchableOpacity  onPress={() => setSpoilerRevealed(true)} style={styles.viewSpoilerButton}>
+                  <EyeOff color={'white'} size={24} />
+                  <Text style={styles.viewSpoilerText}>Spoiler</Text>
+                </TouchableOpacity>
+              </BlurView>
+            )}
         </View>
       )}
       <HStack>
@@ -235,11 +253,11 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
             </HStack>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleShare}>
-            <Send color="white" size={20} strokeWidth={1} />
+            <Share2 color="white" size={20} strokeWidth={1} />
           </TouchableOpacity>
           {user?.id === item.user_id && (
             <TouchableOpacity onPress={deletePost}>
-              <Trash2 color="#ff4500" size={20} strokeWidth={1} />
+              <LucideTrash2 color="#ff4500" size={20} strokeWidth={1} />
             </TouchableOpacity>
           )}
         </HStack>
@@ -305,9 +323,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'black',
     marginTop:10,
-    borderRadius:10
-
+    borderRadius:10,
     
+  },
+  audiospoiler:{
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#010118",
   },
   viewSpoilerButton: {
     paddingHorizontal: 17,

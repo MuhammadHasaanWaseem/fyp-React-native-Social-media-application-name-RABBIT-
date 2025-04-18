@@ -10,7 +10,7 @@ import {
   Image
 
 } from 'react-native';
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import {
   ArrowLeft,
@@ -119,7 +119,7 @@ const Drawer = () => {
       <Text style={styles.brandText}>Contact on Instagram @im_hasaan_</Text>
     </View>
   );
-
+const [localbio,setlocalbio] =useState<string>(user?.bio|| '');
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -145,7 +145,7 @@ const Drawer = () => {
         <Text style={styles.infoText}>
           Account created in {user?.created_at ? new Date(user.created_at).getFullYear() : 'Unknown'}
         </Text>
-        <Text style={styles.infoText}>" {user?.bio || "not set yet"} "</Text>
+        <Text style={styles.infoText}>" {localbio || "not set yet"} "</Text>
       </View>
 
       <Divider style={styles.divider} />

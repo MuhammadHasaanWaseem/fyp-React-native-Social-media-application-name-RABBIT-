@@ -9,6 +9,7 @@ import {
   Image,
   Modal,
   Share,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
@@ -16,7 +17,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Button, ButtonText } from '@/components/ui/button';
 import { BlurView } from 'expo-blur';
-import { Lock, ThumbsUp, MessageCircle, Send, Trash2, Play, Pause, Volume2, VolumeX, RotateCcw, EyeOff } from 'lucide-react-native';
+import { Lock, ThumbsUp, MessageCircle, Send, Trash2, Play, Pause, Volume2, VolumeX, RotateCcw, EyeOff, Share2 } from 'lucide-react-native';
 import { Video } from 'expo-av';
 import ImageViewing from 'react-native-image-viewing';
 import { formatDistanceToNowStrict } from 'date-fns';
@@ -140,16 +141,18 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
       <VStack style={{ flex: 1 }}>
         <Text style={{ fontWeight: 'bold', color: 'white', fontSize: 17 }}>{item.User?.username || ''}</Text>
         <HStack style={{ marginBottom: 10 }}>
-          <Text style={{ color: 'white', fontSize: 12 }}>Solve this Puzzele to unlock it : </Text>
-          <Text style={{ color: 'white', fontSize: 12 }}>{item.hint}</Text>
+          
+          <Text style={{ color: 'white', fontSize: 12 }}>Passcode HInt : {item.hint}</Text>
         </HStack>
       </VStack>
     </HStack>
   );
 
   const lockedContent = (
+    
     <VStack style={{ marginLeft: 60, marginBottom: 20 }}>
-      <BlurView intensity={50} tint="dark" style={styles.blurContainer}>
+      <BlurView 
+      intensity={50} tint="dark" style={styles.blurContainer}>
         <VStack style={{ padding: 10, alignItems: 'center' }}>
           <Lock color="white" size={24} />
           <Text style={{ color: 'white', marginTop: 10 }}>This post is private</Text>
@@ -291,7 +294,7 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
               </HStack>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleShare}>
-              <Send color="white" size={20} strokeWidth={1} />
+              <Share2 color="white" size={20} strokeWidth={1} />
             </TouchableOpacity>
             {user?.id === item.user_id && (
               <TouchableOpacity onPress={deletePost}>
