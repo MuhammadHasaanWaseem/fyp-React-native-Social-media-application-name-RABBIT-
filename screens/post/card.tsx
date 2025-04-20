@@ -21,7 +21,8 @@ import {
   AtSignIcon,
   Lock,
   EyeOff,
-  CalendarClock
+  CalendarClock,
+  Images
 } from 'lucide-react-native';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
@@ -337,7 +338,7 @@ const showiconalert=()=> {
               <HStack className="items-center " space='lg'>
                 {/* Select media from local storage */}
                 <TouchableOpacity style={styles.igniteicon} onPress={addPhotoAndVideo}>
-                  <ImageIcon color="white" size={20} strokeWidth={1.5} />
+                  <Images color="white" size={20} strokeWidth={1.5} />
                 </TouchableOpacity>
                 {/* Capture from camera */}
                 <TouchableOpacity style={styles.igniteicon}
@@ -465,42 +466,7 @@ const showiconalert=()=> {
           onClose={handleClose}
           onSubmit={handlePrivatePostSubmit}
         />
-        {/* <Actionsheet isOpen={showActionsheet} onClose={handleClose}>
-          <ActionsheetBackdrop />
-          <ActionsheetContent style={styles.sheetContent}>
-            <ActionsheetDragIndicatorWrapper>
-              <ActionsheetDragIndicator />
-            </ActionsheetDragIndicatorWrapper>
-            <VStack space="md" style={styles.sheetContainer}>
-              <Text style={styles.sheetTitle}>Set Private Post</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter 8-digit password"
-                placeholderTextColor="#ccc"
-                value={password}
-                onChangeText={setPassword}
-                maxLength={8}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Enter hint (required)"
-                placeholderTextColor="#ccc"
-                value={hint}
-                onChangeText={setHint}
-              />
-              {error && <Text style={styles.errorText}>{error}</Text>}
-              <HStack space="md">
-                <Button style={styles.button} onPress={uploadPrivatePost}>
-                  <ButtonText style={styles.buttonText}>Post</ButtonText>
-                </Button>
-                <Button style={styles.button} onPress={handleClose}>
-                  <ButtonText style={styles.buttonText}>Cancel</ButtonText>
-                </Button>
-              </HStack>
-            </VStack>
-          </ActionsheetContent>
-        </Actionsheet> */}
-
+        
         {/* action sheet for mentions */}
         <MentionActionSheet
           visible={showMentionSheet}

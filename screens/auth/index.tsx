@@ -332,7 +332,7 @@ export default function SignIn() {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                placeholderTextColor="white"
+                placeholderTextColor="#6B7280"
                 autoFocus={true}
                 autoCorrect={false}
                 returnKeyType="done"
@@ -390,7 +390,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: 'white',
-    marginBottom: '5%',
+    textAlign:'center',
+    marginBottom: '7%',
   },
   toggleContainer: {
     marginBottom: 16,
