@@ -2,34 +2,34 @@
 
 <table>
   <tr>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_123951.jpg" width="150" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_123955.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124028.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124032.jpg" width="160" height="320" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_123951.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_123955.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124028.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124032.jpg" width="200"  /></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124036.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124044.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124057.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124107.jpg" width="160" height="320" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124036.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124044.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124057.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124107.jpg" width="200" /></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124241.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124437.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124454.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124502.jpg" width="160" height="320" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124241.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124437.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124454.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124502.jpg" width="200" /></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124506.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124510.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124516.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124525.jpg" width="160" height="320" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124506.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124510.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124516.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124525.jpg" width="200" /></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124535.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124540.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124558.jpg" width="160" height="320" /></td>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124604.jpg" width="160" height="320" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124535.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124540.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124558.jpg" width="200" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124604.jpg" width="200" /></td>
   </tr>
   <tr>
     <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124644.jpg" width="160" height="320" /></td>
