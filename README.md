@@ -2,7 +2,7 @@
 
 <table>
   <tr>
-    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_123951.jpg" width="160" height="320" /></td>
+    <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_123951.jpg" width="180" height="220" /></td>
     <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_123955.jpg" width="160" height="320" /></td>
     <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124028.jpg" width="160" height="320" /></td>
     <td><img src="https://github.com/MuhammadHasaanWaseem/fyp-React-native-Social-media-application-name-RABBIT-/raw/RabbitApp/Screenshot_20250604_124032.jpg" width="160" height="320" /></td>
