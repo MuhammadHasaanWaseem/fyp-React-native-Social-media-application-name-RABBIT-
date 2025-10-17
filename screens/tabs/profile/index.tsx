@@ -1,6 +1,6 @@
 import { useAuth } from '@/providers/AuthProviders';
-import User from '@/components/shared/user';
-
+// import User from '@/components/shared/user';
+import User from '../../../components/shared/user';
 
 
 
