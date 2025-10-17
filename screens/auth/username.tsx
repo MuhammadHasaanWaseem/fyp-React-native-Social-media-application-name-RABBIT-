@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { InputField } from "@/components/ui/input";
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Text, Keyboard } from "react-native";
+import responsive, { wp, hp, scale, theme } from '@/lib/responsive';
 import Layout from "./_layout";
 import { useAuth } from "@/providers/AuthProviders";
 import { useRouter } from "expo-router";
@@ -94,7 +95,7 @@ export default function VerifyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: wp(6),
     backgroundColor: "#010118",
   },
   content: {
@@ -102,21 +103,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontSize: 24,
+    fontSize: theme.fonts.h1,
     fontWeight: "700",
     color: "white",
-    marginTop: 8,
-    marginBottom: 8,
+    marginTop: hp(1),
+    marginBottom: hp(1),
     textAlign: "center",
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: theme.fonts.small,
     color: "#6B7280",
     textAlign: "center",
-    marginBottom: 40,
+    marginBottom: hp(5),
   },
   inputContainer: {
-    marginBottom: 24,
+    marginBottom: hp(3),
   },
   input: {
     backgroundColor: "#1F2937",
@@ -126,22 +127,22 @@ const styles = StyleSheet.create({
   },
   inputField: {
     color: "white",
-    fontSize: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    fontSize: theme.fonts.body,
+    paddingVertical: hp(1.6),
+    paddingHorizontal: wp(4),
   },
   errorText: {
     color: "#EF4444",
-    fontSize: 12,
-    marginTop: 8,
-    paddingHorizontal: 4,
+    fontSize: theme.fonts.small,
+    marginTop: hp(1),
+    paddingHorizontal: wp(1),
     textAlign: "center",
   },
   note: {
     color: "#6B7280",
-    fontSize: 12,
-    marginTop: 8,
-    paddingHorizontal: 4,
+    fontSize: theme.fonts.small,
+    marginTop: hp(1),
+    paddingHorizontal: wp(1),
     textAlign: "left",
   },
 });

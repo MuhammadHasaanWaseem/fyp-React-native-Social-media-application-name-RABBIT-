@@ -18,6 +18,7 @@ import {
 import { router } from 'expo-router';
 //getting dimensions of the current screen
 const { width } = Dimensions.get('window');
+import responsive, { wp, hp, scale, theme } from '@/lib/responsive';
 
 export default ({ children, onPress, buttonText }: {
   children: React.ReactNode,
@@ -36,11 +37,7 @@ export default ({ children, onPress, buttonText }: {
                     />
                 {/* <RabbitIcon size={60} /> */}
                 <VStack>
-                 
-                  <Text style={{ color: 'white', fontSize: 20, fontWeight: '900' }}>Welcome to Rabbit
-
-                  </Text>
-
+                  <Text style={{ color: 'white', fontSize: theme.fonts.h2, fontWeight: '900' }}>Welcome to Rabbit</Text>
                 </VStack>
             </VStack>
 
@@ -76,12 +73,12 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: wp(6),
   },
   header: {
     alignItems: 'center',
-    paddingTop: 80,
-    gap: 16,
+    paddingTop: hp(10),
+    gap: hp(2),
   },
   brandTitle: {
     fontSize: 20,
@@ -94,14 +91,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   footer: {
-    paddingTop:'10%',
-    paddingBottom: '20%',
-    gap: 16,
+    paddingTop: hp(2),
+    paddingBottom: hp(6),
+    gap: hp(1.5),
   },
   mainButton: {
     backgroundColor: '#FF4500',
     borderRadius: 14,
-    height: 56,
+    height: theme.sizes.buttonHeight,
     shadowColor: '#3B82F6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -110,7 +107,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: '600',
-    fontSize: 16,
+    fontSize: theme.fonts.body,
   },
   backButton: {
     alignSelf: 'center',
@@ -122,17 +119,17 @@ const styles = StyleSheet.create({
   },
   bottomBranding: {
     position: 'absolute',
-    bottom: 20,
+    bottom: hp(2.5),
     alignSelf: 'center',
   },
   brandText: {
-    fontSize: 12,
+    fontSize: theme.fonts.small,
     color: '#374151',
     fontWeight: '500',
   },
   image: {
-    width: width * 0.15,  // 15% of the screen width
-    height: width * 0.15, // 15% of the screen width
+    width: wp(15),
+    height: wp(15),
   }
 });
 

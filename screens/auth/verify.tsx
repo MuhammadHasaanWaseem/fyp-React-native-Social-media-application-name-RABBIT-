@@ -159,6 +159,7 @@ import Layout from './_layout';
 import { OtpInput } from 'react-native-otp-entry';
 import { Spinner } from '@/components/ui/spinner';
 import { HStack } from '@/components/ui/hstack';
+import responsive, { wp, hp, scale, theme } from '@/lib/responsive';
 
 export default function VerifyScreen() {
   const [token, setToken] = useState('');
@@ -231,21 +232,21 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: wp(6),
     justifyContent: 'center',
   },
   content: {
-    marginTop: 40,
+    marginTop: hp(5),
   },
   title: {
-    fontSize: 24,
+    fontSize: theme.fonts.h1,
     fontWeight: '700',
     color: 'white',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: theme.fonts.small,
     color: '#6B7280',
     textAlign: 'center',
     marginBottom: 40,
@@ -254,19 +255,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   otpInputsContainer: {
-    gap: 6,
+    gap: wp(2),
   },
   pinCodeContainer: {
     backgroundColor: '#1F2937',
     borderWidth: 1,
     borderColor: '#374151',
     borderRadius: 8,
-    height: 40,
-    width: 40,
+    height: wp(10),
+    width: wp(10),
   },
   pinCodeText: {
     color: 'white',
-    fontSize: 20,
+    fontSize: scale(20),
     fontWeight: '600',
   },
   focusStick: {
