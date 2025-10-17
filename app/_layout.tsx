@@ -3,7 +3,6 @@ import "@/global.css";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import 'react-native-reanimated';
 import { AuthProvider } from '@/providers/AuthProviders';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PostProvider } from '@/providers/PostProvider';
