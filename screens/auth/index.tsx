@@ -6,7 +6,8 @@ import { Input, InputField } from '@/components/ui/input';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
 import { View, Text, StyleSheet, Keyboard, Pressable, FlatList, Modal, TouchableOpacity, TextInput } from 'react-native';
-import responsive, { wp, hp, scale, theme } from '@/lib/responsive';
+import responsive, { wp, hp, scale } from '@/lib/responsive';
+import { colors, fonts } from '@/lib/theme';
 import Layout from './_layout';
 import { VStack } from '@/components/ui/vstack';
 import { HStack } from '@/components/ui/hstack';
@@ -176,9 +177,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: theme.fonts.h1,
+    fontSize: fonts.h1,
     fontWeight: '700',
-    color: 'white',
+    color: colors.text,
     textAlign: 'center',
     marginBottom: hp(3.5),
   },
@@ -200,9 +201,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    fontSize: theme.fonts.small,
+    fontSize: fonts.small,
     fontWeight: '500',
-    color: '#9CA3AF',
+    color: colors.mutedLight,
     marginBottom: hp(1),
   },
   phoneInput: {
@@ -223,14 +224,14 @@ const styles = StyleSheet.create({
     paddingVertical: hp(0.4),
   },
   countrySymbol: {
-    color: 'white',
+    color: colors.text,
     fontWeight: '700',
-    fontSize: theme.fonts.body,
+    fontSize: fonts.body,
   },
   dialCode: {
-    color: 'white',
+    color: colors.text,
     fontWeight: '500',
-    fontSize: theme.fonts.body,
+    fontSize: fonts.body,
   },
   input: {
     flex: 1,
@@ -239,15 +240,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   inputField: {
-    fontSize: theme.fonts.body,
+    fontSize: fonts.body,
     paddingVertical: hp(1.6),
     paddingHorizontal: wp(4),
-    color: 'white',
-    backgroundColor: '#1F2937',
+    color: colors.text,
+    backgroundColor: colors.surface,
   },
   note: {
-    color: '#6B7280',
-    fontSize: theme.fonts.small,
+    color: colors.muted,
+    fontSize: fonts.small,
     marginTop: hp(1.2),
   },
   modalContainer: {
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#010118',
+    backgroundColor: colors.background,
     maxHeight: hp(60),
     borderTopLeftRadius: wp(5),
     borderTopRightRadius: wp(5),
@@ -274,12 +275,12 @@ const styles = StyleSheet.create({
     gap: wp(3),
   },
   countryName: {
-    color: 'white',
+    color: colors.text,
     flex: 1,
-    fontSize: theme.fonts.body,
+    fontSize: fonts.body,
   },
   dialCodeText: {
-    color: '#9CA3AF',
-    fontSize: theme.fonts.body,
+    color: colors.mutedLight,
+    fontSize: fonts.body,
   },
 });

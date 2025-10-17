@@ -24,32 +24,9 @@ export const verticalScale = (size: number) => {
   return Math.round(PixelRatio.roundToNearestPixel((SCREEN_HEIGHT / BASE_HEIGHT) * size));
 };
 
-export const theme = {
-  spacing: {
-    xxs: wp(1),
-    xs: wp(2),
-    sm: wp(3),
-    md: wp(4),
-    lg: wp(6),
-    xl: wp(8),
-  },
-  sizes: {
-    avatarSmall: wp(8),
-    avatarMedium: wp(12),
-    buttonHeight: hp(7),
-  },
-  fonts: {
-    h1: scale(24),
-    h2: scale(20),
-    body: scale(16),
-    small: scale(12),
-  },
-};
-
 export default {
   wp,
   hp,
   scale,
   verticalScale,
-  theme,
 };

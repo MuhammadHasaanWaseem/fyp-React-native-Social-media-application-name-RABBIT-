@@ -3,7 +3,8 @@ import { Input } from "@/components/ui/input";
 import { InputField } from "@/components/ui/input";
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Text, Keyboard } from "react-native";
-import responsive, { wp, hp, scale, theme } from '@/lib/responsive';
+import responsive, { wp, hp, scale } from '@/lib/responsive';
+import { colors, fonts } from '@/lib/theme';
 import Layout from "./_layout";
 import { useAuth } from "@/providers/AuthProviders";
 import { useRouter } from "expo-router";
@@ -96,14 +97,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: wp(6),
-    backgroundColor: "#010118",
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
     justifyContent: "center",
   },
   title: {
-    fontSize: theme.fonts.h1,
+    fontSize: fonts.h1,
     fontWeight: "700",
     color: "white",
     marginTop: hp(1),
@@ -111,8 +112,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   subtitle: {
-    fontSize: theme.fonts.small,
-    color: "#6B7280",
+    fontSize: fonts.small,
+    color: colors.muted,
     textAlign: "center",
     marginBottom: hp(5),
   },
@@ -120,27 +121,27 @@ const styles = StyleSheet.create({
     marginBottom: hp(3),
   },
   input: {
-    backgroundColor: "#1F2937",
-    borderColor: "#374151",
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
     borderWidth: 1,
     borderRadius: 12,
   },
   inputField: {
-    color: "white",
-    fontSize: theme.fonts.body,
+    color: colors.text,
+    fontSize: fonts.body,
     paddingVertical: hp(1.6),
     paddingHorizontal: wp(4),
   },
   errorText: {
-    color: "#EF4444",
-    fontSize: theme.fonts.small,
+    color: colors.error,
+    fontSize: fonts.small,
     marginTop: hp(1),
     paddingHorizontal: wp(1),
     textAlign: "center",
   },
   note: {
-    color: "#6B7280",
-    fontSize: theme.fonts.small,
+    color: colors.muted,
+    fontSize: fonts.small,
     marginTop: hp(1),
     paddingHorizontal: wp(1),
     textAlign: "left",

@@ -18,7 +18,8 @@ import {
 import { router } from 'expo-router';
 //getting dimensions of the current screen
 const { width } = Dimensions.get('window');
-import responsive, { wp, hp, scale, theme } from '@/lib/responsive';
+import responsive, { wp, hp, scale } from '@/lib/responsive';
+import { colors, fonts } from '@/lib/theme';
 
 export default ({ children, onPress, buttonText }: {
   children: React.ReactNode,
@@ -37,7 +38,7 @@ export default ({ children, onPress, buttonText }: {
                     />
                 {/* <RabbitIcon size={60} /> */}
                 <VStack>
-                  <Text style={{ color: 'white', fontSize: theme.fonts.h2, fontWeight: '900' }}>Welcome to Rabbit</Text>
+                  <Text style={{ color: colors.text, fontSize: fonts.h2, fontWeight: '900' }}>Welcome to Rabbit</Text>
                 </VStack>
             </VStack>
 
@@ -98,7 +99,7 @@ const styles = StyleSheet.create({
   mainButton: {
     backgroundColor: '#FF4500',
     borderRadius: 14,
-    height: theme.sizes.buttonHeight,
+  height: hp(7),
     shadowColor: '#3B82F6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: '600',
-    fontSize: theme.fonts.body,
+    fontSize: fonts.body,
   },
   backButton: {
     alignSelf: 'center',
@@ -123,8 +124,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   brandText: {
-    fontSize: theme.fonts.small,
-    color: '#374151',
+    fontSize: fonts.small,
+    color: colors.border,
     fontWeight: '500',
   },
   image: {

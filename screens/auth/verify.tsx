@@ -159,7 +159,8 @@ import Layout from './_layout';
 import { OtpInput } from 'react-native-otp-entry';
 import { Spinner } from '@/components/ui/spinner';
 import { HStack } from '@/components/ui/hstack';
-import responsive, { wp, hp, scale, theme } from '@/lib/responsive';
+import responsive, { wp, hp, scale } from '@/lib/responsive';
+import { colors, fonts } from '@/lib/theme';
 
 export default function VerifyScreen() {
   const [token, setToken] = useState('');
@@ -239,15 +240,15 @@ const styles = StyleSheet.create({
     marginTop: hp(5),
   },
   title: {
-    fontSize: theme.fonts.h1,
+    fontSize: fonts.h1,
     fontWeight: '700',
-    color: 'white',
+    color: colors.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: theme.fonts.small,
-    color: '#6B7280',
+    fontSize: fonts.small,
+    color: colors.muted,
     textAlign: 'center',
     marginBottom: 40,
   },
@@ -280,24 +281,24 @@ const styles = StyleSheet.create({
   statusContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-    marginBottom: 24,
+    gap: wp(3),
+    marginBottom: hp(3),
   },
   progressText: {
-    color: '#9CA3AF',
-    fontSize: 14,
+    color: colors.mutedLight,
+    fontSize: fonts.body,
     fontWeight: '500',
   },
   successText: {
     color: '#10B981',
-    fontSize: 14,
+    fontSize: fonts.body,
     fontWeight: '600',
     textAlign: 'center',
     marginTop: 16,
   },
   errorText: {
-    color: '#EF4444',
-    fontSize: 14,
+    color: colors.error,
+    fontSize: fonts.body,
     fontWeight: '600',
     textAlign: 'center',
     marginTop: 16,

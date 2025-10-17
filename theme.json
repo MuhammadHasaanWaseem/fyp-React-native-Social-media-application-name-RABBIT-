@@ -1,0 +1,20 @@
+{
+  "colors": {
+    "background": "#010118",
+    "surface": "#1F2937",
+    "border": "#374151",
+    "text": "#FFFFFF",
+    "muted": "#6B7280",
+    "mutedLight": "#9CA3AF",
+    "primary": "#FF4500",
+    "accent": "#3B82F6",
+    "error": "#EF4444",
+    "success": "#10B981"
+  },
+  "fonts": {
+    "h1": 24,
+    "h2": 20,
+    "body": 16,
+    "small": 12
+  }
+}
