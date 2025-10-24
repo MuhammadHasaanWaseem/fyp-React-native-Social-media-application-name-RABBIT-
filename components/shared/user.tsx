@@ -547,6 +547,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
   },
+  // stripe secret key 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
   input: {
     borderColor: "#ccc",
     borderWidth: 1,
