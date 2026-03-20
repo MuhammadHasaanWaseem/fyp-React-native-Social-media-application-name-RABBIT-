@@ -100,20 +100,20 @@ export default function RootLayout() {
               <Stack.Screen name="(tabs)" options={{ headerShown: false,animation:'slide_from_left' }} />
               <Stack.Screen name="(auth)" options={{ headerShown: false,animation:'slide_from_left' }} />
               <Stack.Screen name="post" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} />
-              <Stack.Screen name="camera" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} />
-              <Stack.Screen name="gif" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} />
-              <Stack.Screen name="chatbot" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} />
+              <Stack.Screen name="camera" options={{ headerShown: false,  animation: 'slide_from_bottom' }} />
+              <Stack.Screen name="gif" options={{ headerShown: false,  animation: 'slide_from_bottom' }} />
+              <Stack.Screen name="chatbot" options={{ headerShown: false,  animation: 'slide_from_bottom' }} />
               <Stack.Screen name="comments" options={{ headerShown: false, headerTitle: 'Add to comment', headerTitleAlign: 'center', presentation: 'modal', animation: 'slide_from_left' }} />
               <Stack.Screen name="user" options={{ headerTitle: '', presentation: 'modal', animation: 'slide_from_left' }} />
-              <Stack.Screen name="worldchat" options={{ headerShown: false, headerTitleAlign: 'center', presentation: 'modal', animation: 'slide_from_left' }} />
-              <Stack.Screen name="followsheet" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} />
-              <Stack.Screen name="followingsheet" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} />
-              <Stack.Screen name="drawer" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_left' }} />
-              <Stack.Screen name="policies" options={{headerShown:false, presentation: 'modal', animation: 'slide_from_left' }} />
-              <Stack.Screen name="useterms" options={{ headerShown:false, presentation: 'modal', animation: 'slide_from_bottom' }} />
+              <Stack.Screen name="worldchat" options={{ headerShown: false, headerTitleAlign: 'center',  animation: 'slide_from_left' }} />
+              <Stack.Screen name="followsheet" options={{ headerShown: false,  animation: 'slide_from_bottom' }} />
+              <Stack.Screen name="followingsheet" options={{ headerShown: false,  animation: 'slide_from_bottom' }} />
+              <Stack.Screen name="drawer" options={{ headerShown: false,  animation: 'slide_from_left' }} />
+              <Stack.Screen name="policies" options={{headerShown:false,  animation: 'slide_from_left' }} />
+              <Stack.Screen name="useterms" options={{ headerShown:false,  animation: 'slide_from_bottom' }} />
               <Stack.Screen name='starter' options={{headerShown:false,animation:'slide_from_right'}}/>
-              <Stack.Screen name="introduction" options={{headerShown:false, presentation: 'modal', animation: 'slide_from_left' }} />
-              <Stack.Screen name="display" options={{headerShown:true,headerTitle:'',headerTintColor:'black', presentation: 'modal', animation: 'slide_from_right' }} />
+              <Stack.Screen name="introduction" options={{headerShown:false,   animation: 'slide_from_left' }} />
+              <Stack.Screen name="display" options={{headerShown:true,headerTitle:'',headerTintColor:'black', animation: 'slide_from_right' }} />
               <Stack.Screen name="+not-found" />
             </Stack>
             </AudioProvider>
