@@ -18,11 +18,15 @@ export const AuthContext = React.createContext<{
   setuser: React.Dispatch<React.SetStateAction<User | null>>;
   logOut: () => Promise<void>;
   createUser: (username: string) => Promise<{ success: boolean; error?: string }>;
+  isSignedIn: boolean;
+  isUsernameSkipped: boolean;
 }>({
   user: null,
   setuser: () => {},
   logOut: async () => {},
   createUser: async () => ({ success: false }),
+  isSignedIn: false,
+  isUsernameSkipped: false,
 });
 
 // Custom hook to use the AuthContext
@@ -117,15 +121,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (data && data.length > 0) {
         if (data[0].username) {
           setuser(data[0]);
-          router.push('/(tabs)');
+          router.replace('/(tabs)');
         } else {
-          router.push('/(auth)/username');
+          router.replace('/(auth)/username');
         }
       } else {
-        router.push('/(auth)/username');
+        router.replace('/(auth)/username');
       }
     } else {
-      router.push('/(auth)');
+      router.replace('/(auth)');
     }
   };
 
@@ -152,8 +156,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
   }, []);
 
+  const isSignedIn = !!session;
+  const isUsernameSkipped = !!(user?.username);
+
   return (
-    <AuthContext.Provider value={{ user, setuser, logOut, createUser }}>
+    <AuthContext.Provider value={{ user, setuser, logOut, createUser, isSignedIn, isUsernameSkipped }}>
       {children}
     </AuthContext.Provider>
   );

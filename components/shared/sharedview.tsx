@@ -11,7 +11,7 @@ import { Video } from 'expo-av'; //video
 import ImageViewing from 'react-native-image-viewing'; // image zoom
 import { rendertext } from '@/screens/post/input'; //text
 import Audio from '@/screens/post/audio'; // Audio
-import { supabase } from '@/lib/supabase'; //database
+import { supabase, getFileUrl } from '@/lib/supabase';
 import * as Haptics from 'expo-haptics'; //vibration
 import { useAuth } from '@/providers/AuthProviders'; 
 import { router } from 'expo-router'; //navigation
@@ -88,7 +88,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
   const handleShare = async () => {
     let shareMessage = item.text || '';
     if (item.file) {
-      const fileUrl = `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`;
+      const fileUrl = getFileUrl(item.user_id, item.file);
       shareMessage += `\n\nView media: ${fileUrl}`;
     }
     try {
@@ -158,7 +158,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
     <VStack style={{ marginLeft: 60, marginBottom: 20 }}>
       {item?.file && item.file.match(/\.(mp3|m4a)$/i) && (
         <View style={{ marginTop: 3 }}>
-          <Audio userId={item?.user_id} id={item.id} uri={`https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`} />
+          <Audio userId={item?.user_id} id={item.id} uri={getFileUrl(item.user_id, item.file)} />
           {item.tag_name === 'spoiler' && !spoilerRevealed && (
               <BlurView intensity={50} tint="dark" style={[styles.audiospoiler]}>
                 <TouchableOpacity  onPress={() => setSpoilerRevealed(true)} style={styles.viewSpoilerButton}>
@@ -170,11 +170,11 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
         </View>
       )}
       <HStack>
-        {item.file && item.file.match(/\.(jpeg|jpg|png|gif)$/i) ? (
+        {item.file && item.file.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
           <View style={{ position: 'relative' }}>
             <TouchableOpacity onPress={() => setImageVisible(true)}>
               <Image
-                source={{ uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}` }}
+                source={{ uri: getFileUrl(item.user_id, item.file) }}
                 style={{ height: 150, width: 200, marginTop: 10, borderWidth: 1, borderColor: 'black', borderRadius: 10 }}
                 resizeMode="cover"
               />
@@ -189,7 +189,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
             )}
             <Modal visible={isImageVisible} transparent={true} onRequestClose={() => setImageVisible(false)}>
               <ImageViewing
-                images={[{ uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}` }]}
+                images={[{ uri: getFileUrl(item.user_id, item.file) }]}
                 imageIndex={0}
                 visible={isImageVisible}
                 onRequestClose={() => setImageVisible(false)}
@@ -200,7 +200,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
           <View style={{ position: 'relative' }}>
             <Video
               ref={videoRef}
-              source={{ uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}` }}
+              source={{ uri: getFileUrl(item.user_id, item.file) }}
               style={{ height: 300, marginTop: 10, width: 200, borderWidth: 0.5, borderColor: 'black', borderRadius: 10 }}
               useNativeControls={false}
               onPlaybackStatusUpdate={(status) => {

@@ -27,6 +27,7 @@ import { useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
 import { usePosts } from '@/hooks/use-posts';
 import View from '@/components/shared/sharedview';
+import { getFileUrl } from '@/lib/supabase';
 const { width } = Dimensions.get('window');
 export default () => {
   const { user } = useAuth();
@@ -83,7 +84,7 @@ export default () => {
             <AvatarFallbackText style={{ color: 'black' }}>{user?.username || ''}</AvatarFallbackText>
             {/* <AvatarImage source={{ uri: user?.avatar }} /> */}
             <AvatarImage
-              source={{ uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${user?.id}/avatar.jpeg?t=${new Date().getTime()}` }}
+              source={{ uri: `${getFileUrl(user?.id || '', 'avatar.jpeg')}?t=${new Date().getTime()}` }}
 
             />
           </Avatar>

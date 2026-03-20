@@ -9,7 +9,7 @@ import {
   Modal,
   Share,
 } from "react-native";
-import { supabase } from "@/lib/supabase";
+import { supabase, getFileUrl } from "@/lib/supabase";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
@@ -145,7 +145,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
   const handleShare = async (item: any) => {
     let shareMessage = item.text || "";
     if (item.file) {
-      const fileUrl = `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`;
+      const fileUrl = `getFileUrl(item.user_id, item.file)`;
       shareMessage += `\n\nView media: ${fileUrl}`;
     }
     try {
@@ -221,7 +221,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
               <Audio
                 userId={item.user_id}
                 id={item.id}
-                uri={`https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`}
+                uri={`getFileUrl(item.user_id, item.file)`}
               />
               {state.isMediaLoaded &&
                 item.tag_name === "spoiler" &&
@@ -254,7 +254,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
               )}
               <Image
                 source={{
-                  uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`,
+                  uri: `getFileUrl(item.user_id, item.file)`,
                 }}
                 style={[
                   {
@@ -289,7 +289,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
               <ImageViewing
                 images={[
                   {
-                    uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`,
+                    uri: `getFileUrl(item.user_id, item.file)`,
                   },
                 ]}
                 imageIndex={0}
@@ -309,7 +309,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
               )}
               <Video
                 source={{
-                  uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`,
+                  uri: `getFileUrl(item.user_id, item.file)`,
                 }}
                 style={[
                   {
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
 });
 // import React, { useState, useEffect, useCallback } from "react";
 // import { FlatList, StyleSheet, View, Text, TouchableOpacity, Image } from "react-native";
-// import { supabase } from "@/lib/supabase";
+// import { supabase, getFileUrl } from "@/lib/supabase";
 // import { useQuery } from "@tanstack/react-query";
 // import { HStack } from "@/components/ui/hstack";
 // import { VStack } from "@/components/ui/vstack";
@@ -778,7 +778,7 @@ const styles = StyleSheet.create({
 //             <Audio
 //               userId={item.user_id}
 //               id={item.id}
-//               uri={`https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`}
+//               uri={`getFileUrl(item.user_id, item.file)`}
 //             />
 //           )}
 //           {item.file && item.file.match(/\.(jpeg|jpg|png|gif)$/i) && (
@@ -790,7 +790,7 @@ const styles = StyleSheet.create({
 //               )}
 //               <Image
 //                 source={{
-//                   uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`,
+//                   uri: `getFileUrl(item.user_id, item.file)`,
 //                 }}
 //                 style={[
 //                   { height: 150, width: 200, marginTop: 5, borderRadius: 10 },
@@ -810,7 +810,7 @@ const styles = StyleSheet.create({
 //               <ImageViewing
 //                 images={[
 //                   {
-//                     uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`,
+//                     uri: `getFileUrl(item.user_id, item.file)`,
 //                   },
 //                 ]}
 //                 imageIndex={0}
@@ -828,7 +828,7 @@ const styles = StyleSheet.create({
 //               )}
 //               <Video
 //                 source={{
-//                   uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`,
+//                   uri: `getFileUrl(item.user_id, item.file)`,
 //                 }}
 //                 style={[
 //                   { height: 300, width: 200, marginTop: 5, borderRadius: 10 },

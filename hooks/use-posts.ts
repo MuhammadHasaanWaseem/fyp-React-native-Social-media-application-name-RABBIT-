@@ -7,17 +7,14 @@ interface PostProps {
 }
 
 export const getPosts = async ({ key, value, type }: PostProps) => {
+  console.log('[usePosts] Fetching - key:', key, 'value:', value, 'type:', type);
   const { data, error } = await supabase
     .from('Post')
-    .select('*, User(*),Like(*),Comment(id)')
-    //.is('parent_id', null)
-    //.filter('parent_id','is', null)
+    .select('*, User!user_id(*), Like(*), Comment(id)')
     .filter(key, type, value)
     .order('created_at', { ascending: false });
-
-  if (error) {
-    throw new Error(error.message);
-  }
+  console.log('[usePosts] Result - data count:', data?.length ?? 0, 'error:', error?.message ?? null);
+  if (error) throw new Error(error.message);
   return data || [];
 };
 

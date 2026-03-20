@@ -6,6 +6,9 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = "https://ccgjlduhrxckzcygciui.supabase.co"
 const supabaseAnonKey = "sb_publishable_lromjbXsnDEGv-yoCc4r7Q_C8VBKYSq"
 
+export const getFileUrl = (userId: string, filename: string) =>
+  `${supabaseUrl}/storage/v1/object/public/files/${userId}/${filename}`
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: AsyncStorage,

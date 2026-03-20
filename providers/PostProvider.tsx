@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/AuthProviders';
 import { supabase } from '@/lib/supabase';
 import * as Crypto from 'expo-crypto';
+import * as FileSystem from 'expo-file-system';
+import { decode } from 'base64-arraybuffer';
 import { Post } from '@/lib/type';
 import { router } from 'expo-router';
 
@@ -44,39 +46,38 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user]);
 
   const uploadpost = async () => {
+    console.log('[PostProvider] uploadpost called, PostCard:', JSON.stringify(PostCard, null, 2));
     const { data, error } = await supabase
-
       .from('Post')
       .insert(PostCard)
       .order('created_at', { ascending: false });
-    clearpost()
-
+    console.log('[PostProvider] Supabase insert result - data:', data, 'error:', error);
+    clearpost();
     router.back();
-
-    if (!error)
-      clearpost(),
-        setPhoto('')
+    if (!error) {
+      clearpost();
+      setPhoto('');
+      console.log('[PostProvider] Post created successfully');
+    } else {
+      console.error('[PostProvider] Post creation failed:', error);
+    }
     return data;
-
-
   };
   //...............
   const uploadFile = async (id: string, uri: string, type: string, name: string) => {
-
-    // Extract filename from URI
-    // const fileName = uri.split('/').pop() || `upload_${Date.now()}`;
-
-    let newFormData = new FormData();
-    newFormData.append('file', {
-      uri,
-      name,
-      type,
-    }); // Adding `as any` to satisfy TypeScript FormData type
-
-    const { data, error } = await supabase.storage
-      .from(`files/${user?.id}`)
-      .upload(name, newFormData);
-    if (data) updatepost(id, 'file', data?.path);
+    if (!user?.id) return;
+    try {
+      const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+      const arrayBuffer = decode(base64);
+      const filePath = `${user.id}/${name}`;
+      const { data, error } = await supabase.storage
+        .from('files')
+        .upload(filePath, arrayBuffer, { contentType: type, cacheControl: '3600', upsert: true });
+      if (error) console.error('[PostProvider] uploadFile error:', error);
+      else if (data) updatepost(id, 'file', name);
+    } catch (e) {
+      console.error('[PostProvider] uploadFile error:', e);
+    }
   };
 
 

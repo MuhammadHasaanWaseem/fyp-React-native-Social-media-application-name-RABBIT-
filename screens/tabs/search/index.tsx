@@ -11,7 +11,7 @@ export default () => {
   const debounceSearch = useDebounce(search, 500);
 
   return (
-    <SafeAreaView style={{ backgroundColor: "#010118" }} className="flex-1">
+    <SafeAreaView style={{ backgroundColor: "#010118" ,flex:1 }} className="flex-1">
       <VStack space="md" style={{ marginTop: 30 }}>
         <Text
           style={{

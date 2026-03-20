@@ -11,7 +11,7 @@ import { Video } from 'expo-av';
 import ImageViewing from 'react-native-image-viewing';
 import { rendertext } from '@/screens/post/input';
 import Audio from '@/screens/post/audio';
-import { supabase } from '@/lib/supabase';
+import { supabase, getFileUrl } from '@/lib/supabase';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/providers/AuthProviders';
 import { router } from 'expo-router';
@@ -98,7 +98,7 @@ export default function MentionView({ item, refetch }) {
   const handleShare = async () => {
     let shareMessage = item.text || '';
     if (item.file) {
-      const fileUrl = `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`;
+      const fileUrl = `getFileUrl(item.user_id, item.file)`;
       shareMessage += `\n\nView media: ${fileUrl}`;
     }
     try {
@@ -172,7 +172,7 @@ export default function MentionView({ item, refetch }) {
     if (item.file && item.file.match(/\.(mp3|m4a)$/i)) {
       return (
         <View style={{ marginTop: 3 }}>
-          <Audio userId={item.user_id} id={item.id} uri={`https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}`} />
+          <Audio userId={item.user_id} id={item.id} uri={`getFileUrl(item.user_id, item.file)`} />
         </View>
       );
     } else if (item.file && item.file.match(/\.(jpeg|jpg|png|gif)$/i)) {
@@ -180,7 +180,7 @@ export default function MentionView({ item, refetch }) {
         <View style={{ position: 'relative' }}>
           <TouchableOpacity onPress={() => setImageVisible(true)}>
             <Image
-              source={{ uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}` }}
+              source={{ uri: `getFileUrl(item.user_id, item.file)` }}
               style={{ height: 150, width: 200, marginTop: 10, borderWidth: 1, borderColor: 'black', borderRadius: 10 }}
               resizeMode="cover"
             />
@@ -195,7 +195,7 @@ export default function MentionView({ item, refetch }) {
           )}
           <Modal visible={isImageVisible} transparent={true} onRequestClose={() => setImageVisible(false)}>
             <ImageViewing
-              images={[{ uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}` }]}
+              images={[{ uri: `getFileUrl(item.user_id, item.file)` }]}
               imageIndex={0}
               visible={isImageVisible}
               onRequestClose={() => setImageVisible(false)}
@@ -208,7 +208,7 @@ export default function MentionView({ item, refetch }) {
         <View style={{ position: 'relative' }}>
           <Video
             ref={videoRef}
-            source={{ uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${item.user_id}/${item.file}` }}
+            source={{ uri: `getFileUrl(item.user_id, item.file)` }}
             style={{ height: 300, marginTop: 10, width: 200, borderWidth: 0.5, borderColor: 'black', borderRadius: 10 }}
             useNativeControls={false}
             onPlaybackStatusUpdate={(status) => {

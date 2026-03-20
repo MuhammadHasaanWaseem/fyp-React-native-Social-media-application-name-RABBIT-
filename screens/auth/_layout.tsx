@@ -54,12 +54,7 @@ export default ({ children, onPress, buttonText, buttonDisabled }: {
                 <ButtonText style={styles.buttonText}>{buttonText}</ButtonText>
               </Button>
 
-              <TouchableOpacity
-                onPress={() => router.back()}
-                style={styles.backButton}
-              >
-                <Text style={styles.backButtonText}>Go back</Text>
-              </TouchableOpacity>
+             
             </VStack>
 
             <View style={styles.bottomBranding}>

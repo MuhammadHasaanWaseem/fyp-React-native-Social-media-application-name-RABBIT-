@@ -31,7 +31,7 @@ export default () => {
   };
 
   return (
-    <SafeAreaView style={{ backgroundColor: '#010118' }} className="flex-1">
+    <SafeAreaView style={{ backgroundColor: '#010118',flex:1 }} className="flex-1">
       <HStack space="md" style={{ marginTop: 10 }} className="p-3 items-center">
         <BellIcon color={'grey'} size={24} />
         <Text style={{ color: '#ff4500', fontSize: 22, fontWeight: '600' }}>Notifications</Text>

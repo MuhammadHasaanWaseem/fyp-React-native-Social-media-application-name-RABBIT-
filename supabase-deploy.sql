@@ -151,6 +151,15 @@ ALTER PUBLICATION supabase_realtime ADD TABLE "WorldChatMessage";
 -- ============================================
 -- In Supabase Dashboard > Storage: create bucket "files", set to Public.
 -- App stores avatars and media at: files/{user_id}/{filename}
+--
+-- Run this in SQL Editor to allow uploads (Storage uses storage.objects table):
+CREATE POLICY "Users can upload to own folder"
+ON storage.objects FOR INSERT TO authenticated
+WITH CHECK (bucket_id = 'files' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+CREATE POLICY "Public read for files bucket"
+ON storage.objects FOR SELECT TO public
+USING (bucket_id = 'files');
 
 -- ============================================
 -- 6. AUTH

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import { supabase } from '@/lib/supabase';
+import { supabase, getFileUrl } from '@/lib/supabase';
 import { Divider } from '@/components/ui/divider';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { HStack } from '@/components/ui/hstack';
@@ -148,7 +148,7 @@ export default () => {
   const handleShare = async () => {
     let shareMessage = post.text || '';
     if (post.file) {
-      const fileUrl = `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${post.user_id}/${post.file}`;
+      const fileUrl = getFileUrl(post.user_id, post.file);
       shareMessage += `\n\nView media: ${fileUrl}`;
     }
     try {
@@ -247,17 +247,17 @@ export default () => {
           <Audio
             userId={post.user_id}
             id={post.id}
-            uri={`https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${post.user_id}/${post.file}`}
+            uri={getFileUrl(post.user_id, post.file)}
           />
         </View>
       );
-    } else if (post.file.match(/\.(jpeg|jpg|png|gif)$/i)) {
+    } else if (post.file.match(/\.(jpeg|jpg|png|gif|webp)$/i)) {
       return (
         <View style={{ position: 'relative' }}>
           <TouchableOpacity onPress={() => setImageVisible(true)}>
             <Image
               source={{
-                uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${post.user_id}/${post.file}`,
+                uri: getFileUrl(post.user_id, post.file),
               }}
               style={{
                 height: 150,
@@ -293,7 +293,7 @@ export default () => {
             <ImageViewing
               images={[
                 {
-                  uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${post.user_id}/${post.file}`,
+                  uri: getFileUrl(post.user_id, post.file),
                 },
               ]}
               imageIndex={0}
@@ -309,7 +309,7 @@ export default () => {
           <Video
             ref={videoRef}
             source={{
-              uri: `https://wjfmftrlgfpvqdvasdhf.supabase.co/storage/v1/object/public/files/${post.user_id}/${post.file}`,
+              uri: getFileUrl(post.user_id, post.file),
             }}
             style={{
               height: 300,

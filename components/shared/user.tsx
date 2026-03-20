@@ -25,7 +25,9 @@ import { Divider } from "../ui/divider";
 import { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { VStack } from "../ui/vstack";
-import { supabase } from "@/lib/supabase";
+import { supabase, getFileUrl } from "@/lib/supabase";
+import * as FileSystem from "expo-file-system";
+import { decode } from "base64-arraybuffer";
 import View from "@/components/shared/sharedview";
 import { usePosts } from "@/hooks/use-posts";
 import BottomSheet from "./bottom-sheet";
@@ -254,33 +256,27 @@ useEffect(() => {
         const asset = result.assets[0];
         const uri = asset.uri;
         const mimeType = asset.mimeType || "image/jpeg";
-        const extension = mimeType.split("/")[1];
+        const extension = mimeType.split("/")[1] || "jpeg";
         const name = `avatar.${extension}`;
         const filePath = `${user.id}/${name}`;
+        const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+        const arrayBuffer = decode(base64);
         const { error: uploadError } = await supabase.storage
           .from("files")
-          .upload(filePath, { uri, name, type: mimeType }, { cacheControl: "3600", upsert: true });
+          .upload(filePath, arrayBuffer, { contentType: mimeType, cacheControl: "3600", upsert: true });
         if (uploadError) {
           Alert.alert("Error", `Error uploading avatar: ${uploadError.message}`);
           return;
         }
-        const { data: urlData, error: urlError } = supabase.storage
-          .from("files")
-          .getPublicUrl(filePath);
-        if (urlError) {
-          Alert.alert("Error", `Error getting public URL: ${urlError.message}`);
-          return;
-        }
-        const publicUrl = urlData.publicUrl;
-        const avatarUrlWithCacheBuster = `${publicUrl}?t=${Date.now()}`;
+        const avatarUrl = getFileUrl(user.id, name);
         const { error: updateError } = await supabase
           .from("User")
-          .update({ avatar: avatarUrlWithCacheBuster })
+          .update({ avatar: avatarUrl })
           .eq("id", user.id);
         if (updateError)
           Alert.alert("Error", `Error updating avatar: ${updateError.message}`);
         else {
-          setLocalAvatar(avatarUrlWithCacheBuster);
+          setLocalAvatar(avatarUrl);
           Alert.alert("Success", "Avatar updated successfully!");
         }
       }
@@ -314,12 +310,12 @@ useEffect(() => {
         <Pressable onPress={handleAvatarPress}>
           <Avatar size="lg">
             <AvatarFallbackText style={{ color: "white" }}>{user?.username}</AvatarFallbackText>
-            <AvatarImage source={{ uri: `${localAvatar || user?.avatar} ?t=${new Date().getTime()}` }} />
+            <AvatarImage source={{ uri: `${localAvatar || user?.avatar || getFileUrl(user?.id || '', 'avatar.jpeg')}?t=${new Date().getTime()}` }} />
           </Avatar>
         </Pressable>
       </HStack>
       <ImageViewing
-        images={[{ uri: localAvatar || user?.avatar }]}
+        images={[{ uri: localAvatar || user?.avatar || getFileUrl(user?.id || '', 'avatar.jpeg') }]}
         imageIndex={0}
         visible={isImageVisible}
         onRequestClose={() => setImageVisible(false)}
@@ -332,7 +328,7 @@ useEffect(() => {
                 <AvatarFallbackText className="text-white">
                   {item?.user?.username}
                 </AvatarFallbackText>
-                <AvatarImage source={{ uri: item?.user?.avatar }} />
+                <AvatarImage source={{ uri: item?.user?.avatar || getFileUrl(item?.user?.id || '', 'avatar.jpeg') }} />
               </Avatar>
             ))}
             {followers.length > 3 && (

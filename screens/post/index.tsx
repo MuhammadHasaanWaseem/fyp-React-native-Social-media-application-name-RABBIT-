@@ -67,10 +67,13 @@ export default () => {
   );
   const handlePost = async () => {
     if (!isValid || loading) return;
+    console.log('[Post] handlePost called, isValid:', isValid, 'PostCard:', PostCard.length);
     setLoading(true);
     try {
       await uploadpost();
+      console.log('[Post] uploadpost completed');
     } catch (err) {
+      console.error('[Post] handlePost error:', err);
       Alert.alert('Error', 'Failed to post. Please try again.');
     } finally {
       setLoading(false);
