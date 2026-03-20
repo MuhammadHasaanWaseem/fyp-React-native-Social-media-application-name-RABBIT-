@@ -51,7 +51,6 @@ const Splash = () => {
             }]
           }]}
         >
-          Contact on Instagram @im_hasaan_
         </Animated.Text>
       </Animated.View>
     </View>

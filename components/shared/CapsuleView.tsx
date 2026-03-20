@@ -9,6 +9,7 @@ import {
   Modal,
   Share,
 } from "react-native";
+import { wp, hp } from "@/lib/helper";
 import { supabase, getFileUrl } from "@/lib/supabase";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { HStack } from "@/components/ui/hstack";
@@ -214,7 +215,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
       };
 
       const content = (
-        <VStack style={{ marginLeft: 60, marginBottom: 20 }}>
+        <VStack style={{ marginLeft: wp(15), marginBottom: hp(2.5) }}>
           {rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}
           {item.file && item.file.match(/\.(mp3|m4a)$/i) && (
             <View style={{ marginTop: 3 }}>
@@ -247,7 +248,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
             <View style={{ position: "relative" }}>
               {!state.isMediaLoaded && (
                 <View
-                  style={[styles.imagePlaceholder, { height: 150, width: 200 }]}
+                  style={[styles.imagePlaceholder, { height: hp(18.5), width: wp(50) }]}
                 >
                   <Spinner color="white" size={24} />
                 </View>
@@ -258,10 +259,10 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                 }}
                 style={[
                   {
-                    height: 150,
-                    width: 200,
-                    marginTop: 5,
-                    borderRadius: 10,
+                    height: hp(18.5),
+                    width: wp(50),
+                    marginTop: hp(0.6),
+                    borderRadius: wp(2.5),
                   },
                   !state.isMediaLoaded && { opacity: 0 },
                 ]}
@@ -302,7 +303,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
             <View style={{ position: "relative" }}>
               {!state.isMediaLoaded && (
                 <View
-                  style={[styles.imagePlaceholder, { height: 300, width: 200 }]}
+                  style={[styles.imagePlaceholder, { height: hp(37), width: wp(50) }]}
                 >
                   <Spinner color="white" size={24} />
                 </View>
@@ -313,10 +314,10 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                 }}
                 style={[
                   {
-                    height: 300,
-                    width: 200,
-                    marginTop: 5,
-                    borderRadius: 10,
+                    height: hp(37),
+                    width: wp(50),
+                    marginTop: hp(0.6),
+                    borderRadius: wp(2.5),
                   },
                   !state.isMediaLoaded && { opacity: 0 },
                 ]}
@@ -344,8 +345,8 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                 )}
             </View>
           )}
-          <VStack style={{ paddingTop: 16 }}>
-            <HStack style={{ alignItems: "center", gap: 8 }} space={24}>
+          <VStack style={{ paddingTop: hp(2) }}>
+            <HStack style={{ alignItems: "center", gap: wp(2) }} space={24}>
               <TouchableOpacity
                 onPress={() => (isLiked ? removeLike(item.id) : addLike(item.id))}
               >
@@ -356,7 +357,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                     strokeWidth={1}
                     fill={isLiked ? "#ff4500" : "transparent"}
                   />
-                  <Text style={{ color: "white", marginLeft: 4 }}>
+                  <Text style={{ color: "white", marginLeft: wp(1) }}>
                     {item.Like ? item.Like.length : 0}
                   </Text>
                 </HStack>
@@ -372,7 +373,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                     size={20}
                     strokeWidth={2}
                   />
-                  <Text style={{ color: "white", marginLeft: 4 }}>
+                  <Text style={{ color: "white", marginLeft: wp(1) }}>
                     {item.Comment ? item.Comment.length : 0}
                   </Text>
                 </HStack>
@@ -416,11 +417,11 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
             <VStack style={{ flex: 1 }}>
               <HStack className="items-center" space="lg">
                 <Text
-                  style={{ fontWeight: "bold", color: "white", fontSize: 17 }}
+                  style={{ fontWeight: "bold", color: "white", fontSize: hp(2.1) }}
                 >
                   {item.User?.username || ""}
                 </Text>
-                <Text style={{ color: "white", fontSize: 12 }}>
+                <Text style={{ color: "white", fontSize: hp(1.5) }}>
                   {item.created_at &&
                     formatDistanceToNowStrict(new Date(item.created_at)) +
                       " ago"}
@@ -502,7 +503,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
+    padding: wp(2.5),
     backgroundColor: "#010118",
   },
   absoluteFill: {
@@ -517,37 +518,37 @@ const styles = StyleSheet.create({
     backgroundColor: "#010118",
   },
   blurContent: {
-    padding: 10,
+    padding: wp(2.5),
     backgroundColor: "#FF4500",
     borderWidth: 2,
     borderColor: "white",
-    borderRadius: 8,
+    borderRadius: wp(2),
     justifyContent: "center",
     alignItems: "center",
   },
   blurText: {
     color: "white",
-    fontSize: 10,
+    fontSize: hp(1.25),
     fontWeight: "800",
     fontStyle: "italic",
   },
   viewSpoilerButton: {
-    padding: 8,
+    padding: wp(2),
     backgroundColor: "#FF4500",
-    borderRadius: 5,
+    borderRadius: wp(1.25),
     alignItems: "center",
   },
   viewSpoilerText: {
     color: "white",
     fontWeight: "900",
-    fontSize: 11,
+    fontSize: hp(1.4),
   },
   imagePlaceholder: {
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#010118",
-    borderRadius: 10,
-    marginTop: 5,
+    borderRadius: wp(2.5),
+    marginTop: hp(0.6),
   },
   audiospoiler: {
     ...StyleSheet.absoluteFillObject,
@@ -558,10 +559,10 @@ const styles = StyleSheet.create({
   noPostsText: {
     color: "white",
     textAlign: "center",
-    marginTop: "60%",
+    marginTop: hp(60),
     justifyContent: "center",
     alignContent: "center",
-    fontSize: 16,
+    fontSize: hp(2),
   },
   modalOverlay: {
     flex: 1,
@@ -570,26 +571,26 @@ const styles = StyleSheet.create({
   },
   modalBlur: {
     width: "90%",
-    padding: 20,
-    borderRadius: 20,
+    padding: wp(5),
+    borderRadius: wp(5),
   },
   modalContainer: {
     backgroundColor: "rgba(0,0,0,0.7)",
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: wp(5),
+    padding: wp(5),
     alignItems: "center",
   },
   modalTitle: {
     color: "#FF4500",
-    fontSize: 22,
+    fontSize: hp(2.75),
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: hp(1.25),
   },
   modalMessage: {
     color: "white",
-    fontSize: 16,
+    fontSize: hp(2),
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: hp(2.5),
   },
   modalButtons: {
     flexDirection: "row",
@@ -597,24 +598,24 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   cancelButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
+    paddingVertical: hp(1.25),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(2.5),
     backgroundColor: "#444",
   },
   cancelButtonText: {
     color: "white",
-    fontSize: 16,
+    fontSize: hp(2),
   },
   deleteButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
+    paddingVertical: hp(1.25),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(2.5),
     backgroundColor: "#FF4500",
   },
   deleteButtonText: {
     color: "white",
-    fontSize: 16,
+    fontSize: hp(2),
     fontWeight: "bold",
   },
 });
@@ -784,7 +785,7 @@ const styles = StyleSheet.create({
 //           {item.file && item.file.match(/\.(jpeg|jpg|png|gif)$/i) && (
 //             <View style={{ position: "relative" }}>
 //               {!state.isMediaLoaded && (
-//                 <View style={[styles.imagePlaceholder, { height: 150, width: 200 }]}>
+//                 <View style={[styles.imagePlaceholder, { height: hp(18.5), width: wp(50) }]}>
 //                   <Spinner color="white" size={24} />
 //                 </View>
 //               )}
@@ -875,7 +876,7 @@ const styles = StyleSheet.create({
 //                 <Text style={{ fontWeight: "bold", color: "white", fontSize: 17 }}>
 //                   {item.User?.username || ""}
 //                 </Text>
-//                 <Text style={{ color: "white", fontSize: 12 }}>
+//                 <Text style={{ color: "white", fontSize: hp(1.5) }}>
 //                   {item.created_at && formatDistanceToNowStrict(new Date(item.created_at)) + " ago"}
 //                 </Text>
 //               </HStack>

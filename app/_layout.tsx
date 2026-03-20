@@ -38,7 +38,6 @@ function AppNavigator() {
       <Stack.Screen name="post" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} />
       <Stack.Screen name="camera" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
       <Stack.Screen name="gif" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
-      <Stack.Screen name="chatbot" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
       <Stack.Screen name="comments" options={{ headerShown: false, headerTitle: 'Add to comment', headerTitleAlign: 'center', animation: 'slide_from_left' }} />
       <Stack.Screen name="user" options={{ headerTitle: '', animation: 'slide_from_left' }} />
       <Stack.Screen name="worldchat" options={{ headerShown: false, headerTitleAlign: 'center', animation: 'slide_from_left' }} />

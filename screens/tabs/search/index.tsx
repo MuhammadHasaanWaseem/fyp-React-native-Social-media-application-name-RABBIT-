@@ -1,5 +1,6 @@
 import { SearchIcon } from "lucide-react-native";
 import { SafeAreaView, Text } from "react-native";
+import { wp, hp } from "@/lib/helper";
 import Users from "./users";
 import { VStack } from "@/components/ui/vstack";
 import { Input, InputSlot, InputIcon, InputField } from "@/components/ui/input";
@@ -12,19 +13,19 @@ export default () => {
 
   return (
     <SafeAreaView style={{ backgroundColor: "#010118" ,flex:1 }} className="flex-1">
-      <VStack space="md" style={{ marginTop: 30 }}>
+      <VStack space="md" style={{ marginTop: hp(3.75) }}>
         <Text
           style={{
-            fontSize: 24,
+            fontSize: hp(3),
             fontWeight: "900",
-            marginBottom: 3,
-            marginLeft: '5%',
+            marginBottom: hp(0.4),
+            marginLeft: wp(5),
             color: "#ff4500",
           }}
         >
           Search
         </Text>
-        <Input className="rounded-lg" style={{ backgroundColor: "#141414", margin: 5 }}>
+        <Input className="rounded-lg" style={{ backgroundColor: "#141414", margin: wp(1.25) }}>
           <InputSlot style={{ paddingLeft: 6 }}>
             <InputIcon as={SearchIcon} />
           </InputSlot>

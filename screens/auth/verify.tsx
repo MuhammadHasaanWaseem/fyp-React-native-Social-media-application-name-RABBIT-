@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { View, StyleSheet, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import { wp, hp } from '@/lib/helper';
 import Layout from './_layout';
 import { OtpInput } from 'react-native-otp-entry';
 import { Spinner } from '@/components/ui/spinner';
@@ -39,7 +40,6 @@ export default function VerifyScreen() {
       >
         <SafeAreaView style={styles.innerContainer}>
           <View style={styles.content}>
-            <Text style={styles.title}>Enter Verification Code</Text>
             <Text style={styles.subtitle}>Sent to {input}</Text>
 
             <OtpInput
@@ -80,42 +80,41 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: wp(6),
     justifyContent: 'center',
   },
   content: {
-    marginTop: 40,
   },
   title: {
-    fontSize: 24,
+    fontSize: hp(3),
     fontWeight: '700',
     color: 'white',
-    marginBottom: 8,
+    marginBottom: hp(1),
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: hp(1.5),
     color: '#6B7280',
     textAlign: 'center',
-    marginBottom: 40,
+    marginBottom: hp(2),
   },
   otpContainer: {
-    marginBottom: 12,
+    marginBottom: hp(1.5),
   },
   otpInputsContainer: {
-    gap: 6,
+    gap: wp(1.5),
   },
   pinCodeContainer: {
     backgroundColor: '#1F2937',
     borderWidth: 1,
     borderColor: '#374151',
-    borderRadius: 8,
-    height: 40,
-    width: 40,
+    borderRadius: wp(2),
+    height: hp(5),
+    width: wp(10),
   },
   pinCodeText: {
     color: 'white',
-    fontSize: 20,
+    fontSize: hp(2.5),
     fontWeight: '600',
   },
   focusStick: {
@@ -128,27 +127,27 @@ const styles = StyleSheet.create({
   statusContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-    marginBottom: 24,
+    gap: hp(1.5),
+    marginBottom: hp(3),
   },
   progressText: {
     color: '#9CA3AF',
-    fontSize: 14,
+    fontSize: hp(1.8),
     fontWeight: '500',
   },
   successText: {
     color: '#10B981',
-    fontSize: 14,
+    fontSize: hp(1.8),
     fontWeight: '600',
     textAlign: 'center',
-    marginTop: 16,
+    marginTop: hp(2),
   },
   errorText: {
     color: '#EF4444',
-    fontSize: 14,
+    fontSize: hp(1.8),
     fontWeight: '600',
     textAlign: 'center',
-    marginTop: 16,
-    marginBottom: '10%',
+    marginTop: hp(2),
+    marginBottom: hp(10),
   },
 });

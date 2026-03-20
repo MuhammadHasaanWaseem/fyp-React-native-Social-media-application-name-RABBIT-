@@ -15,20 +15,19 @@ import {
   Mic,
   LockIcon,
   MessageCircleCodeIcon,
-  Timer,
   AtSignIcon,
   MenuIcon,
   EyeOff,
   CalendarClock,
   Hourglass
 } from 'lucide-react-native';
-import { Pressable, FlatList, Image,StyleSheet, TouchableOpacity,Dimensions } from 'react-native';
+import { Pressable, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
 import { usePosts } from '@/hooks/use-posts';
 import View from '@/components/shared/sharedview';
 import { getFileUrl } from '@/lib/supabase';
-const { width } = Dimensions.get('window');
+import { wp, hp } from '@/lib/helper';
 export default () => {
   const { user } = useAuth();
   const router = useRouter();
@@ -66,20 +65,19 @@ export default () => {
       <HStack className="justify-between items-center">
         
         <TouchableOpacity onPress={() => router.push('/drawer')}>
-          <MenuIcon style={{ marginTop: 20, marginLeft: 10 }} size={25} color={'white'} />
+          <MenuIcon style={{ marginTop: hp(2.5), marginLeft: wp(2.5) }} size={25} color={'white'} />
         </TouchableOpacity>
         <Image
           source={require('../../../assets/gif/RAB.gif')}
           style={styles.image}
         />
 
-        <TouchableOpacity onPress={() => router.push('/chatbot')}>
-          <MessageCircleCodeIcon style={{ marginTop: 20, marginRight: 10 }} size={25} color={'white'} />
+        <TouchableOpacity onPress={() => {}}>
         </TouchableOpacity>
       </HStack>
       {/* "What's New?" Card for the logged-in user */}
       <Pressable onPress={() => router.push('/post')}>
-        <HStack className="items-center " style={{paddingHorizontal:'5%'}}>
+        <HStack className="items-center " style={{ paddingHorizontal: wp(5) }}>
           <Avatar size="md" style={{ borderColor: 'white', backgroundColor: 'white' }}>
             <AvatarFallbackText style={{ color: 'black' }}>{user?.username || ''}</AvatarFallbackText>
             {/* <AvatarImage source={{ uri: user?.avatar }} /> */}
@@ -134,11 +132,10 @@ export default () => {
 };
 
 const styles = StyleSheet.create({
-  
   image: {
-    width: width * 0.1,  // 10 of the screen width
-    height: width * 0.1, // 10% of the screen width
-    marginTop:'3%'
+    width: wp(10),
+    height: wp(10),
+    marginTop: hp(3),
   },
 });
 

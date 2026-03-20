@@ -11,6 +11,7 @@ import {
   View as RNView,
   StyleSheet,
 } from "react-native";
+import { wp, hp } from "@/lib/helper";
 import { HStack } from "../ui/hstack";
 import PrivatePostView from "@/components/shared/PrivatePostView";
 import CapsuleView from "@/components/shared/CapsuleView";
@@ -291,14 +292,14 @@ useEffect(() => {
       <Text></Text>
       <HStack className="items-center justify-between p-6">
         <VStack>
-          <Text style={{ fontSize: 24, marginLeft: 8, fontWeight: "bold", color: "white" }}>
+          <Text style={{ fontSize: hp(3), marginLeft: wp(2), fontWeight: "bold", color: "white" }}>
             {user?.username}
           </Text>
-          <HStack className="items-center" style={{ marginTop: 5 }}>
+          <HStack className="items-center" style={{ marginTop: hp(0.6) }}>
             <Text style={{ color: "white", fontSize: 12, fontWeight: "900" }}>Bio: </Text>
             <Text style={{ color: "white", fontSize: 12 }}>{localbio || "Not set"}</Text>
           </HStack>
-          <HStack className="items-center" style={{ marginTop: 5 }}>
+          <HStack className="items-center" style={{ marginTop: hp(0.6) }}>
             <Text style={{ color: "white", fontSize: 12, fontWeight: "900" }}>
               Nickname:{" "}
             </Text>
@@ -320,7 +321,7 @@ useEffect(() => {
         visible={isImageVisible}
         onRequestClose={() => setImageVisible(false)}
       />
-      <HStack style={{ marginLeft: 40 }} space="md">
+      <HStack style={{ marginLeft: wp(10) }} space="md">
         {followers && (
           <AvatarGroup>
             {followers.slice(0, 3).map((item, index) => (
@@ -392,8 +393,8 @@ useEffect(() => {
           </Button>
         </HStack>
       )}
-      <Divider style={{ marginTop: 14, marginBottom: 10 }} />
-      <HStack space="md" style={{ padding: 4 }}>
+      <Divider style={{ marginTop: hp(1.75), marginBottom: hp(1.25) }} />
+      <HStack space="md" style={{ padding: wp(1) }}>
         {tabs.map((t) => (
           <Button
             key={t.name}
@@ -412,7 +413,7 @@ useEffect(() => {
           <CapsuleView userId={user?.id} />
         ) : filteredPosts.length === 0 ? (
           <VStack style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-            <Text style={{ color: "white", fontSize: 16 }}>
+            <Text style={{ color: "white", fontSize: hp(2) }}>
               {tab.name === Tab.PUBLIC ? "No public post" : "No private post"}
             </Text>
           </VStack>
@@ -421,7 +422,7 @@ useEffect(() => {
             data={filteredPosts}
             refreshing={isLoading}
             onRefresh={refetch}
-            contentContainerStyle={{ paddingBottom: 200 }}
+            contentContainerStyle={{ paddingBottom: hp(25) }}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) =>
               tab.name === Tab.PRIVATE ? (
@@ -468,7 +469,7 @@ useEffect(() => {
         <Modal transparent visible={showBioModal} animationType="slide">
           <RNView style={styles.modalContainer}>
             <RNView style={styles.modalContent}>
-              <Text style={{ color: "white", marginBottom: 10 }}>Edit Bio</Text>
+              <Text style={{ color: "white", marginBottom: hp(1.25) }}>Edit Bio</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Enter your new bio"
@@ -499,7 +500,7 @@ useEffect(() => {
         <Modal transparent visible={showNicknameModal} animationType="slide">
           <RNView style={styles.modalContainer}>
             <RNView style={styles.modalContent}>
-              <Text style={{ color: "white", marginBottom: 10 }}>Edit Nickname</Text>
+              <Text style={{ color: "white", marginBottom: hp(1.25) }}>Edit Nickname</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Enter your new nickname"
@@ -540,16 +541,15 @@ const styles = StyleSheet.create({
   modalContent: {
     width: "80%",
     backgroundColor: "#141414",
-    padding: 20,
-    borderRadius: 10,
+    padding: wp(5),
+    borderRadius: wp(2.5),
   },
-  // stripe secret key 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
   input: {
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 20,
+    borderRadius: wp(1.25),
+    padding: wp(2.5),
+    marginBottom: hp(2.5),
     color: "white",
   },
   modalButtons: {

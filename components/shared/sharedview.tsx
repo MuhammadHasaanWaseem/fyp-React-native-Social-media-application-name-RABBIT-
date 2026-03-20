@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'; //hooks
-import { Image, TouchableOpacity, View, Modal, Share, StyleSheet, Alert } from 'react-native'; //native components
+import { Image, TouchableOpacity, View, Modal, Share, StyleSheet, Alert } from 'react-native';
+import { wp, hp } from '@/lib/helper'; //native components
 import { formatDistanceToNowStrict } from 'date-fns'; // formating time
 import { HStack } from '@/components/ui/hstack'; // horizontal voew
 import { Card } from '@/components/ui/card'; //card view
@@ -155,7 +156,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
   );
 
   const content = (
-    <VStack style={{ marginLeft: 60, marginBottom: 20 }}>
+    <VStack style={{ marginLeft: wp(15), marginBottom: hp(2.5) }}>
       {item?.file && item.file.match(/\.(mp3|m4a)$/i) && (
         <View style={{ marginTop: 3 }}>
           <Audio userId={item?.user_id} id={item.id} uri={getFileUrl(item.user_id, item.file)} />
@@ -175,7 +176,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
             <TouchableOpacity onPress={() => setImageVisible(true)}>
               <Image
                 source={{ uri: getFileUrl(item.user_id, item.file) }}
-                style={{ height: 150, width: 200, marginTop: 10, borderWidth: 1, borderColor: 'black', borderRadius: 10 }}
+                style={{ height: hp(18.5), width: wp(50), marginTop: hp(1.25), borderWidth: 1, borderColor: 'black', borderRadius: wp(2.5) }}
                 resizeMode="cover"
               />
             </TouchableOpacity>
@@ -201,7 +202,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
             <Video
               ref={videoRef}
               source={{ uri: getFileUrl(item.user_id, item.file) }}
-              style={{ height: 300, marginTop: 10, width: 200, borderWidth: 0.5, borderColor: 'black', borderRadius: 10 }}
+              style={{ height: hp(37), marginTop: hp(1.25), width: wp(50), borderWidth: 0.5, borderColor: 'black', borderRadius: wp(2.5) }}
               useNativeControls={false}
               onPlaybackStatusUpdate={(status) => {
                 if (status.didJustFinish) {
@@ -238,8 +239,8 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
           </View>
         ) : null}
       </HStack>
-      <VStack style={{ paddingTop: 16 }}>
-        <HStack style={{ alignItems: 'center', gap: 8 }} space={24}>
+      <VStack style={{ paddingTop: hp(2) }}>
+        <HStack style={{ alignItems: 'center', gap: wp(2) }} space={24}>
           <TouchableOpacity onPress={isliked ? removelike : addlike}>
             <HStack>
               <ThumbsUp color={isliked ? '#ff4500' : '#ff4500'} size={20} strokeWidth={1} fill={isliked ? '#ff4500' : 'transparent'} />
@@ -266,13 +267,13 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
   );
 
   return (
-    <Card style={{ backgroundColor: '#010118' , borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: 10}}>
+    <Card style={{ backgroundColor: '#010118' , borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: wp(2.5)}}>
       {header}
       <View>
         {content}
         {isScheduled && (
           <BlurView intensity={50} tint="dark" style={styles.blurOverlay}>
-            <VStack style={{ padding: 5, backgroundColor: '#FF4500',borderWidth:2,borderColor:'white', justifyContent: 'center', alignItems: 'center', borderRadius: 8 }}>
+            <VStack style={{ padding: wp(1.25), backgroundColor: '#FF4500',borderWidth:2,borderColor:'white', justifyContent: 'center', alignItems: 'center', borderRadius: wp(2) }}>
               <Text style={{ color: 'white', fontSize: 14, fontWeight: '400' ,fontStyle:'italic'}}>{item.User?.username}</Text>
               <Text style={{ color: 'white', fontSize: 14, fontWeight: '400' }}>𝘩𝘢𝘴 𝘴𝘦𝘵 𝘵𝘩𝘪𝘴 𝘗𝘰𝘴𝘵 𝘢𝘴 𝘱𝘳𝘦𝘮𝘪𝘦𝘳.
               </Text>
@@ -314,7 +315,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#010122',
     borderWidth: 2,
-    marginTop: 5,
+    marginTop: hp(0.6),
     borderColor: 'rgba(255,107,53,0.3)'
   },
   blurOverlay: {
@@ -322,8 +323,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'black',
-    marginTop:10,
-    borderRadius:10,
+    marginTop: hp(1.25),
+    borderRadius: wp(2.5),
     
   },
   audiospoiler:{
@@ -333,10 +334,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#010118",
   },
   viewSpoilerButton: {
-    paddingHorizontal: 17,
-    paddingVertical:7,
+    paddingHorizontal: wp(4.25),
+    paddingVertical: hp(0.9),
     backgroundColor: '#FF4500',
-    borderRadius: 25, 
+    borderRadius: wp(6.25), 
     borderColor:'white',
     borderWidth:2,
     alignContent: 'center',
@@ -346,21 +347,21 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     fontWeight: '900',
-    fontSize: 11,
-    marginBottom: 3
+    fontSize: hp(1.4),
+    marginBottom: hp(0.4)
   },
   videoControls: {
     position: 'absolute',
-    gap: 6,
-    left: 120,
-    bottom: 6,
+    gap: wp(1.5),
+    left: wp(30),
+    bottom: hp(0.75),
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
   controlButton: {
     backgroundColor: '#2f2f2f',
-    borderRadius: 50,
-    padding: 2
+    borderRadius: wp(12.5),
+    padding: wp(0.5)
   },
   // Modal styles for deletion confirmation
   modalOverlay: {
@@ -370,26 +371,26 @@ const styles = StyleSheet.create({
   },
   modalBlur: {
     width: '90%',
-    padding: 20,
-    borderRadius: 20
+    padding: wp(5),
+    borderRadius: wp(5)
   },
   modalContainer: {
     backgroundColor: 'rgba(0,0,0,0.7)',
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: wp(5),
+    padding: wp(5),
     alignItems: 'center'
   },
   modalTitle: {
     color: '#FF4500',
-    fontSize: 22,
+    fontSize: hp(2.75),
     fontWeight: 'bold',
-    marginBottom: 10
+    marginBottom: hp(1.25)
   },
   modalMessage: {
     color: 'white',
-    fontSize: 16,
+    fontSize: hp(2),
     textAlign: 'center',
-    marginBottom: 20
+    marginBottom: hp(2.5)
   },
   modalButtons: {
     flexDirection: 'row',
@@ -397,24 +398,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   cancelButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
+    paddingVertical: hp(1.25),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(2.5),
     backgroundColor: '#444'
   },
   cancelButtonText: {
     color: 'white',
-    fontSize: 16
+    fontSize: hp(2)
   },
   deleteButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
+    paddingVertical: hp(1.25),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(2.5),
     backgroundColor: '#FF4500'
   },
   deleteButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: hp(2),
     fontWeight: 'bold'
   }
 });

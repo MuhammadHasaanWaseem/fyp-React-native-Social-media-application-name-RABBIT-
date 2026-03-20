@@ -11,6 +11,7 @@ import {
   Share,
   KeyboardAvoidingView,
 } from 'react-native';
+import { wp, hp } from '@/lib/helper';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
 import { Card } from '@/components/ui/card';
@@ -140,7 +141,7 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
       </Avatar>
       <VStack style={{ flex: 1 }}>
         <Text style={{ fontWeight: 'bold', color: 'white', fontSize: 17 }}>{item.User?.username || ''}</Text>
-        <HStack style={{ marginBottom: 10 }}>
+        <HStack style={{ marginBottom: hp(1.25) }}>
           
           <Text style={{ color: 'white', fontSize: 12 }}>Passcode HInt : {item.hint}</Text>
         </HStack>
@@ -150,12 +151,12 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
 
   const lockedContent = (
     
-    <VStack style={{ marginLeft: 60, marginBottom: 20 }}>
+    <VStack style={{ marginLeft: wp(15), marginBottom: hp(2.5) }}>
       <BlurView 
       intensity={50} tint="dark" style={styles.blurContainer}>
-        <VStack style={{ padding: 10, alignItems: 'center' }}>
+        <VStack style={{ padding: wp(2.5), alignItems: 'center' }}>
           <Lock color="white" size={24} />
-          <Text style={{ color: 'white', marginTop: 10 }}>This post is private</Text>
+          <Text style={{ color: 'white', marginTop: hp(1.25) }}>This post is private</Text>
           <TextInput
             style={styles.passwordInput}
             placeholder="Enter 8-digit password"
@@ -164,11 +165,11 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
             onChangeText={setPasswordInput}
             maxLength={8}
           />
-          {error && <Text style={{ color: '#ff4500', marginTop: 5 }}>{error}</Text>}
+          {error && <Text style={{ color: '#ff4500', marginTop: hp(0.6) }}>{error}</Text>}
           {loading ? (
-            <Spinner color={'white'} style={{ marginTop: 10 }} />
+            <Spinner color={'white'} style={{ marginTop: hp(1.25) }} />
           ) : (
-            <Button onPress={handleUnlock} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20, backgroundColor: '#ff4500', marginTop: 10 }}>
+            <Button onPress={handleUnlock} style={{ flexDirection: 'row', alignItems: 'center', gap: wp(1.5), paddingVertical: hp(0.75), paddingHorizontal: wp(3), borderRadius: wp(5), backgroundColor: '#ff4500', marginTop: hp(1.25) }}>
               <ButtonText>Unlock</ButtonText>
             </Button>
           )}
@@ -201,7 +202,7 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
           {rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}
         </VStack>
       </HStack>
-      <VStack style={{ marginLeft: 60, marginBottom: 20 }}>
+      <VStack style={{ marginLeft: wp(15), marginBottom: hp(2.5) }}>
         {item?.file && item.file.match(/\.(mp3|m4a)$/i) && (
           <View style={{ marginTop: 3 }}>
             <Audio
@@ -217,7 +218,7 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
               <TouchableOpacity onPress={() => setImageVisible(true)}>
                 <Image
                   source={{ uri: `getFileUrl(item.user_id, item.file)` }}
-                  style={{ height: 150, width: 200, marginTop: 5, borderWidth: 1, borderColor: 'black', borderRadius: 10 }}
+                  style={{ height: hp(18.5), width: wp(50), marginTop: hp(0.6), borderWidth: 1, borderColor: 'black', borderRadius: wp(2.5) }}
                   resizeMode="cover"
                 />
               </TouchableOpacity>
@@ -243,7 +244,7 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
               <Video
                 ref={videoRef}
                 source={{ uri: `getFileUrl(item.user_id, item.file)` }}
-                style={{ height: 300, marginTop: 5, width: 200, borderWidth: 0.5, borderColor: 'black', borderRadius: 10 }}
+                style={{ height: hp(37), marginTop: hp(0.6), width: wp(50), borderWidth: 0.5, borderColor: 'black', borderRadius: wp(2.5) }}
                 useNativeControls={false}
                 onPlaybackStatusUpdate={(status) => {
                   if (status.didJustFinish) {
@@ -279,8 +280,8 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
             </View>
           ) : null}
         </HStack>
-        <VStack style={{ paddingTop: 16 }}>
-          <HStack style={{ alignItems: 'center', gap: 8 }} space={24}>
+        <VStack style={{ paddingTop: hp(2) }}>
+          <HStack style={{ alignItems: 'center', gap: wp(2) }} space={24}>
             <TouchableOpacity onPress={isliked ? removelike : addlike}>
               <HStack>
                 <ThumbsUp color={isliked ? '#ff4500' : '#ff4500'} size={20} strokeWidth={1} fill={isliked ? '#ff4500' : 'transparent'} />
@@ -316,7 +317,7 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
   const isPrivate = item.Availablity === 'private';
 
   return (
-    <Card style={{ backgroundColor: '#010118' , borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: 10}}>
+    <Card style={{ backgroundColor: '#010118' , borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: wp(2.5)}}>
       {isPrivate ? (
         <>
           {!unlocked && header}
@@ -351,7 +352,7 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
 
 const styles = StyleSheet.create({
   blurContainer: {
-    borderRadius: 16,
+    borderRadius: wp(4),
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255,107,53,0.3)',
@@ -360,8 +361,8 @@ const styles = StyleSheet.create({
   passwordInput: {
     backgroundColor: '#0A0A0A',
     color: 'white',
-    padding: 14,
-    borderRadius: 12,
+    padding: hp(1.75),
+    borderRadius: wp(3),
     width: '100%',
     textAlign: 'center',
     fontFamily: 'Inter_600SemiBold',
@@ -373,12 +374,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: wp(5),
   },
   viewSpoilerButton: {
-    padding: 8,
+    padding: wp(2),
     backgroundColor: '#FF4500',
-    borderRadius: 5,
+    borderRadius: wp(1.25),
     alignContent: 'center',
     alignItems: 'center',
   },
@@ -386,21 +387,21 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     fontWeight: '900',
-    fontSize: 11,
-    marginBottom: 3,
+    fontSize: hp(1.4),
+    marginBottom: hp(0.4),
   },
   videoControls: {
     position: 'absolute',
-    gap: 6,
-    left: 120,
-    bottom: 6,
+    gap: wp(1.5),
+    left: wp(30),
+    bottom: hp(0.75),
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   controlButton: {
     backgroundColor: '#2f2f2f',
-    borderRadius: 50,
-    padding: 2,
+    borderRadius: wp(12.5),
+    padding: wp(0.5),
   },
   // Modal styles
   modalOverlay: {
@@ -410,26 +411,26 @@ const styles = StyleSheet.create({
   },
   modalBlur: {
     width: '90%',
-    padding: 20,
-    borderRadius: 20,
+    padding: wp(5),
+    borderRadius: wp(5),
   },
   modalContainer: {
     backgroundColor: 'rgba(0,0,0,0.7)',
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: wp(5),
+    padding: wp(5),
     alignItems: 'center',
   },
   modalTitle: {
     color: '#FF4500',
-    fontSize: 22,
+    fontSize: hp(2.75),
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: hp(1.25),
   },
   modalMessage: {
     color: 'white',
-    fontSize: 16,
+    fontSize: hp(2),
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: hp(2.5),
   },
   modalButtons: {
     flexDirection: 'row',
@@ -437,24 +438,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   cancelButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
+    paddingVertical: hp(1.25),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(2.5),
     backgroundColor: '#444',
   },
   cancelButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: hp(2),
   },
   deleteButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
+    paddingVertical: hp(1.25),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(2.5),
     backgroundColor: '#FF4500',
   },
   deleteButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: hp(2),
     fontWeight: 'bold',
   },
 });

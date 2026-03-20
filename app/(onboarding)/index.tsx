@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StatusBar
 } from 'react-native';
+import { wp, hp } from '@/lib/helper';
 import Onboarding from 'react-native-onboarding-swiper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -118,43 +119,43 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
 
 const styles = StyleSheet.create({
   image: {
-    width: 130,
-    height: 130,
-    marginBottom: 40,
+    width: wp(32.5),
+    height: wp(32.5),
+    marginBottom: hp(5),
   },
   image1: {
-    width: 170,
-    height: 170,
-    marginBottom: 40,
+    width: wp(42.5),
+    height: wp(42.5),
+    marginBottom: hp(5),
   },
   image2: {
-    width: 170,
-    height: 170,
-    marginBottom: 40,
+    width: wp(42.5),
+    height: wp(42.5),
+    marginBottom: hp(5),
   },
   title: {
     color: 'white',
-    fontSize: 24,
+    fontSize: hp(3),
     fontWeight: '700',
-    paddingHorizontal: 20,
+    paddingHorizontal: wp(5),
     textAlign: 'center',
   },
   subtitle: {
     color: '#6B7280',
-    fontSize: 16,
-    marginTop: 16,
-    paddingHorizontal: 40,
+    fontSize: hp(2),
+    marginTop: hp(2),
+    paddingHorizontal: wp(10),
     textAlign: 'center',
     fontStyle: 'italic',
   },
   doneButton: {
     backgroundColor: '#FFE87c',
-    padding: 7,
-    borderRadius: 6,
-    marginRight: 16,
+    padding: hp(0.9),
+    borderRadius: wp(1.5),
+    marginRight: wp(4),
   },
   doneText: {
-    fontSize: 13,
+    fontSize: hp(1.6),
     fontWeight: '900',
   },
 });

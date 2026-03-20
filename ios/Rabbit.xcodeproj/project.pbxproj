@@ -403,7 +403,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.hasaan.Rabbit;
-				PRODUCT_NAME = Rabbit;
+				PRODUCT_NAME = "Rabbit";
 				SWIFT_OBJC_BRIDGING_HEADER = "Rabbit/Rabbit-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -431,7 +431,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.hasaan.Rabbit;
-				PRODUCT_NAME = Rabbit;
+				PRODUCT_NAME = "Rabbit";
 				SWIFT_OBJC_BRIDGING_HEADER = "Rabbit/Rabbit-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

@@ -75,12 +75,7 @@ const Drawer = () => {
       Icon: LogOut,
       action: logOut,
     },
-    {
-      id: 'chatBot',
-      title: 'Chat Bot',
-      Icon: MessageSquare,
-      action: () => router.push('/chatbot'),
-    },
+    
     {
       id: 'timeCapsule',
       title: `What's new introduced`,
@@ -116,7 +111,6 @@ const Drawer = () => {
           style={styles.image}
         /> 
         </View>
-      <Text style={styles.brandText}>Contact on Instagram @im_hasaan_</Text>
     </View>
   );
 const [localbio,setlocalbio] =useState<string>(user?.bio|| '');

@@ -1,23 +1,14 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import RabbitIcon from '@/assets/logo/Rabbitlogo';
 import { VStack } from '@/components/ui/vstack';
 import { Button, ButtonText } from '@/components/ui/button';
 import {
   StyleSheet,
-  TouchableOpacity,
   View,
-  KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  Platform,
-  Keyboard,
   StatusBar,
   Image,
   Text,
-  Dimensions
 } from 'react-native';
-import { router } from 'expo-router';
-//getting dimensions of the current screen
-const { width } = Dimensions.get('window');
+import { wp, hp } from '@/lib/helper';
 
 export default ({ children, onPress, buttonText, buttonDisabled }: {
   children: React.ReactNode,
@@ -30,20 +21,7 @@ export default ({ children, onPress, buttonText, buttonDisabled }: {
       <StatusBar backgroundColor={'#010118'}/>
       
           <View style={styles.innerContainer}>
-            <VStack style={styles.header}>
-                <Image
-                      source={require('../../assets/gif/RAB.gif')}
-                      style={styles.image}
-                    />
-                {/* <RabbitIcon size={60} /> */}
-                <VStack>
-                 
-                  <Text style={{ color: 'white', fontSize: 20, fontWeight: '900' }}>Welcome to Rabbit
-
-                  </Text>
-
-                </VStack>
-            </VStack>
+            
 
             <View style={styles.content}>
               {children}
@@ -58,7 +36,6 @@ export default ({ children, onPress, buttonText, buttonDisabled }: {
             </VStack>
 
             <View style={styles.bottomBranding}>
-              <Text style={styles.brandText}>Contact on instagram @im_hasaan_</Text>
             </View>
           </View>
     </SafeAreaView>
@@ -72,15 +49,14 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: wp(6),
   },
   header: {
     alignItems: 'center',
-    paddingTop: 80,
-    gap: 16,
+    gap: hp(2),
   },
   brandTitle: {
-    fontSize: 20,
+    fontSize: hp(2.5),
     fontWeight: '700',
     color: 'white',
     letterSpacing: 0.5,
@@ -90,14 +66,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   footer: {
-    paddingTop:'10%',
-    paddingBottom: '20%',
-    gap: 16,
+    paddingTop: hp(40),
+    paddingBottom: hp(20),
+    gap: hp(2),
   },
   mainButton: {
     backgroundColor: '#FF4500',
-    borderRadius: 14,
-    height: 56,
+    borderRadius: wp(3.5),
+    height: hp(5),
+    bottom: hp(2.5),
+    position: 'absolute',
+    alignSelf: 'center',
+    width: '100%',
+    zIndex: 1000,
     shadowColor: '#3B82F6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -106,11 +87,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: '600',
-    fontSize: 16,
+    fontSize: hp(2),
   },
   backButton: {
     alignSelf: 'center',
-    padding: 12,
+    padding: wp(2),
   },
   backButtonText: {
     color: '#6B7280',
@@ -118,17 +99,17 @@ const styles = StyleSheet.create({
   },
   bottomBranding: {
     position: 'absolute',
-    bottom: 20,
+    bottom: hp(2.5),
     alignSelf: 'center',
   },
   brandText: {
-    fontSize: 12,
+    fontSize: hp(1.5),
     color: '#374151',
     fontWeight: '500',
   },
   image: {
-    width: width * 0.15,  // 15% of the screen width
-    height: width * 0.15, // 15% of the screen width
+    width: wp(15),
+    height: wp(15),
   }
 });
 
