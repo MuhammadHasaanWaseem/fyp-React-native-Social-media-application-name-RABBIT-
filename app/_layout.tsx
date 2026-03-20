@@ -1,11 +1,12 @@
+// import 'react-native-reanimated';
 import { useFonts } from 'expo-font';
 import "@/global.css";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import 'react-native-reanimated';
 import { AuthProvider } from '@/providers/AuthProviders';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 import { PostProvider } from '@/providers/PostProvider';
 import { Pressable } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
@@ -14,8 +15,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import OnboardingScreen from './(onboarding)';
 import Starter from './starter';  // adjust path if needed
 import { AudioProvider } from '@/providers/AudioProvider';
-
-const queryClient = new QueryClient();
 
 // Prevent the splash screen from auto-hiding before assets load
 SplashScreen.preventAutoHideAsync();
@@ -65,26 +64,31 @@ export default function RootLayout() {
 
   // 4) If the Starter screen is active, render it
   if (showStarter) {
-    return <Starter />;
+    return (
+      <QueryClientProvider client={queryClient}>
+        <Starter />
+      </QueryClientProvider>
+    );
   }
 
   
   // 5) If onboarding hasn’t been completed, show onboarding
   if (showOnboarding) {
     return (
-      <GluestackUIProvider mode="light">
-        <OnboardingScreen onDone={handleOnboardingComplete} />
-      </GluestackUIProvider>
+      <QueryClientProvider client={queryClient}>
+        <GluestackUIProvider mode="light">
+          <OnboardingScreen onDone={handleOnboardingComplete} />
+        </GluestackUIProvider>
+      </QueryClientProvider>
     );
   }
 
   // Once onboarding is done, render your main navigation.
   return (
-
+    <QueryClientProvider client={queryClient}>
+    <AuthProvider>
     <GluestackUIProvider mode="light">
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <PostProvider>
+        <PostProvider>
           <AudioProvider>
             <Stack initialRouteName='(auth)' screenOptions={{
               headerTransparent: true, headerLeft: ({ canGoBack }) => (
@@ -113,9 +117,9 @@ export default function RootLayout() {
               <Stack.Screen name="+not-found" />
             </Stack>
             </AudioProvider>
-          </PostProvider>
-        </AuthProvider>
-      </QueryClientProvider>
+        </PostProvider>
     </GluestackUIProvider>
+    </AuthProvider>
+    </QueryClientProvider>
   );
 }

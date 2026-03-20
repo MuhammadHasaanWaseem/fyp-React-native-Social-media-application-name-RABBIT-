@@ -1,2 +1,8 @@
 import Starter from "@/screens/starter";
-export default ()=> <Starter/>
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+
+export default () => (
+  <GluestackUIProvider mode="light">
+    <Starter />
+  </GluestackUIProvider>
+);

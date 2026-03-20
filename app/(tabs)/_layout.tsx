@@ -2,11 +2,14 @@ import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
 import { Platform, View } from 'react-native';
 import { Heart, Home, Plus, Search, User } from 'lucide-react-native';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 
 export default function TabLayout() {
   const router = useRouter();
 
   return (
+    <QueryClientProvider client={queryClient}>
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: 'white',
@@ -88,6 +91,7 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </QueryClientProvider>
   );
 }
 

@@ -19,10 +19,11 @@ import { router } from 'expo-router';
 //getting dimensions of the current screen
 const { width } = Dimensions.get('window');
 
-export default ({ children, onPress, buttonText }: {
+export default ({ children, onPress, buttonText, buttonDisabled }: {
   children: React.ReactNode,
   onPress: () => void,
-  buttonText: string
+  buttonText: React.ReactNode,
+  buttonDisabled?: boolean
 }) => {
   return (
     <SafeAreaView style={styles.container}>
@@ -49,7 +50,7 @@ export default ({ children, onPress, buttonText }: {
             </View>
 
             <VStack style={styles.footer}>
-              <Button onPress={onPress} style={styles.mainButton}>
+              <Button onPress={onPress} style={styles.mainButton} disabled={buttonDisabled}>
                 <ButtonText style={styles.buttonText}>{buttonText}</ButtonText>
               </Button>
 
