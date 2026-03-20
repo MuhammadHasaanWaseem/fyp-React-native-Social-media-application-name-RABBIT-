@@ -1,6 +1,14 @@
 -- Rabbit App - Supabase Database Deployment
 -- Run this in Supabase SQL Editor (Dashboard > SQL Editor) to deploy.
 -- Best for fresh projects. If tables exist, you may need to drop them first.
+--
+-- CLARIFICATIONS / NOTES:
+-- - User.id = auth.users.id (created after OTP verify, on username screen)
+-- - Post.file stores storage path; URLs: storage/v1/object/public/files/{user_id}/{file}
+-- - PostProvider.tsx uses .from('files/${user?.id}') - should be .from('files').upload(`${user?.id}/${name}`, ...)
+-- - Mention feature uses textSearch on Post.text for @username; GIN index added for performance
+-- - Availablity (typo in app) = 'private' | null for private vs public posts
+-- - Re-run ALTER PUBLICATION may fail if WorldChatMessage already in realtime; skip that line if so
 
 -- ============================================
 -- 1. TABLES
@@ -83,6 +91,9 @@ CREATE INDEX IF NOT EXISTS idx_comment_post_id ON "Comment"(post_id);
 CREATE INDEX IF NOT EXISTS idx_followers_following ON "Followers"(following_user_id);
 CREATE INDEX IF NOT EXISTS idx_followers_user ON "Followers"(user_id);
 CREATE INDEX IF NOT EXISTS idx_worldchat_created ON "WorldChatMessage"(created_at);
+
+-- Full-text search for Mention feature (@username in Post.text)
+CREATE INDEX IF NOT EXISTS idx_post_text_fts ON "Post" USING GIN (to_tsvector('english', coalesce(text, '')));
 
 -- ============================================
 -- 3. ROW LEVEL SECURITY (RLS)
