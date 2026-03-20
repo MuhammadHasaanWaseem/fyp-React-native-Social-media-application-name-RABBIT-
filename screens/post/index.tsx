@@ -39,11 +39,8 @@ export default () => {
   useEffect(() => {
     clearpost();
   }, [])
-  // 1. Text: Check if any post in the PostCard array has nonempty text.
   const hasText = PostCard.some(post => post.text && post.text.trim().length > 0);
-  // 2. Media: Check if a photo/video is selected.
   const hasMedia = Photo && MediaType;
-  // 3. Audio: Check if an audio file (or corresponding flag) is set.
   const hasAudio = audio && audio.trim().length > 0;
 
   // The Post button should be enabled if any of the above is true.
@@ -90,9 +87,12 @@ export default () => {
           <VStack space="md" className="flex-1">
             {/* Header */}
             <HStack className="items-center justify-between p-6">
-              <TouchableOpacity onPress={backwithpostclear}>
+             {
+              Platform.OS === 'android' &&
+              ( <TouchableOpacity onPress={backwithpostclear}>
                 <ArrowLeft color="white" size={20} />
-              </TouchableOpacity>
+              </TouchableOpacity>)
+             }
               <Text style={{ color: 'white' }} className="text-2xl font-bold">
                 ɴᴇᴡ ᴘᴏꜱᴛ
               </Text>
