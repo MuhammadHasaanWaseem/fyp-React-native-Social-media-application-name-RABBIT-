@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   FlatList,
-  StyleSheet,
   View,
   Text,
   TouchableOpacity,
@@ -17,7 +16,7 @@ import { VStack } from "@/components/ui/vstack";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar";
 import { BlurView } from "expo-blur";
-import { Timer, EyeOff, ThumbsUp, MessageCircle, Send, Trash2 } from "lucide-react-native";
+import { Timer, Eye, ThumbsUp, MessageCircle, Share2, Trash2, Play, Pause, Volume2, VolumeX, RotateCcw } from "lucide-react-native";
 import { formatDistanceToNowStrict } from "date-fns";
 import { rendertext } from "@/screens/post/input";
 import Audio from "@/screens/post/audio";
@@ -27,6 +26,8 @@ import { Spinner } from "../ui/spinner";
 import * as Haptics from "expo-haptics";
 import { useAuth } from "@/providers/AuthProviders";
 import { router } from "expo-router";
+import { capsuleViewStyles as styles } from "./CapsuleView.styles";
+import { spoilerButtonColors, spoilerButtonStyles } from "./spoilerButton.styles";
 
 interface CapsuleViewProps {
   userId: string;
@@ -41,30 +42,35 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("Post")
-        .select("*, User(username, avatar), Like(user_id)")
+        .select("*, User!user_id(username, avatar), Like(*), Comment(id)")
         .eq("status", "time_capsule")
         .eq("user_id", userId)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      return data ?? [];
     },
+    enabled: !!userId,
   });
 
   const [postStates, setPostStates] = useState(() => new Map());
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
+  const videoRefs = useRef<Map<string, Video>>(new Map());
 
   const getPostState = useCallback(
-    (postId) => {
-      if (!postStates.has(postId)) {
-        postStates.set(postId, {
-          isLocked: false,
-          timeLeft: "",
-          isImageVisible: false,
-          spoilerRevealed: false,
-          isMediaLoaded: false,
-        });
-      }
-      return postStates.get(postId);
+    (postId: string, post?: { unlock_at?: string }) => {
+      if (postStates.has(postId)) return postStates.get(postId);
+      const unlock = post?.unlock_at ? new Date(post.unlock_at) : null;
+      const locked = !!(unlock && unlock > new Date());
+      return {
+        isLocked: locked,
+        timeLeft: locked ? formatDistanceToNowStrict(unlock!) : "",
+        isImageVisible: false,
+        spoilerRevealed: false,
+        isMediaLoaded: false,
+        isPlaying: false,
+        isMuted: false,
+        videoFinished: false,
+      };
     },
     [postStates]
   );
@@ -87,6 +93,9 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                   isImageVisible: false,
                   spoilerRevealed: false,
                   isMediaLoaded: false,
+                  isPlaying: false,
+                  isMuted: false,
+                  videoFinished: false,
                 };
                 state.isLocked = true;
                 state.timeLeft = formatDistanceToNowStrict(unlock);
@@ -102,6 +111,9 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                   isImageVisible: false,
                   spoilerRevealed: false,
                   isMediaLoaded: false,
+                  isPlaying: false,
+                  isMuted: false,
+                  videoFinished: false,
                 };
                 state.isLocked = false;
                 state.timeLeft = "";
@@ -146,8 +158,8 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
   const handleShare = async (item: any) => {
     let shareMessage = item.text || "";
     if (item.file) {
-      const fileUrl = `getFileUrl(item.user_id, item.file)`;
-      shareMessage += `\n\nView media: ${fileUrl}`;
+      const f = Array.isArray(item.file) ? item.file[0] : item.file;
+      if (f) shareMessage += `\n\nView media: ${getFileUrl(item.user_id, f)}`;
     }
     try {
       await Share.share({ message: shareMessage });
@@ -169,7 +181,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
 
   const renderCapsulePost = useCallback(
     ({ item }) => {
-      const state = getPostState(item.id);
+      const state = getPostState(item.id, item);
       const isLiked = item?.Like?.some(
         (like: { user_id: string }) => like.user_id === user?.id
       );
@@ -214,15 +226,44 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
         });
       };
 
+      const handlePlayPause = async () => {
+        const ref = videoRefs.current.get(item.id);
+        if (!ref) return;
+        if (state.isPlaying) await ref.pauseAsync();
+        else await ref.playAsync();
+        setPostStates((prev) => {
+          const next = new Map(prev);
+          const s = next.get(item.id) || {};
+          s.isPlaying = !state.isPlaying;
+          next.set(item.id, s);
+          return next;
+        });
+      };
+
+      const handleReplay = async () => {
+        const ref = videoRefs.current.get(item.id);
+        if (!ref) return;
+        await ref.setPositionAsync(0);
+        await ref.playAsync();
+        setPostStates((prev) => {
+          const next = new Map(prev);
+          const s = next.get(item.id) || {};
+          s.isPlaying = true;
+          s.videoFinished = false;
+          next.set(item.id, s);
+          return next;
+        });
+      };
+
       const content = (
-        <VStack style={{ marginLeft: wp(15), marginBottom: hp(2.5) }}>
+        <VStack style={styles.contentArea}>
           {rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}
-          {item.file && item.file.match(/\.(mp3|m4a)$/i) && (
+          {item.file && String(item.file).match(/\.(mp3|m4a)$/i) && (
             <View style={{ marginTop: 3 }}>
               <Audio
                 userId={item.user_id}
                 id={item.id}
-                uri={`getFileUrl(item.user_id, item.file)`}
+                uri={getFileUrl(item.user_id, Array.isArray(item.file) ? item.file[0] : item.file)}
               />
               {state.isMediaLoaded &&
                 item.tag_name === "spoiler" &&
@@ -235,16 +276,16 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                   >
                     <TouchableOpacity
                       onPress={handleSpoilerReveal}
-                      style={styles.viewSpoilerButton}
+                      style={spoilerButtonStyles.button}
                     >
-                      <EyeOff color="white" size={24} />
-                      <Text style={styles.viewSpoilerText}>Spoiler</Text>
+                      <Eye color={spoilerButtonColors.icon} size={20} strokeWidth={2} />
+                      <Text style={[spoilerButtonStyles.text, { marginLeft: wp(2) }]}>Spoiler</Text>
                     </TouchableOpacity>
                   </BlurView>
                 )}
             </View>
           )}
-          {item.file && item.file.match(/\.(jpeg|jpg|png|gif)$/i) && (
+          {item.file && String(item.file).match(/\.(jpeg|jpg|png|gif)$/i) && (
             <View style={{ position: "relative" }}>
               {!state.isMediaLoaded && (
                 <View
@@ -255,15 +296,10 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
               )}
               <Image
                 source={{
-                  uri: `getFileUrl(item.user_id, item.file)`,
+                  uri: getFileUrl(item.user_id, Array.isArray(item.file) ? item.file[0] : item.file),
                 }}
                 style={[
-                  {
-                    height: hp(18.5),
-                    width: wp(50),
-                    marginTop: hp(0.6),
-                    borderRadius: wp(2.5),
-                  },
+                  styles.image,
                   !state.isMediaLoaded && { opacity: 0 },
                 ]}
                 resizeMode="cover"
@@ -280,17 +316,17 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                   >
                     <TouchableOpacity
                       onPress={handleSpoilerReveal}
-                      style={styles.viewSpoilerButton}
+                      style={spoilerButtonStyles.button}
                     >
-                      <EyeOff color="white" size={24} />
-                      <Text style={styles.viewSpoilerText}>View Spoiler</Text>
+                      <Eye color={spoilerButtonColors.icon} size={20} strokeWidth={2} />
+                      <Text style={[spoilerButtonStyles.text, { marginLeft: wp(2) }]}>View Spoiler</Text>
                     </TouchableOpacity>
                   </BlurView>
                 )}
               <ImageViewing
                 images={[
                   {
-                    uri: `getFileUrl(item.user_id, item.file)`,
+                    uri: getFileUrl(item.user_id, Array.isArray(item.file) ? item.file[0] : item.file),
                   },
                 ]}
                 imageIndex={0}
@@ -299,7 +335,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
               />
             </View>
           )}
-          {item.file && item.file.match(/\.(mp4|mov|avi|mkv)$/i) && (
+          {item.file && String(item.file).match(/\.(mp4|mov|avi|mkv)$/i) && (
             <View style={{ position: "relative" }}>
               {!state.isMediaLoaded && (
                 <View
@@ -309,22 +345,58 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                 </View>
               )}
               <Video
+                ref={(el) => { if (el) videoRefs.current.set(item.id, el); }}
                 source={{
-                  uri: `getFileUrl(item.user_id, item.file)`,
+                  uri: getFileUrl(item.user_id, Array.isArray(item.file) ? item.file[0] : item.file),
                 }}
                 style={[
-                  {
-                    height: hp(37),
-                    width: wp(50),
-                    marginTop: hp(0.6),
-                    borderRadius: wp(2.5),
-                  },
+                  styles.video,
                   !state.isMediaLoaded && { opacity: 0 },
                 ]}
-                useNativeControls
+                useNativeControls={false}
                 resizeMode="cover"
                 onLoad={() => handleMediaLoad()}
+                onPlaybackStatusUpdate={(status) => {
+                  if (status.isLoaded && status.didJustFinish) {
+                    setPostStates((prev) => {
+                      const next = new Map(prev);
+                      const s = next.get(item.id) || {};
+                      s.isPlaying = false;
+                      s.videoFinished = true;
+                      next.set(item.id, s);
+                      return next;
+                    });
+                  }
+                }}
+                isMuted={state.isMuted}
+                isLooping={false}
               />
+              {state.isMediaLoaded && (
+                <View style={styles.videoControls}>
+                  {state.videoFinished && (
+                    <TouchableOpacity style={styles.controlButton} onPress={handleReplay}>
+                      <RotateCcw size={15} color="grey" />
+                    </TouchableOpacity>
+                  )}
+                  <TouchableOpacity style={styles.controlButton} onPress={handlePlayPause}>
+                    {state.isPlaying ? <Pause size={15} color="grey" /> : <Play size={15} color="grey" />}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.controlButton}
+                    onPress={() =>
+                      setPostStates((prev) => {
+                        const next = new Map(prev);
+                        const s = next.get(item.id) || {};
+                        s.isMuted = !state.isMuted;
+                        next.set(item.id, s);
+                        return next;
+                      })
+                    }
+                  >
+                    {state.isMuted ? <VolumeX size={15} color="grey" /> : <Volume2 size={15} color="grey" />}
+                  </TouchableOpacity>
+                </View>
+              )}
               {state.isMediaLoaded &&
                 item.tag_name === "spoiler" &&
                 !state.spoilerRevealed &&
@@ -336,17 +408,18 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                   >
                     <TouchableOpacity
                       onPress={handleSpoilerReveal}
-                      style={styles.viewSpoilerButton}
+                      style={spoilerButtonStyles.button}
                     >
-                      <EyeOff color="white" size={24} />
-                      <Text style={styles.viewSpoilerText}>View Spoiler</Text>
+                      <Eye color={spoilerButtonColors.icon} size={20} strokeWidth={2} />
+                      <Text style={[spoilerButtonStyles.text, { marginLeft: wp(2) }]}>View Spoiler</Text>
                     </TouchableOpacity>
                   </BlurView>
                 )}
             </View>
           )}
+          {!state.isLocked && (
           <VStack style={{ paddingTop: hp(2) }}>
-            <HStack style={{ alignItems: "center", gap: wp(2) }} space={24}>
+            <HStack style={[styles.actionsRow, { flexDirection: "row" }]} space={24}>
               <TouchableOpacity
                 onPress={() => (isLiked ? removeLike(item.id) : addLike(item.id))}
               >
@@ -357,7 +430,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                     strokeWidth={1}
                     fill={isLiked ? "#ff4500" : "transparent"}
                   />
-                  <Text style={{ color: "white", marginLeft: wp(1) }}>
+                  <Text style={styles.actionText}>
                     {item.Like ? item.Like.length : 0}
                   </Text>
                 </HStack>
@@ -373,13 +446,13 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                     size={20}
                     strokeWidth={2}
                   />
-                  <Text style={{ color: "white", marginLeft: wp(1) }}>
-                    {item.Comment ? item.Comment.length : 0}
+                  <Text style={styles.actionText}>
+                    {item.Comment ? (Array.isArray(item.Comment) ? item.Comment.length : 0) : 0}
                   </Text>
                 </HStack>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => handleShare(item)}>
-                <Send color="white" size={20} strokeWidth={1} />
+                <Share2 color="white" size={20} strokeWidth={1} />
               </TouchableOpacity>
               {user?.id === item.user_id && (
                 <TouchableOpacity
@@ -390,62 +463,59 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
               )}
             </HStack>
           </VStack>
+          )}
+        </VStack>
+      );
+
+      const header = (
+        <HStack style={styles.header} space="lg">
+          <Avatar style={[styles.avatar, { backgroundColor: "white" }]} size="md">
+            {item.User?.avatar ? (
+              <AvatarImage source={{ uri: item.User.avatar }} />
+            ) : (
+              <AvatarFallbackText size={17} style={{ color: "black", fontWeight: "700" }}>
+                {item.User?.username?.charAt(0) || ""}
+              </AvatarFallbackText>
+            )}
+          </Avatar>
+          <VStack style={{ flex: 1 }}>
+            <TouchableOpacity onPress={() => router.push({ pathname: "/user", params: { userid: item?.user_id } })}>
+              <Text style={styles.username}>{item.User?.username || ""}</Text>
+            </TouchableOpacity>
+            <Text style={styles.timeText}>
+              {state.isLocked
+                ? `Unlocks in ${state.timeLeft}`
+                : item.created_at &&
+                  formatDistanceToNowStrict(new Date(item.created_at)) + " ago"}
+            </Text>
+          </VStack>
+        </HStack>
+      );
+
+      const lockedContent = (
+        <VStack style={styles.lockedContent}>
+          <BlurView intensity={50} tint="dark" style={styles.blurContainer}>
+            <VStack style={styles.blurInner}>
+              <Timer color="white" size={28} />
+              <Text style={styles.blurTitle}>This post is a time capsule</Text>
+              <Text style={styles.blurSubtext}>
+                {item.User?.username} has set this to unlock later
+              </Text>
+              <HStack style={styles.timeLeftRow}>
+                <Timer color="#FF4500" size={20} />
+                <Text style={{ color: "white", fontWeight: "700", fontSize: 15 }}>
+                  {state.timeLeft} left
+                </Text>
+              </HStack>
+            </VStack>
+          </BlurView>
         </VStack>
       );
 
       return (
-        <Card
-          style={{
-            backgroundColor: "#010118",
-            borderWidth: 1,
-            borderColor: "rgba(255,255,255,0.1)",
-            borderRadius: 10,
-          }}
-        >
-          <HStack style={{ alignItems: "center" }} space="lg">
-            <Avatar style={{ backgroundColor: "white" }} size="md">
-              {item.User?.avatar ? (
-                <AvatarImage source={{ uri: item.User.avatar }} />
-              ) : (
-                <AvatarFallbackText
-                  style={{ color: "black", fontWeight: "700" }}
-                >
-                  {item.User?.username?.charAt(0) || ""}
-                </AvatarFallbackText>
-              )}
-            </Avatar>
-            <VStack style={{ flex: 1 }}>
-              <HStack className="items-center" space="lg">
-                <Text
-                  style={{ fontWeight: "bold", color: "white", fontSize: hp(2.1) }}
-                >
-                  {item.User?.username || ""}
-                </Text>
-                <Text style={{ color: "white", fontSize: hp(1.5) }}>
-                  {item.created_at &&
-                    formatDistanceToNowStrict(new Date(item.created_at)) +
-                      " ago"}
-                </Text>
-              </HStack>
-            </VStack>
-          </HStack>
-          <View>
-            {content}
-            {state.isLocked && state.isMediaLoaded && (
-              <BlurView intensity={50} tint="dark" style={styles.blurOverlay}>
-                <VStack style={styles.blurContent}>
-                  <Text style={styles.blurText}>{item.User?.username}</Text>
-                  <Text style={styles.blurText}>
-                    has set this post as a time capsule.
-                  </Text>
-                  <HStack space="sm">
-                    <Timer color="white" size={18} />
-                    <Text style={styles.blurText}>{state.timeLeft} left.</Text>
-                  </HStack>
-                </VStack>
-              </BlurView>
-            )}
-          </View>
+        <Card style={styles.card}>
+          {header}
+          {state.isLocked ? lockedContent : content}
         </Card>
       );
     },
@@ -457,7 +527,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
   return (
     <>
       <FlatList
-        data={posts}
+        data={posts ?? []}
         keyExtractor={(item) => item.id}
         renderItem={renderCapsulePost}
         contentContainerStyle={styles.container}
@@ -500,125 +570,6 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: wp(2.5),
-    backgroundColor: "#010118",
-  },
-  absoluteFill: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  blurOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#010118",
-  },
-  blurContent: {
-    padding: wp(2.5),
-    backgroundColor: "#FF4500",
-    borderWidth: 2,
-    borderColor: "white",
-    borderRadius: wp(2),
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  blurText: {
-    color: "white",
-    fontSize: hp(1.25),
-    fontWeight: "800",
-    fontStyle: "italic",
-  },
-  viewSpoilerButton: {
-    padding: wp(2),
-    backgroundColor: "#FF4500",
-    borderRadius: wp(1.25),
-    alignItems: "center",
-  },
-  viewSpoilerText: {
-    color: "white",
-    fontWeight: "900",
-    fontSize: hp(1.4),
-  },
-  imagePlaceholder: {
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#010118",
-    borderRadius: wp(2.5),
-    marginTop: hp(0.6),
-  },
-  audiospoiler: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#010118",
-  },
-  noPostsText: {
-    color: "white",
-    textAlign: "center",
-    marginTop: hp(60),
-    justifyContent: "center",
-    alignContent: "center",
-    fontSize: hp(2),
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalBlur: {
-    width: "90%",
-    padding: wp(5),
-    borderRadius: wp(5),
-  },
-  modalContainer: {
-    backgroundColor: "rgba(0,0,0,0.7)",
-    borderRadius: wp(5),
-    padding: wp(5),
-    alignItems: "center",
-  },
-  modalTitle: {
-    color: "#FF4500",
-    fontSize: hp(2.75),
-    fontWeight: "bold",
-    marginBottom: hp(1.25),
-  },
-  modalMessage: {
-    color: "white",
-    fontSize: hp(2),
-    textAlign: "center",
-    marginBottom: hp(2.5),
-  },
-  modalButtons: {
-    flexDirection: "row",
-    width: "100%",
-    justifyContent: "space-between",
-  },
-  cancelButton: {
-    paddingVertical: hp(1.25),
-    paddingHorizontal: wp(5),
-    borderRadius: wp(2.5),
-    backgroundColor: "#444",
-  },
-  cancelButtonText: {
-    color: "white",
-    fontSize: hp(2),
-  },
-  deleteButton: {
-    paddingVertical: hp(1.25),
-    paddingHorizontal: wp(5),
-    borderRadius: wp(2.5),
-    backgroundColor: "#FF4500",
-  },
-  deleteButtonText: {
-    color: "white",
-    fontSize: hp(2),
-    fontWeight: "bold",
-  },
-});
 // import React, { useState, useEffect, useCallback } from "react";
 // import { FlatList, StyleSheet, View, Text, TouchableOpacity, Image } from "react-native";
 // import { supabase, getFileUrl } from "@/lib/supabase";
@@ -782,7 +733,7 @@ const styles = StyleSheet.create({
 //               uri={`getFileUrl(item.user_id, item.file)`}
 //             />
 //           )}
-//           {item.file && item.file.match(/\.(jpeg|jpg|png|gif)$/i) && (
+//           {item.file && String(item.file).match(/\.(jpeg|jpg|png|gif)$/i) && (
 //             <View style={{ position: "relative" }}>
 //               {!state.isMediaLoaded && (
 //                 <View style={[styles.imagePlaceholder, { height: hp(18.5), width: wp(50) }]}>
@@ -820,7 +771,7 @@ const styles = StyleSheet.create({
 //               />
 //             </View>
 //           )}
-//           {item.file && item.file.match(/\.(mp4|mov|avi|mkv)$/i) && (
+//           {item.file && String(item.file).match(/\.(mp4|mov|avi|mkv)$/i) && (
 //             <View style={{ position: "relative" }}>
 //               {!state.isMediaLoaded && (
 //                 <View style={[styles.imagePlaceholder, { height: 300, width: 200 }]}>

@@ -1,16 +1,24 @@
-
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
-import { Text, StyleSheet, Keyboard, TextInput } from 'react-native';
+import { Text, StyleSheet, Keyboard, TextInput, View, Platform, Alert } from 'react-native';
 import { wp, hp } from '@/lib/helper';
 import Layout from './_layout';
 import { VStack } from '@/components/ui/vstack';
+import { signInWithApple } from '@/lib/apple-sign-in';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
+  const [appleAvailable, setAppleAvailable] = useState(false);
+  const [appleBusy, setAppleBusy] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return;
+    void AppleAuthentication.isAvailableAsync().then(setAppleAvailable);
+  }, []);
 
   const handleSignIn = async () => {
     Keyboard.dismiss();
@@ -25,8 +33,52 @@ export default function SignIn() {
     }
   };
 
+  const handleApple = async () => {
+    setAppleBusy(true);
+    try {
+      const { error } = await signInWithApple();
+      if (error) {
+        console.error('Apple sign in error:', error);
+        if (
+          error.includes('Unacceptable audience') ||
+          error.includes('host.exp.Exponent')
+        ) {
+          Alert.alert(
+            'Apple sign-in (Expo Go)',
+            'Supabase must allow Expo Go’s Apple audience.\n\nDashboard → Authentication → Providers → Apple → Client IDs: add host.exp.Exponent (comma-separated with com.hasaan.Rabbit).\n\nFor production, use a dev build; tokens will use your bundle id only.',
+          );
+        }
+      }
+    } finally {
+      setAppleBusy(false);
+    }
+  };
+
+  const appleFooter =
+    Platform.OS === 'ios' && appleAvailable ? (
+      <View
+        pointerEvents={appleBusy ? 'none' : 'auto'}
+        style={[styles.appleWrap, appleBusy && styles.appleWrapBusy]}
+      >
+        <AppleAuthentication.AppleAuthenticationButton
+          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+          cornerRadius={wp(3.5)}
+          style={styles.appleButton}
+          onPress={() => {
+            void handleApple();
+          }}
+        />
+      </View>
+    ) : null;
+
   return (
-    <Layout onPress={handleSignIn} buttonText="Continue">
+    <Layout
+      onPress={handleSignIn}
+      buttonText="Continue"
+      buttonDisabled={appleBusy}
+      footerExtra={appleFooter}
+    >
       <SafeAreaView style={styles.container}>
         <VStack style={styles.content}>
 
@@ -90,5 +142,15 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontSize: hp(1.5),
     marginTop: hp(1.5),
+  },
+  appleWrap: {
+    width: '100%',
+  },
+  appleWrapBusy: {
+    opacity: 0.65,
+  },
+  appleButton: {
+    width: '100%',
+    height: hp(5.25),
   },
 });

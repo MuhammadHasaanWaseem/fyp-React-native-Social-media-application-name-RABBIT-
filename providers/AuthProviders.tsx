@@ -7,9 +7,13 @@ import { router } from 'expo-router';
 
 // Define the user type with correct types
 export type User = {
-  username: string;
+  id?: string;
+  username?: string | null;
   name?: string;
   email?: string;
+  avatar?: string;
+  bio?: string;
+  created_at?: string;
 };
 
 // Define the context with a default value and updated types
@@ -18,15 +22,19 @@ export const AuthContext = React.createContext<{
   setuser: React.Dispatch<React.SetStateAction<User | null>>;
   logOut: () => Promise<void>;
   createUser: (username: string) => Promise<{ success: boolean; error?: string }>;
+  deleteAccount: () => Promise<{ success: boolean; error?: string }>;
   isSignedIn: boolean;
   isUsernameSkipped: boolean;
+  authHydrated: boolean;
 }>({
   user: null,
   setuser: () => {},
   logOut: async () => {},
   createUser: async () => ({ success: false }),
+  deleteAccount: async () => ({ success: false }),
   isSignedIn: false,
   isUsernameSkipped: false,
+  authHydrated: false,
 });
 
 // Custom hook to use the AuthContext
@@ -39,6 +47,7 @@ type AuthProviderProps = {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setuser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [authHydrated, setAuthHydrated] = useState(false);
 
   const createUser = async (username: string) => {
     console.log('[createUser] start', { username });
@@ -107,7 +116,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const getUser = async (session: Session | null) => {
-    if (session) {
+    try {
+      if (!session) {
+        setuser(null);
+        router.replace('/(auth)');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('User')
         .select()
@@ -119,17 +134,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
 
       if (data && data.length > 0) {
-        if (data[0].username) {
-          setuser(data[0]);
+        const row = data[0];
+        if (row.username?.trim()) {
+          setuser(row);
           router.replace('/(tabs)');
         } else {
+          setuser(row);
           router.replace('/(auth)/username');
         }
       } else {
+        setuser(null);
         router.replace('/(auth)/username');
       }
-    } else {
-      router.replace('/(auth)');
+    } finally {
+      setAuthHydrated(true);
     }
   };
 
@@ -140,6 +158,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     router.push('/(auth)');
   };
 
+  const deleteAccount = async () => {
+    const { data: { session: s } } = await supabase.auth.getSession();
+    if (!s?.user?.id) return { success: false, error: 'Not signed in' };
+    const uid = s.user.id;
+
+    try {
+      const { data: files } = await supabase.storage.from('files').list(uid);
+      if (files?.length) {
+        const paths = files.filter((f) => f.name).map((f) => `${uid}/${f.name}`);
+        if (paths.length) await supabase.storage.from('files').remove(paths);
+      }
+    } catch (_) {}
+
+    const { error } = await supabase.rpc('delete_own_account');
+    if (error) return { success: false, error: error.message };
+
+    setuser(null);
+    setSession(null);
+    try {
+      await supabase.auth.signOut();
+    } catch (_) {}
+    router.replace('/(auth)');
+    return { success: true };
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -148,7 +191,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      getUser(session);
+      // Defer so we never call Supabase auth (e.g. getSession) synchronously inside this callback (Supabase guidance).
+      queueMicrotask(() => {
+        getUser(session);
+      });
     });
 
     return () => {
@@ -157,10 +203,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const isSignedIn = !!session;
-  const isUsernameSkipped = !!(user?.username);
+  const isUsernameSkipped = !!user?.username?.trim();
 
   return (
-    <AuthContext.Provider value={{ user, setuser, logOut, createUser, isSignedIn, isUsernameSkipped }}>
+    <AuthContext.Provider value={{ user, setuser, logOut, createUser, deleteAccount, isSignedIn, isUsernameSkipped, authHydrated }}>
       {children}
     </AuthContext.Provider>
   );

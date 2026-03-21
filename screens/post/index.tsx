@@ -23,13 +23,14 @@ import { useCallback, useEffect, useState } from 'react';
 import Card from './card';
 import { FlatList } from 'react-native';
 import { usePost } from '@/providers/PostProvider';
+import { getFileUrl } from '@/lib/supabase';
 import { ArrowLeft } from 'lucide-react-native';
 
 export default () => {
   const { user } = useAuth();
   const { threadId } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
-  const { clearpost, PostCard, uploadpost, Photo, MediaType, audio } = usePost();
+  const { clearpost, PostCard, uploadpost, Photo, Photos, MediaType, audio } = usePost();
 
   // Function to clear the post and navigate back
   const backwithpostclear = () => {
@@ -40,7 +41,7 @@ export default () => {
     clearpost();
   }, [])
   const hasText = PostCard.some(post => post.text && post.text.trim().length > 0);
-  const hasMedia = Photo && MediaType;
+  const hasMedia = (Photo && MediaType) || (Photos?.length > 0);
   const hasAudio = audio && audio.trim().length > 0;
 
   // The Post button should be enabled if any of the above is true.
@@ -117,7 +118,7 @@ export default () => {
                       {user?.username}
                     </AvatarFallbackText>
                     {/* <AvatarImage source={{ uri: user?.avatar }} /> */}
-                    <AvatarImage source={{ uri: `${user?.avatar}?t=${new Date().getTime()}` }} />
+                    <AvatarImage source={{ uri: `${user?.avatar || getFileUrl(user?.id || '', 'avatar.jpeg')}?t=${Date.now()}` }} />
 
                   </Avatar>
                   <Button variant="link" >

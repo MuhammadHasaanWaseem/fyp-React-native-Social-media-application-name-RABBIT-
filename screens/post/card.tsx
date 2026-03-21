@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Platform,
   TextInput,
-  Modal
+  Modal,
+  ScrollView,
 } from 'react-native';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
@@ -20,6 +21,7 @@ import {
   ImagePlay,
   AtSignIcon,
   Lock,
+  Eye,
   EyeOff,
   CalendarClock,
   Images
@@ -30,6 +32,7 @@ import { Heading } from '@/components/ui/heading';
 import { useAuth } from '@/providers/AuthProviders';
 import * as ImagePicker from 'expo-image-picker';
 import Input from './input';
+import GifPicker from './GifPicker';
 import { Post } from '@/lib/type';
 import { Video, ResizeMode } from 'expo-av';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -38,7 +41,8 @@ import { useVideoPlayer } from '@/providers/VideoPlayerProvider';
 import Audio from './audio';
 import { BlurView } from 'expo-blur';
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { supabase } from '@/lib/supabase';
+import { supabase, getFileUrl } from '@/lib/supabase';
+import { spoilerButtonColors, spoilerButtonStyles } from '@/components/shared/spoilerButton.styles';
 //mention feture imports
 import MentionActionSheet from '../tabs/activity/MentionActionSheet';
 import {
@@ -50,6 +54,8 @@ import {
 } from "@/components/ui/actionsheet"
 import { Button, ButtonText } from "@/components/ui/button"
 import { Alert } from 'react-native';
+const toFileArray = (f: Post['file']) => (!f ? [] : Array.isArray(f) ? f : [f]);
+
 interface PostCardProps {
   post: Post;
 }
@@ -67,9 +73,11 @@ export default function PostCard({ post }: PostCardProps) {
     updatepost,
     uploadFile,
     Photo,
+    Photos,
     MediaType,
     setMediaType,
-    setPhoto
+    setPhoto,
+    setPhotos,
   } = usePost();
   const videoRef = useRef<Video>(null);
   const { playVideo } = useVideoPlayer();
@@ -89,6 +97,7 @@ export default function PostCard({ post }: PostCardProps) {
     setError(null);
   };
 
+  const [showGifPicker, setShowGifPicker] = useState(false);
 //alert box
 const [showFileAlertModal, setShowFileAlertModal] = useState(false); //alert states
 //alert functions
@@ -119,6 +128,7 @@ const showiconalert=()=> {
       .from('Post')
       .insert({
         ...post,
+        file: toFileArray(post.file),
         password,
         hint,
         Availablity: 'private',
@@ -154,6 +164,7 @@ const showiconalert=()=> {
       .from('Post')
       .insert({
         ...post,
+        file: toFileArray(post.file),
         password,
         hint,
         Availablity: 'private',
@@ -167,23 +178,41 @@ const showiconalert=()=> {
       router.back();
     }
   };
-  // ----- Image/Video picker
+  const handleGifSelect = async (localUri: string, mimeType: string, name: string) => {
+    setShowaudio(false);
+    setPhoto(localUri);
+    setPhotos([localUri]);
+    setMediaType(mimeType);
+    await uploadFile(post.id, localUri, mimeType, name, true);
+    updatepost(post.id, 'file', name);
+  };
+
+  // ----- Image/Video picker (supports multiple images)
   const addPhotoAndVideo = async () => {
     setPhoto('');
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [6, 5],
-      quality: 0.5
+    setPhotos([]);
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      allowsEditing: false,
+      quality: 0.5,
     });
     setShowaudio(false);
-    if (!result.assets?.[0]?.uri) return;
-    const uri = result.assets[0].uri;
-    const type = result.assets[0].mimeType;
-    const name = uri.split('/').pop();
-    setPhoto(uri);
-    setMediaType(type);
-    uploadFile(post.id, uri, type, name!);
+    if (!result.assets?.length) return;
+    const images = result.assets.filter((a) => a.mimeType?.startsWith('image/'));
+    if (images.length === 0) return;
+    const uris = images.map((a) => a.uri!);
+    setPhotos(uris);
+    setPhoto(uris[0]);
+    setMediaType(images[0].mimeType || 'image/jpeg');
+    const names: string[] = [];
+    for (let i = 0; i < images.length; i++) {
+      const ext = images[i].uri?.split('.').pop() || 'jpg';
+      const name = `${Date.now()}_${i}.${ext}`;
+      await uploadFile(post.id, images[i].uri!, images[i].mimeType || 'image/jpeg', name, true);
+      names.push(name);
+    }
+    updatepost(post.id, 'file', names);
   };
 
   // ----- Handle Timer icon press (opens date picker)
@@ -214,11 +243,11 @@ const showiconalert=()=> {
       updatepost(post.id, 'unlock_at', scheduledTime.toISOString());
       updatepost(post.id, 'status', 'scheduled');
     }
-    // Insert the post into the database
     const { data, error } = await supabase
       .from('Post')
       .insert({
         ...post,
+        file: toFileArray(post.file),
         unlock_at: scheduledTime ? scheduledTime.toISOString() : null,
         status: scheduledTime ? 'scheduled' : null
       })
@@ -241,11 +270,15 @@ const showiconalert=()=> {
 
     const { data, error } = await supabase
       .from('Post')
-      .insert({
-        ...post,
-        unlock_at: scheduledTime.toISOString(),
-        status: 'time_capsule',
-      });
+      .upsert(
+        {
+          ...post,
+          file: toFileArray(post.file),
+          unlock_at: scheduledTime.toISOString(),
+          status: 'time_capsule',
+        },
+        { onConflict: 'id' }
+      );
 
     if (error) {
       console.error('Error uploading time capsule post:', error);
@@ -262,7 +295,7 @@ const showiconalert=()=> {
             {user?.username}
           </AvatarFallbackText>
           {/* <AvatarImage source={{ uri: user?.avatar }} /> */}
-          <AvatarImage source={{ uri: `${user?.avatar}?t=${new Date().getTime()}` }} />
+          <AvatarImage source={{ uri: `${user?.avatar || getFileUrl(user?.id || '', 'avatar.jpeg')}?t=${Date.now()}` }} />
         </Avatar>
         <View style={{ height: 40, borderLeftWidth: 1, borderColor: '#e2e8f0' }} />
       </VStack>
@@ -276,28 +309,34 @@ const showiconalert=()=> {
               </Heading>
               <Input post={post} updatePost={updatepost} textArray={textArray} />
 
-              {/* Render image with spoiler overlay */}
-              {Photo && MediaType?.startsWith('image/') && (
-                <View style={{ position: 'relative' }}>
-                  <Image
-                    source={{ uri: Photo }}
-                    style={{ height: 150, width: 150, borderRadius: 10 }}
-                  />
-                  {isSpoiler && !spoilerRevealed && (
-                    <BlurView
-                      intensity={50}
-                      tint="dark"
-                      style={[StyleSheet.absoluteFill, styles.blurContainer]}
-                    >
-                      <TouchableOpacity
-                        onPress={() => setSpoilerRevealed(true)}
-                        style={styles.viewSpoilerButton}
-                      >
-                        <Text style={styles.viewSpoilerText}>View Spoiler</Text>
-                      </TouchableOpacity>
-                    </BlurView>
-                  )}
-                </View>
+              {/* Render image(s) with spoiler overlay */}
+              {((Photos?.length > 0) || (Photo && MediaType?.startsWith('image/'))) && (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8 }}>
+                  {(Photos?.length ? Photos : [Photo]).map((uri, idx) => (
+                    <View key={idx} style={{ position: 'relative', marginRight: 8 }}>
+                      <Image
+                        source={{ uri }}
+                        style={{ height: 150, width: 150, borderRadius: 10 }}
+                        resizeMode="cover"
+                      />
+                      {isSpoiler && !spoilerRevealed && (
+                        <BlurView
+                          intensity={50}
+                          tint="dark"
+                          style={[StyleSheet.absoluteFill, styles.blurContainer]}
+                        >
+                          <TouchableOpacity
+                            onPress={() => setSpoilerRevealed(true)}
+                            style={spoilerButtonStyles.button}
+                          >
+                            <Eye color={spoilerButtonColors.icon} size={18} strokeWidth={2} />
+                            <Text style={[spoilerButtonStyles.text, { marginLeft: 8 }]}>View Spoiler</Text>
+                          </TouchableOpacity>
+                        </BlurView>
+                      )}
+                    </View>
+                  ))}
+                </ScrollView>
               )}
 
               {/* Render video with spoiler overlay */}
@@ -323,9 +362,10 @@ const showiconalert=()=> {
                     >
                       <TouchableOpacity
                         onPress={() => setSpoilerRevealed(true)}
-                        style={styles.viewSpoilerButton}
+                        style={spoilerButtonStyles.button}
                       >
-                        <Text style={styles.viewSpoilerText}>View Spoiler</Text>
+                        <Eye color={spoilerButtonColors.icon} size={18} strokeWidth={2} />
+                        <Text style={[spoilerButtonStyles.text, { marginLeft: 8 }]}>View Spoiler</Text>
                       </TouchableOpacity>
                     </BlurView>
                   )}
@@ -344,13 +384,14 @@ const showiconalert=()=> {
                 <TouchableOpacity style={styles.igniteicon}
                   onPress={() => {
                     setPhoto('');
+                    setPhotos([]);
                     router.push({ pathname: '/camera', params: { threadId: post.id } });
                   }}
                 >
                   <Camera color="white" size={20} strokeWidth={1.5} />
                 </TouchableOpacity >
                 {/* Choose GIF */}
-                <TouchableOpacity style={styles.igniteicon} onPress={() => router.push('/gif')}>
+                <TouchableOpacity style={styles.igniteicon} onPress={() => setShowGifPicker(true)}>
                   <ImagePlay color="white" size={20} strokeWidth={1.5} />
                 </TouchableOpacity>
                 {/* Mention */}
@@ -398,6 +439,8 @@ const showiconalert=()=> {
                 value={scheduledTime || new Date()}
                 mode="datetime"
                 display="spinner"
+                themeVariant="dark"
+                textColor="#FFFFFF"
                 onChange={(event, selectedDate) => {
                   if (event.type === 'set' && selectedDate) {
                     setScheduledTime(selectedDate);
@@ -475,6 +518,11 @@ const showiconalert=()=> {
             const newText = `${post.text || ''} @${username}`;
             updatepost(post.id, 'text', newText);
           }}
+        />
+        <GifPicker
+          visible={showGifPicker}
+          onClose={() => setShowGifPicker(false)}
+          onSelect={handleGifSelect}
         />
         {/* Modal sheet for alert function */}
         <Modal
@@ -569,14 +617,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center'
-  },
-  viewSpoilerButton: {
-    padding: 8,
-    backgroundColor: 'rgba(255,255,255,0.7)',
-    borderRadius: 5
-  },
-  viewSpoilerText: {
-    color: '#141414'
   },
   igniteicon: {
     borderRadius: 30,

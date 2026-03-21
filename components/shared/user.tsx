@@ -36,8 +36,8 @@ import { useAuth } from "@/providers/AuthProviders";
 import { usefollowers } from "@/hooks/use-followers";
 import ImageViewing from "react-native-image-viewing";
 import { usefollowing } from "@/hooks/use-following";
+import { useBlocked } from "@/hooks/use-blocked";
 import { router } from "expo-router";
-import { onShareProfile } from "@/lib/shareprofile";
 import {
   Actionsheet,
   ActionsheetContent,
@@ -49,6 +49,7 @@ import {
   ActionsheetIcon,
 } from "@/components/ui/actionsheet";
 import { CloseCircleIcon, DownloadIcon, EditIcon } from "@/components/ui/icon";
+import { Ban } from "lucide-react-native";
 import { Spinner } from "../ui/spinner";
 
 enum Tab {
@@ -97,16 +98,20 @@ useEffect(() => {
   });
   const [isImageVisible, setImageVisible] = useState(false);
   const [editSheet, setEditSheet] = useState(false);
+  const [otherUserMoreSheet, setOtherUserMoreSheet] = useState(false);
+  const [blockConfirmSheet, setBlockConfirmSheet] = useState(false);
   const handleClose = () => setEditSheet(false);
   const [localAvatar, setLocalAvatar] = useState<string>(user?.avatar || "");
   const { data: followers } = usefollowers(user?.id);
-  const { user: userauth } = useAuth();
+  const { user: userauth, setuser } = useAuth();
   const [loader, setloader] = useState(false)
   const { data: followingData, refetch: refetchFollowing } = usefollowing(
     userauth?.id
   );
   const isOwner = userauth?.id === user?.id;
   const isFollowing = followingData?.includes(user?.id);
+  const { blockedIds, refetch: refetchBlocked } = useBlocked(userauth?.id);
+  const isBlocked = user?.id && blockedIds?.includes(user.id);
 
   const isFollower = followers?.some((f: any) => f.user.id === userauth?.id);
   const followButtonText = isFollowing
@@ -155,10 +160,33 @@ useEffect(() => {
       if (error) Alert.alert("Error", "Could not unfollow user.");
       else refetchFollowing();
     } catch (err) {
-      Alert.alert(
-        "Error",
-        "An unexpected error occurred while unfollowing the user."
-      );
+      Alert.alert("Error", "An unexpected error occurred while unfollowing the user.");
+    }
+  };
+
+  const blockUser = async () => {
+    if (!user?.id || !userauth?.id) return;
+    try {
+      await unfollowUser();
+      const { error } = await supabase.from("Block").insert({ user_id: userauth.id, blocked_user_id: user.id });
+      if (error) Alert.alert("Error", "Could not block user.");
+      else {
+        refetchBlocked();
+        Alert.alert("Blocked", "User has been blocked.");
+        router.back();
+      }
+    } catch (err) {
+      Alert.alert("Error", "Could not block user.");
+    }
+  };
+
+  const unblockUser = async () => {
+    try {
+      const { error } = await supabase.from("Block").delete().eq("user_id", userauth?.id).eq("blocked_user_id", user?.id);
+      if (error) Alert.alert("Error", "Could not unblock user.");
+      else refetchBlocked();
+    } catch (err) {
+      Alert.alert("Error", "Could not unblock user.");
     }
   };
 
@@ -278,6 +306,7 @@ useEffect(() => {
           Alert.alert("Error", `Error updating avatar: ${updateError.message}`);
         else {
           setLocalAvatar(avatarUrl);
+          if (isOwner) setuser((p) => (p ? { ...p, avatar: avatarUrl + '?t=' + Date.now() } : p));
           Alert.alert("Success", "Avatar updated successfully!");
         }
       }
@@ -373,11 +402,11 @@ useEffect(() => {
           </Button>
         </HStack>
       ) : (
-        <HStack space="md" className="items-center justify-between p-6">
+        <HStack space="md" className="items-center p-6" style={{ gap: wp(2) }}>
           <Button
             variant="outline"
             className="flex-1 rounded-xl"
-            style={{ backgroundColor: isFollowing ? "black" : "white" }}
+            style={{ backgroundColor: isFollowing ? "black" : "white", flex: 1 }}
             onPress={isFollowing ? unfollowUser : followUser}
           >
             <ButtonText style={{ color: isFollowing ? "white" : "#141414", fontWeight: "900" }}>
@@ -387,9 +416,10 @@ useEffect(() => {
           <Button
             variant="outline"
             className="flex-1 rounded-xl"
-            onPress={() => onShareProfile(user?.username)}
+            style={{ flex: 1 }}
+            onPress={() => setOtherUserMoreSheet(true)}
           >
-            <ButtonText style={{ color: "white" }}>Share Profile</ButtonText>
+            <ButtonText style={{ color: "white" }}>More</ButtonText>
           </Button>
         </HStack>
       )}
@@ -461,6 +491,70 @@ useEffect(() => {
           <ActionsheetItem onPress={handleClose}>
             <ActionsheetIcon color="white" as={CloseCircleIcon} />
             <ActionsheetItemText style={{ color: "white" }}>Close</ActionsheetItemText>
+          </ActionsheetItem>
+          <Divider />
+        </ActionsheetContent>
+      </Actionsheet>
+      <Actionsheet isOpen={otherUserMoreSheet} onClose={() => setOtherUserMoreSheet(false)}>
+        <ActionsheetBackdrop />
+        <ActionsheetContent style={{ backgroundColor: "#141414" }}>
+          <ActionsheetDragIndicatorWrapper>
+            <ActionsheetDragIndicator />
+          </ActionsheetDragIndicatorWrapper>
+          <ActionsheetItem disabled>
+            <ActionsheetItemText style={{ color: "#9CA3AF", fontWeight: "600" }}>
+              Posts: {data?.length ?? 0}
+            </ActionsheetItemText>
+          </ActionsheetItem>
+          <Divider />
+          {user && (
+            <ActionsheetItem
+              onPress={() => {
+                setOtherUserMoreSheet(false);
+                isBlocked ? unblockUser() : setBlockConfirmSheet(true);
+              }}
+            >
+              <ActionsheetIcon color={isBlocked ? "#10B981" : "#EF4444"} as={Ban} />
+              <ActionsheetItemText style={{ color: "white" }}>
+                {isBlocked ? "Unblock" : "Block"} {user.username}
+              </ActionsheetItemText>
+            </ActionsheetItem>
+          )}
+          <Divider />
+          <ActionsheetItem onPress={() => setOtherUserMoreSheet(false)}>
+            <ActionsheetIcon color="white" as={CloseCircleIcon} />
+            <ActionsheetItemText style={{ color: "white" }}>Close</ActionsheetItemText>
+          </ActionsheetItem>
+          <Divider />
+        </ActionsheetContent>
+      </Actionsheet>
+      <Actionsheet isOpen={blockConfirmSheet} onClose={() => setBlockConfirmSheet(false)}>
+        <ActionsheetBackdrop />
+        <ActionsheetContent style={{ backgroundColor: "#141414" }}>
+          <ActionsheetDragIndicatorWrapper>
+            <ActionsheetDragIndicator />
+          </ActionsheetDragIndicatorWrapper>
+          <ActionsheetItem disabled>
+            <ActionsheetItemText style={{ color: "#9CA3AF", fontSize: 14 }}>
+              Block @{user?.username}? They won't see your posts or profile.
+            </ActionsheetItemText>
+          </ActionsheetItem>
+          <Divider />
+          <ActionsheetItem
+            onPress={() => {
+              setBlockConfirmSheet(false);
+              blockUser();
+            }}
+          >
+            <ActionsheetIcon color="#EF4444" as={Ban} />
+            <ActionsheetItemText style={{ color: "#EF4444", fontWeight: "700" }}>
+              Block
+            </ActionsheetItemText>
+          </ActionsheetItem>
+          <Divider />
+          <ActionsheetItem onPress={() => setBlockConfirmSheet(false)}>
+            <ActionsheetIcon color="white" as={CloseCircleIcon} />
+            <ActionsheetItemText style={{ color: "white" }}>Cancel</ActionsheetItemText>
           </ActionsheetItem>
           <Divider />
         </ActionsheetContent>

@@ -1,7 +1,6 @@
-import { Divider } from "@/components/ui/divider";
 import { HStack } from "@/components/ui/hstack";
 import { ArrowLeft } from "lucide-react-native";
-import { FlatList, SafeAreaView, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { FlatList, SafeAreaView, Text, TouchableOpacity } from "react-native";
 import { Button, ButtonText } from "@/components/ui/button";
 import { usefollowers } from "@/hooks/use-followers";
 import { usefollowing } from "@/hooks/use-following";
@@ -14,6 +13,8 @@ import { Heading } from "@/components/ui/heading";
 import React, { useState } from "react";
 import { AlertDialog, AlertDialogBackdrop, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter } from "../ui/alert-dialog";
 import { Spinner } from "../ui/spinner";
+import { getFileUrl } from "@/lib/supabase";
+import { followSheetStyles as styles } from "./followsheet.styles";
 
 export default function FollowersScreen() {
   // Get optional userid from route parameters.
@@ -101,100 +102,92 @@ export default function FollowersScreen() {
     );
   }
 
-  const renderItem = ({ item }: { item: any }) => {
-    return (
-      <SafeAreaView style={styles.itemContainer}>
-        <HStack style={styles.itemRow} space="md">
-          <HStack style={styles.userInfo} space="md">
-            <Avatar size="lg">
-              <AvatarFallbackText style={styles.avatarFallback}>
-                {item?.user?.username ? item.user.username.charAt(0).toUpperCase() : "?"}
-              </AvatarFallbackText>
-              <AvatarImage source={{ uri: item.user?.avatar }} />
-            </Avatar>
-            <VStack>
-              <TouchableOpacity
-                onPress={() =>
-                  router.push({
-                    pathname: "/user",
-                    params: { userid: item?.user?.id },
-                  })
-                }
-              >
-                <Text style={styles.usernameText}>
-                  {item?.user?.username || "Unknown User"}
-                </Text>
-              </TouchableOpacity>
-              <Text style={styles.subText}>Started following</Text>
-            </VStack>
-          </HStack>
-          {isOwner ? (
-            // For your own followers, show a "Remove" button that triggers a confirmation dialog.
-            <Button
-              onPress={() => {
-                setSelectedFollowerId(item.user.id);
-                setShowAlertDialog(true);
-              }}
-              variant="outline"
-              style={styles.button}
-            >
-              <ButtonText style={styles.buttonTextOutline}>Remove</ButtonText>
-            </Button>
-          ) : (
-            // For non-owner view, show follow/unfollow buttons.
-            authUser?.id !== item.user.id &&
-            (followingData?.includes(item.user.id) ? (
-              <Button
-                onPress={() => unfollowUser(item.user.id)}
-                variant="outline"
-                style={styles.button}
-              >
-                <ButtonText style={styles.buttonTextOutline}>Unfollow</ButtonText>
-              </Button>
-            ) : (
-              <Button onPress={() => followUser(item.user.id)} style={styles.button}>
-                <ButtonText style={styles.buttonText}>Follow</ButtonText>
-              </Button>
-            ))
-          )}
-        </HStack>
-        <Divider style={styles.itemDivider} />
-      </SafeAreaView>
-    );
-  };
+  const renderItem = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={styles.itemCard}
+      onPress={() => router.push({ pathname: "/user", params: { userid: item?.user?.id } })}
+    >
+      <HStack style={styles.userRow} space="md">
+        <Avatar size="lg" style={styles.avatar}>
+          <AvatarFallbackText style={{ color: "white" }}>
+            {item?.user?.username ? item.user.username.charAt(0).toUpperCase() : "?"}
+          </AvatarFallbackText>
+          <AvatarImage source={{ uri: item.user?.avatar || getFileUrl(item?.user?.id || "", "avatar.jpeg") }} />
+        </Avatar>
+        <VStack style={styles.userInfo}>
+          <Text style={styles.usernameText}>{item?.user?.username || "Unknown User"}</Text>
+          <Text style={styles.subText}>@{(item?.user?.username || "").toLowerCase()}</Text>
+        </VStack>
+      </HStack>
+      {isOwner ? (
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            setSelectedFollowerId(item.user.id);
+            setShowAlertDialog(true);
+          }}
+          style={styles.removeBtn}
+        >
+          <Text style={styles.btnTextRemove}>Remove</Text>
+        </TouchableOpacity>
+      ) : (
+        authUser?.id !== item.user.id &&
+        (followingData?.includes(item.user.id) ? (
+          <TouchableOpacity
+            onPress={(e) => {
+              e.stopPropagation();
+              unfollowUser(item.user.id);
+            }}
+            style={styles.unfollowBtn}
+          >
+            <Text style={styles.btnTextOutline}>Unfollow</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={(e) => {
+              e.stopPropagation();
+              followUser(item.user.id);
+            }}
+            style={styles.followBtn}
+          >
+            <Text style={styles.btnText}>Follow</Text>
+          </TouchableOpacity>
+        ))
+      )}
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
       <HStack style={styles.header} space="md">
-        <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft color={"white"} />
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} activeOpacity={0.7}>
+          <ArrowLeft color="white" size={22} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>
-          {isOwner ? "Your Followers" : "Followers"}
-        </Text>
+        <Text style={styles.headerText}>Followers</Text>
       </HStack>
-      <Divider style={styles.divider} />
       <FlatList
-        data={followers}
+        data={followers || []}
         keyExtractor={(item) => item.user.id}
         renderItem={renderItem}
         refreshing={!!isLoading}
         onRefresh={refetchFollowers}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, !followers?.length && { flex: 1 }]}
+        ListEmptyComponent={!isLoading ? <Text style={styles.emptyText}>No followers yet</Text> : null}
       />
 
       {/* Confirmation Dialog for Removing a Follower */}
       <AlertDialog isOpen={showAlertDialog} onClose={handleClose} size="md">
         <AlertDialogBackdrop />
-        <AlertDialogContent>
+        <AlertDialogContent style={{ backgroundColor: "#1a1a2e" }}>
           <AlertDialogHeader>
-            <Heading className="text-typography-950 font-semibold" size="md">
-              Confirmation
+            <Heading size="md" style={{ color: "white" }}>
+              Remove follower?
             </Heading>
           </AlertDialogHeader>
           <AlertDialogBody className="mt-3 mb-4">
-            <Text size="sm">
-              Are you sure you want to remove this follower?
+            <Text size="sm" style={{ color: "#9CA3AF" }}>
+              They can follow you again later.
             </Text>
           </AlertDialogBody>
           <AlertDialogFooter>
@@ -204,13 +197,12 @@ export default function FollowersScreen() {
             <Button
               size="sm"
               onPress={async () => {
-                if (selectedFollowerId) {
-                  await removeFollower(selectedFollowerId);
-                }
+                if (selectedFollowerId) await removeFollower(selectedFollowerId);
                 handleClose();
               }}
+              style={{ backgroundColor: "#EF4444" }}
             >
-              <ButtonText>Delete</ButtonText>
+              <ButtonText>Remove</ButtonText>
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -218,88 +210,3 @@ export default function FollowersScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#0A0A0A",
-    flex: 1,
-  },
-  centered: {
-    flex: 1,
-    backgroundColor: "#0A0A0A",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    color: "white",
-    fontSize: 18,
-  },
-  errorText: {
-    color: "red",
-    fontSize: 16,
-  },
-  header: {
-    marginTop: 10,
-    padding: 12,
-    alignItems: "center",
-  },
-  headerText: {
-    color: "white",
-    fontSize: 22,
-    fontWeight: "600",
-    marginLeft: 10,
-  },
-  divider: {
-    marginBottom: 10,
-  },
-  listContent: {
-    gap: 9,
-    padding: 7,
-    margin: 3,
-  },
-  itemContainer: {
-    marginVertical: 5,
-    paddingHorizontal: 8,
-  },
-  itemRow: {
-    marginTop: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  userInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  avatarFallback: {
-    color: "white",
-  },
-  usernameText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-  subText: {
-    color: "white",
-    fontSize: 10,
-  },
-  button: {
-    borderRadius: 6,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    backgroundColor:'white'
-  },
-  buttonText: {
-    color: "#141414",
-    fontWeight: "900",
-  },
-  buttonTextOutline: {
-    color: "black",
-    fontWeight: "900",
-  },
-  itemDivider: {
-    borderWidth: 1,
-    borderColor: "grey",
-    marginTop: 5,
-  },
-});

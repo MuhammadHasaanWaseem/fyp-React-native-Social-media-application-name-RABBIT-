@@ -1,21 +1,5 @@
 import React, { useState, useCallback, memo } from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
-import {
-  Actionsheet,
-  ActionsheetContent,
-  ActionsheetDragIndicator,
-  ActionsheetDragIndicatorWrapper,
-  ActionsheetBackdrop,
-} from '@/components/ui/actionsheet';
-import { VStack } from '@/components/ui/vstack';
-import { HStack } from '@/components/ui/hstack';
+import { View, Text, TextInput, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { Button, ButtonText } from '@/components/ui/button';
 
 interface PrivatePostActionSheetProps {
@@ -29,23 +13,11 @@ const PrivatePostActionSheet: React.FC<PrivatePostActionSheetProps> = ({
   onClose,
   onSubmit,
 }) => {
-  const [showPrompt, setShowPrompt] = useState(false);
   const [password, setPassword] = useState('');
   const [hint, setHint] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const openPrompt = () => {
-    setPassword('');
-    setHint('');
-    setError(null);
-    setShowPrompt(true);
-  };
-
-  const closePrompt = () => {
-    setShowPrompt(false);
-  };
-
-  const handlePromptSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(async () => {
     if (password.length !== 8) {
       setError('Password must be 8 characters long');
       return;
@@ -54,151 +26,120 @@ const PrivatePostActionSheet: React.FC<PrivatePostActionSheetProps> = ({
       setError('Hint is required');
       return;
     }
+    setError(null);
     try {
       await onSubmit(password, hint);
-      closePrompt();
+      onClose();
     } catch (err) {
       console.error(err);
       setError('Upload failed.');
     }
-  }, [password, hint, onSubmit]);
+  }, [password, hint, onSubmit, onClose]);
+
+  const handleClose = () => {
+    setPassword('');
+    setHint('');
+    setError(null);
+    onClose();
+  };
 
   return (
-    <>
-      <Actionsheet isOpen={visible} onClose={onClose}>
-        <ActionsheetBackdrop />
-        <ActionsheetContent style={styles.sheetContent}>
-          <ActionsheetDragIndicatorWrapper>
-            <ActionsheetDragIndicator />
-          </ActionsheetDragIndicatorWrapper>
-          <VStack space="md" style={styles.sheetContainer}>
-            <Text style={styles.sheetTitle}>Set Private Post</Text>
-            <Button onPress={openPrompt} style={styles.button}>
-              <ButtonText style={styles.buttonText}>Set Password & Hint</ButtonText>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+      <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={handleClose}>
+        <TouchableOpacity style={styles.sheet} activeOpacity={1} onPress={() => {}}>
+          <Text style={styles.title}>Private Post Settings</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="8-digit Password"
+            placeholderTextColor="#888"
+            value={password}
+            maxLength={8}
+            onChangeText={(t) => { setPassword(t); setError(null); }}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Hint"
+            placeholderTextColor="#888"
+            value={hint}
+            onChangeText={(t) => { setHint(t); setError(null); }}
+          />
+          {error && <Text style={styles.errorText}>{error}</Text>}
+          <View style={styles.buttons}>
+            <Button onPress={handleSubmit} style={styles.btnPrimary}>
+              <ButtonText style={styles.btnPrimaryText}>Submit</ButtonText>
             </Button>
-            <Button onPress={onClose} style={styles.button}>
-              <ButtonText style={styles.buttonText}>Cancel</ButtonText>
+            <Button onPress={handleClose} style={styles.btnSecondary}>
+              <ButtonText style={styles.btnSecondaryText}>Cancel</ButtonText>
             </Button>
-          </VStack>
-        </ActionsheetContent>
-      </Actionsheet>
-
-      {/* Prompt Modal */}
-      <Modal visible={showPrompt} transparent animationType="fade">
-        <View style={styles.modalBackdrop}>
-          <View style={styles.promptBox}>
-            <Text style={styles.promptTitle}>Private Post Settings</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="8-digit Password"
-              placeholderTextColor="#ccc"
-              value={password}
-              maxLength={8}
-              onChangeText={setPassword}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Hint"
-              placeholderTextColor="#ccc"
-              value={hint}
-              onChangeText={setHint}
-            />
-            {error && <Text style={styles.errorText}>{error}</Text>}
-            <View style={styles.promptButtons}>
-              <TouchableOpacity onPress={handlePromptSubmit} style={styles.promptButton}>
-                <Text style={styles.promptButtonText}>Submit</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={closePrompt} style={styles.promptButton}>
-                <Text style={styles.promptButtonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
           </View>
-        </View>
-      </Modal>
-    </>
+        </TouchableOpacity>
+      </TouchableOpacity>
+    </Modal>
   );
 };
 
 export default memo(PrivatePostActionSheet);
 
 const styles = StyleSheet.create({
-  sheetContent: {
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  sheet: {
     backgroundColor: '#010118',
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 24,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 24,
   },
-  sheetContainer: {
-    width: '100%',
-    gap: 12,
-  },
-  sheetTitle: {
+  title: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 18,
     textAlign: 'center',
-  },
-  button: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: 'black',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: '#000000aa',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  promptBox: {
-    width: '85%',
-    backgroundColor: '#121212',
-    borderRadius: 10,
-    padding: 20,
-    elevation: 10,
-  },
-  promptTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 12,
-    textAlign: 'center',
+    marginBottom: 16,
   },
   input: {
     backgroundColor: '#1e1e1e',
     color: '#fff',
-    borderColor: '#fff',
+    borderColor: '#666',
     borderWidth: 1,
-    padding: 10,
+    padding: 12,
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   errorText: {
     color: '#ff4d4d',
-    marginBottom: 10,
+    marginBottom: 12,
     textAlign: 'center',
   },
-  promptButtons: {
+  buttons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
+    gap: 12,
+    marginTop: 8,
   },
-  promptButton: {
+  btnPrimary: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingVertical: 10,
-    marginBottom:'30%',
-    alignItems: 'center',
+    backgroundColor: '#ff4500',
+    borderRadius: 10,
+    justifyContent: 'center',
   },
-  promptButtonText: {
-    color: '#000',
+  btnPrimaryText: {
+    color: 'white',
     fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  btnSecondary: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'white',
+    justifyContent: 'center',
+  },
+  btnSecondaryText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });

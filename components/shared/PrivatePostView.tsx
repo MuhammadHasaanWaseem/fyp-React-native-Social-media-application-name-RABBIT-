@@ -18,7 +18,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Button, ButtonText } from '@/components/ui/button';
 import { BlurView } from 'expo-blur';
-import { Lock, ThumbsUp, MessageCircle, Send, Trash2, Play, Pause, Volume2, VolumeX, RotateCcw, EyeOff, Share2 } from 'lucide-react-native';
+import { Lock, ThumbsUp, MessageCircle, Send, Trash2, Play, Pause, Volume2, VolumeX, RotateCcw, Eye, Share2 } from 'lucide-react-native';
 import { Video } from 'expo-av';
 import ImageViewing from 'react-native-image-viewing';
 import { formatDistanceToNowStrict } from 'date-fns';
@@ -29,6 +29,7 @@ import { router } from 'expo-router';
 import Audio from '@/screens/post/audio';
 import { rendertext } from '@/screens/post/input';
 import { Spinner } from '../ui/spinner';
+import { spoilerButtonColors, spoilerButtonStyles } from '@/components/shared/spoilerButton.styles';
 
 interface PrivatePostViewProps {
   item: any;
@@ -55,6 +56,8 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
   const [spoilerRevealed, setSpoilerRevealed] = useState(false);
 
   const isliked = item?.Like?.some((like: { user_id: string }) => like.user_id === user?.id);
+  const file = item?.file ? (Array.isArray(item.file) ? item.file[0] : item.file) : null;
+  const fileStr = file ? String(file) : '';
 
   const handleUnlock = () => {
     setLoading(true);
@@ -99,9 +102,8 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
 
   const handleShare = async () => {
     let shareMessage = item.text || '';
-    if (item.file) {
-      const fileUrl = `getFileUrl(item.user_id, item.file)`;
-      shareMessage += `\n\nView media: ${fileUrl}`;
+    if (fileStr) {
+      shareMessage += `\n\nView media: ${getFileUrl(item.user_id, fileStr)}`;
     }
     try {
       await Share.share({ message: shareMessage });
@@ -203,47 +205,47 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
         </VStack>
       </HStack>
       <VStack style={{ marginLeft: wp(15), marginBottom: hp(2.5) }}>
-        {item?.file && item.file.match(/\.(mp3|m4a)$/i) && (
+        {fileStr && fileStr.match(/\.(mp3|m4a)$/i) && (
           <View style={{ marginTop: 3 }}>
             <Audio
               userId={item?.user_id}
               id={item.id}
-              uri={`getFileUrl(item.user_id, item.file)`}
+              uri={getFileUrl(item.user_id, fileStr)}
             />
           </View>
         )}
         <HStack>
-          {item.file && item.file.match(/\.(jpeg|jpg|png|gif)$/i) ? (
+          {fileStr && fileStr.match(/\.(jpeg|jpg|png|gif)$/i) ? (
             <View style={{ position: 'relative' }}>
               <TouchableOpacity onPress={() => setImageVisible(true)}>
                 <Image
-                  source={{ uri: `getFileUrl(item.user_id, item.file)` }}
+                  source={{ uri: getFileUrl(item.user_id, fileStr) }}
                   style={{ height: hp(18.5), width: wp(50), marginTop: hp(0.6), borderWidth: 1, borderColor: 'black', borderRadius: wp(2.5) }}
                   resizeMode="cover"
                 />
               </TouchableOpacity>
               {item.tag_name === 'spoiler' && !spoilerRevealed && (
                 <BlurView intensity={50} tint="dark" style={[StyleSheet.absoluteFill, styles.blurContainer]}>
-                  <TouchableOpacity onPress={() => setSpoilerRevealed(true)} style={styles.viewSpoilerButton}>
-                    <EyeOff color={'white'} size={24} />
-                    <Text style={styles.viewSpoilerText}>View Spoiler</Text>
+                  <TouchableOpacity onPress={() => setSpoilerRevealed(true)} style={spoilerButtonStyles.button}>
+                    <Eye color={spoilerButtonColors.icon} size={20} strokeWidth={2} />
+                    <Text style={[spoilerButtonStyles.text, { marginLeft: wp(2) }]}>View Spoiler</Text>
                   </TouchableOpacity>
                 </BlurView>
               )}
               <Modal visible={isImageVisible} transparent={true} onRequestClose={() => setImageVisible(false)}>
                 <ImageViewing
-                  images={[{ uri: `getFileUrl(item.user_id, item.file)` }]}
+                  images={[{ uri: getFileUrl(item.user_id, fileStr) }]}
                   imageIndex={0}
                   visible={isImageVisible}
                   onRequestClose={() => setImageVisible(false)}
                 />
               </Modal>
             </View>
-          ) : item.file && item.file.match(/\.(mp4|mov|avi|mkv)$/i) ? (
+          ) : fileStr && fileStr.match(/\.(mp4|mov|avi|mkv)$/i) ? (
             <View style={{ position: 'relative' }}>
               <Video
                 ref={videoRef}
-                source={{ uri: `getFileUrl(item.user_id, item.file)` }}
+                source={{ uri: getFileUrl(item.user_id, fileStr) }}
                 style={{ height: hp(37), marginTop: hp(0.6), width: wp(50), borderWidth: 0.5, borderColor: 'black', borderRadius: wp(2.5) }}
                 useNativeControls={false}
                 onPlaybackStatusUpdate={(status) => {
@@ -258,9 +260,9 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
               />
               {item.tag_name === 'spoiler' && !spoilerRevealed && (
                 <BlurView intensity={50} tint="dark" style={[StyleSheet.absoluteFill, styles.blurContainer]}>
-                  <TouchableOpacity onPress={() => setSpoilerRevealed(true)} style={styles.viewSpoilerButton}>
-                    <EyeOff color={'white'} size={24} />
-                    <Text style={styles.viewSpoilerText}>Spoiler</Text>
+                  <TouchableOpacity onPress={() => setSpoilerRevealed(true)} style={spoilerButtonStyles.button}>
+                    <Eye color={spoilerButtonColors.icon} size={20} strokeWidth={2} />
+                    <Text style={[spoilerButtonStyles.text, { marginLeft: wp(2) }]}>Spoiler</Text>
                   </TouchableOpacity>
                 </BlurView>
               )}
@@ -375,20 +377,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: wp(5),
-  },
-  viewSpoilerButton: {
-    padding: wp(2),
-    backgroundColor: '#FF4500',
-    borderRadius: wp(1.25),
-    alignContent: 'center',
-    alignItems: 'center',
-  },
-  viewSpoilerText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: '900',
-    fontSize: hp(1.4),
-    marginBottom: hp(0.4),
   },
   videoControls: {
     position: 'absolute',

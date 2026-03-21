@@ -1,250 +1,96 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  FlatList,
-  Animated,
-  Dimensions,
-  Image
-
-} from 'react-native';
-import React, { useRef, useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState } from 'react';
 import { router } from 'expo-router';
-import {
-  ArrowLeft,
-  Globe,
-  LogOut,
-  MessageSquare,
-
-  Timer,
-  FileText,
-  Shield,
-  LucideAward,
-  User
-} from 'lucide-react-native';
+import { ArrowLeft, Globe, LogOut, FileText, Shield, PenSquare, Ban, Trash2 } from 'lucide-react-native';
 import { HStack } from '@/components/ui/hstack';
-import { Divider } from '@/components/ui/divider';
 import { useAuth } from '@/providers/AuthProviders';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
-const { width } = Dimensions.get('window');
+import { DeleteAccountModal } from '@/components/shared/DeleteAccountModal';
+import { getFileUrl } from '@/lib/supabase';
+import { drawerStyles } from './styles';
 
-
-// Extracted MenuItem component
-const MenuItem = ({ item, index }) => {
+const MenuItem = ({ item }: { item: { Icon: any; title: string; action: () => void } }) => {
   const { Icon, title, action } = item;
-  const opacity = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(opacity, {
-      toValue: 1,
-      duration: 500,
-      delay: index * 100, // staggered appearance
-      useNativeDriver: true,
-    }).start();
-  }, [index, opacity]);
-
   return (
-    <Animated.View style={{ opacity }}>
-      <TouchableOpacity style={styles.menuItem} onPress={action} activeOpacity={0.7}>
-        <HStack space="md">
-          <Icon color="#FF4500" size={24} style={{ marginRight: 10 }} />
-          <Text style={styles.menuText}>{title}</Text>
-        </HStack>
-      </TouchableOpacity>
-    </Animated.View>
+    <TouchableOpacity style={drawerStyles.menuItem} onPress={action} activeOpacity={0.6}>
+      <Icon color="#FF4500" size={22} strokeWidth={2} />
+      <Text style={drawerStyles.menuText}>{title}</Text>
+    </TouchableOpacity>
   );
 };
 
 const Drawer = () => {
-  const { logOut, user } = useAuth();
+  const { logOut, user, deleteAccount } = useAuth();
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [localbio] = useState<string>((user as any)?.bio || '');
 
-  // Define menu items with updated icons
-  const menuItems = [
-    {
-      id: 'worldChat',
-      title: 'World Chat',
-      Icon: Globe,
-      action: () => router.push('/worldchat'),
-    },
-    
-    {
-      id: 'logout',
-      title: 'Log Out',
-      Icon: LogOut,
-      action: logOut,
-    },
-    
-    {
-      id: 'timeCapsule',
-      title: `What's new introduced`,
-      Icon: Timer,
-      action: () => router.push('/introduction'),
-    },
-    {
-      id: 'privateUpload',
-      title: `Create a Post`,
-      Icon: Shield,
-      action: () => router.push('/post'),
-    },
-    {
-      id: 'terms',
-      title: 'Terms of use',
-      Icon: FileText,
-      action: () => router.push('/useterms'),
-    },
-    {
-      id: 'privacy',
-      title: 'Privacy Policies',
-      Icon: LucideAward,
-      action: () => router.push('/policies'),
-    },
+  const handleDeleteAccount = async () => {
+    setDeleteLoading(true);
+    const { success, error } = await deleteAccount();
+    setDeleteLoading(false);
+    if (!success && error) alert(error);
+  };
+
+  const exploreItems = [
+    { id: 'createPost', title: 'Create a Post', Icon: PenSquare, action: () => router.push('/post') },
+    { id: 'worldChat', title: 'World Chat', Icon: Globe, action: () => router.push('/worldchat') },
+    { id: 'blocked', title: 'Blocked & Reported', Icon: Ban, action: () => router.push('/blocked') },
+  ];
+  const legalItems = [
+    { id: 'terms', title: 'Terms of use', Icon: FileText, action: () => router.push('/useterms') },
+    { id: 'privacy', title: 'Privacy Policies', Icon: Shield, action: () => router.push('/policies') },
+  ];
+  const accountItems = [
+    { id: 'logout', title: 'Log Out', Icon: LogOut, action: logOut },
+    { id: 'deleteAccount', title: 'Delete Account', Icon: Trash2, action: () => setDeleteModalVisible(true) },
   ];
 
-  // Footer component as FlatList ListFooterComponent
-  const ListFooter = () => (
-    <View style={styles.footer}>
-      <View style={styles.footerIcon}>
-        <Image
-          source={require('../../assets/gif/RAB.gif')}
-          style={styles.image}
-        /> 
-        </View>
-    </View>
-  );
-const [localbio,setlocalbio] =useState<string>(user?.bio|| '');
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <HStack style={styles.header}>
-        <TouchableOpacity onPress={() => router.push('/(tabs)')} style={styles.backButton} activeOpacity={0.7}>
+    <SafeAreaView style={drawerStyles.container} edges={['top']}>
+      <HStack style={drawerStyles.header}>
+        <TouchableOpacity onPress={() => router.push('/(tabs)')} style={drawerStyles.backButton} activeOpacity={0.7}>
           <ArrowLeft color="#FFFFFF" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Explore</Text>
+        <Text style={drawerStyles.headerTitle}>Menu</Text>
       </HStack>
 
-      {/* Profile Section */}
-      <View style={styles.profileSection}>
+      <View style={drawerStyles.profileCard}>
         <Avatar size="xl">
-              <AvatarFallbackText style={{ color: 'white' }}>{user?.username || ''}</AvatarFallbackText>
-          
-          <AvatarImage
-            source={{ uri: `${user?.avatar}?t=${new Date().getTime()}` }}
-            style={styles.avatar}
-          />
-          
+          <AvatarFallbackText style={{ color: 'white' }}>{user?.username || ''}</AvatarFallbackText>
+          <AvatarImage source={{ uri: `${(user as any)?.avatar || getFileUrl(user?.id || '', 'avatar.jpeg')}?t=${Date.now()}` }} style={drawerStyles.avatar} />
         </Avatar>
-        <Text style={styles.username}>{user?.username}</Text>
-        <Text style={styles.infoText}>
-          Account created in {user?.created_at ? new Date(user.created_at).getFullYear() : 'Unknown'}
+        <Text style={drawerStyles.username}>{user?.username}</Text>
+        <Text style={drawerStyles.infoText}>
+          {(user as any)?.created_at ? `Since ${new Date((user as any).created_at).getFullYear()}` : ''}
         </Text>
-        <Text style={styles.infoText}>" {localbio || "not set yet"} "</Text>
+        <Text style={drawerStyles.infoText} numberOfLines={2}>"{localbio || 'No bio yet'}"</Text>
       </View>
 
-      <Divider style={styles.divider} />
+      <ScrollView contentContainerStyle={drawerStyles.menuItemsContainer} showsVerticalScrollIndicator={false}>
+        <Text style={drawerStyles.sectionLabel}>EXPLORE</Text>
+        {exploreItems.map((item) => <MenuItem key={item.id} item={item} />)}
 
-      {/* Menu Items as a FlatList */}
-      <FlatList
-        data={menuItems}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => <MenuItem item={item} index={index} />}
-        ItemSeparatorComponent={() => <Divider style={styles.divider} />}
-        contentContainerStyle={styles.menuItemsContainer}
-        ListFooterComponent={ListFooter}
+        <Text style={drawerStyles.sectionLabel}>LEGAL</Text>
+        {legalItems.map((item) => <MenuItem key={item.id} item={item} />)}
+
+        <Text style={drawerStyles.sectionLabel}>ACCOUNT</Text>
+        {accountItems.map((item) => <MenuItem key={item.id} item={item} />)}
+
+        <View style={drawerStyles.footer}>
+          <Image source={require('../../assets/gif/RAB.gif')} style={drawerStyles.image} />
+        </View>
+      </ScrollView>
+
+      <DeleteAccountModal
+        visible={deleteModalVisible}
+        onClose={() => setDeleteModalVisible(false)}
+        onConfirm={handleDeleteAccount}
+        loading={deleteLoading}
       />
     </SafeAreaView>
   );
 };
 
 export default Drawer;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#010118',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: '#0a0a0a',
-  },
-  headerTitle: {
-    color: '#FFFFFF',
-    fontSize: 22,
-    fontWeight: '600',
-    marginLeft: 10,
-  },
-  profileSection: {
-    alignItems: 'center',
-    marginBottom: 30,
-    borderRadius: 10,
-    padding: 10,
-  },
-  avatar: {
-    borderWidth: 2,
-    borderColor: '#BB86FC',
-  },
-  image: {
-    width: width * 0.05,  // 15% of the screen width
-    height: width * 0.05, // 15% of the screen width
-  },
-  username: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '600',
-    marginTop: 10,
-  },
-  infoText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    marginTop: 8,
-  },
-  divider: {
-    marginVertical: 10,
-    backgroundColor: '#333333',
-    height: 1,
-  },
-  menuItemsContainer: {
-    marginTop: 20,
-    paddingBottom: 50,
-  },
-  menuItem: {
-    backgroundColor: '#010118',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  menuText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  footer: {
-    marginTop: 20,
-    alignItems: 'center',
-    paddingBottom: 30,
-  },
-  footerIcon: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10
-  },
-  brandText: {
-    fontSize: 12,
-    color: '#E0E0E0',
-    fontWeight: '500',
-  },
-});

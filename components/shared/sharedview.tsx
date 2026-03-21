@@ -1,5 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react'; //hooks
-import { Image, TouchableOpacity, View, Modal, Share, StyleSheet, Alert } from 'react-native';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { Image, TouchableOpacity, View, Modal, Share, Alert, ScrollView } from 'react-native';
+import {
+  Actionsheet,
+  ActionsheetBackdrop,
+  ActionsheetContent,
+  ActionsheetDragIndicator,
+  ActionsheetDragIndicatorWrapper,
+  ActionsheetItem,
+  ActionsheetItemText,
+  ActionsheetIcon,
+} from '@/components/ui/actionsheet';
+import { Divider } from '@/components/ui/divider';
 import { wp, hp } from '@/lib/helper'; //native components
 import { formatDistanceToNowStrict } from 'date-fns'; // formating time
 import { HStack } from '@/components/ui/hstack'; // horizontal voew
@@ -7,7 +18,7 @@ import { Card } from '@/components/ui/card'; //card view
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/text'; // text
 import { VStack } from '@/components/ui/vstack'; //vertical view 
-import { Heart, Send, MessageCircle, Volume2, VolumeX, Pause, Play, RotateCcw, Trash2, Timer, EyeOff, ThumbsUp, Share2, LucideTrash2 } from 'lucide-react-native'; //lucid icons
+import {  MessageCircle, Volume2, VolumeX, Pause, Play, RotateCcw, Trash2, Timer, Eye, ThumbsUp, Share2, LucideTrash2, Flag, MessageCircleOff, ShieldAlert, Ban, HelpCircle } from 'lucide-react-native';
 import { Video } from 'expo-av'; //video
 import ImageViewing from 'react-native-image-viewing'; // image zoom
 import { rendertext } from '@/screens/post/input'; //text
@@ -17,14 +28,41 @@ import * as Haptics from 'expo-haptics'; //vibration
 import { useAuth } from '@/providers/AuthProviders'; 
 import { router } from 'expo-router'; //navigation
 import { BlurView } from 'expo-blur'; // blur effect
+import { sharedViewStyles } from './sharedview.styles';
+import { spoilerButtonColors, spoilerButtonStyles } from './spoilerButton.styles';
+import { StyleSheet } from 'react-native';
+import { PostSkeletonItem } from '@/components/shared/PostSkeleton';
 
 export default function ShareView({ item, refetch }: { item: any; refetch: () => void }) {
   const { user } = useAuth();
 
-  // Prevent rendering if the post is private
-  if (item.status === 'time_capsule' || item.Availablity === 'private') {
-    return null; // Private posts should not appear in ShareView
-  }
+  const imageFiles = useMemo(() => {
+    if (!item?.file) return [] as string[];
+    const raw = Array.isArray(item.file) ? item.file : [item.file];
+    return raw
+      .map((f: string) => String(f).trim())
+      .filter(Boolean)
+      .filter((f: string) => /\.(jpeg|jpg|png|gif|webp)$/i.test(f));
+  }, [item.id, item.file]);
+
+  const isImagePost = imageFiles.length > 0;
+  const [mediaReady, setMediaReady] = useState(!isImagePost);
+
+  useEffect(() => {
+    if (!isImagePost) {
+      setMediaReady(true);
+      return;
+    }
+    setMediaReady(false);
+    const urls = imageFiles.map((f: string) => getFileUrl(item.user_id, f));
+    let cancelled = false;
+    Promise.all(urls.map((u: string) => Image.prefetch(u).catch(() => undefined))).then(() => {
+      if (!cancelled) setMediaReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [item.id, item.user_id, isImagePost, imageFiles.join('|')]);
 
   const isliked = item?.Like?.some((like: { user_id: string }) => like.user_id === user?.id);
   const videoRef = useRef<Video>(null);
@@ -33,12 +71,13 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
   const [videoFinished, setVideoFinished] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isImageVisible, setImageVisible] = useState(false);
+  const [imageIndex, setImageIndex] = useState(0);
   const [spoilerRevealed, setSpoilerRevealed] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
   const [isScheduled, setIsScheduled] = useState(false);
   
-  // State for delete confirmation modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   useEffect(() => {
     if (item.unlock_at) {
@@ -89,8 +128,8 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
   const handleShare = async () => {
     let shareMessage = item.text || '';
     if (item.file) {
-      const fileUrl = getFileUrl(item.user_id, item.file);
-      shareMessage += `\n\nView media: ${fileUrl}`;
+      const first = Array.isArray(item.file) ? item.file[0] : item.file;
+      if (first) shareMessage += `\n\nView media: ${getFileUrl(item.user_id, first)}`;
     }
     try {
       await Share.share({ message: shareMessage });
@@ -120,6 +159,27 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
     }
   };
 
+  const reportPost = async (reason: string) => {
+    const { error } = await supabase.from('Report').insert({ user_id: user?.id, post_id: item.id, reason });
+    setShowReportModal(false);
+    if (!error) Alert.alert('Reported', 'Post reported successfully.');
+    else Alert.alert('Error', 'Already reported or failed.');
+  };
+
+  const REPORT_REASONS: { label: string; Icon: typeof Flag }[] = [
+    { label: 'Spam', Icon: MessageCircleOff },
+    { label: 'Harassment', Icon: ShieldAlert },
+    { label: 'Inappropriate', Icon: Ban },
+    { label: 'Other', Icon: HelpCircle },
+  ];
+
+  if (item.status === 'time_capsule' || item.Availablity === 'private') {
+    return null;
+  }
+  if (!mediaReady) {
+    return <PostSkeletonItem />;
+  }
+
   const header = (
     <HStack style={{ alignItems: 'center' }} space="lg">
       <Avatar style={{ borderColor: 'white', backgroundColor: 'white' }} size="md">
@@ -140,16 +200,16 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
             {item?.created_at && formatDistanceToNowStrict(new Date(new Date(item.created_at).getTime() - new Date().getTimezoneOffset() * 60000)) + ' ago'}
           </Text>
         </HStack>
-        {item.tag_name==='spoiler' && !spoilerRevealed ?(
-<HStack> 
-  <Text style={{color:'white',fontWeight:'700'}}>Post Captions : </Text>
-   <>{rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}</>
-</HStack>
-):(
-  <>{rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}</>
-
-)
-}
+        {item.tag_name === 'spoiler' && !spoilerRevealed ? (
+          item.text?.trim() ? (
+            <HStack>
+              <Text style={{ color: 'white', fontWeight: '700' }}>Post Captions : </Text>
+              <>{rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}</>
+            </HStack>
+          ) : null
+        ) : (
+          <>{rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}</>
+        )}
         
       </VStack>
     </HStack>
@@ -157,51 +217,77 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
 
   const content = (
     <VStack style={{ marginLeft: wp(15), marginBottom: hp(2.5) }}>
-      {item?.file && item.file.match(/\.(mp3|m4a)$/i) && (
-        <View style={{ marginTop: 3 }}>
-          <Audio userId={item?.user_id} id={item.id} uri={getFileUrl(item.user_id, item.file)} />
+      {item?.file && (() => {
+        const f = Array.isArray(item.file) ? item.file[0] : item.file;
+        return f && String(f).match(/\.(mp3|m4a)$/i);
+      })() && (
+        <View style={{ marginTop: 3, position: 'relative' }}>
+          <Audio userid={item?.user_id} id={item.id} uri={getFileUrl(item.user_id, Array.isArray(item.file) ? item.file[0] : item.file)} />
           {item.tag_name === 'spoiler' && !spoilerRevealed && (
-              <BlurView intensity={50} tint="dark" style={[styles.audiospoiler]}>
-                <TouchableOpacity  onPress={() => setSpoilerRevealed(true)} style={styles.viewSpoilerButton}>
-                  <EyeOff color={'white'} size={24} />
-                  <Text style={styles.viewSpoilerText}>Spoiler</Text>
+              <BlurView intensity={80} tint="dark" style={sharedViewStyles.audiospoiler}>
+                <TouchableOpacity activeOpacity={0.8} onPress={() => setSpoilerRevealed(true)} style={spoilerButtonStyles.button}>
+                  <View style={spoilerButtonStyles.iconGap}>
+                    <Eye color={spoilerButtonColors.icon} size={20} strokeWidth={2} />
+                  </View>
+                  <Text style={spoilerButtonStyles.text}>Spoiler</Text>
                 </TouchableOpacity>
               </BlurView>
             )}
         </View>
       )}
       <HStack>
-        {item.file && item.file.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
-          <View style={{ position: 'relative' }}>
-            <TouchableOpacity onPress={() => setImageVisible(true)}>
-              <Image
-                source={{ uri: getFileUrl(item.user_id, item.file) }}
-                style={{ height: hp(18.5), width: wp(50), marginTop: hp(1.25), borderWidth: 1, borderColor: 'black', borderRadius: wp(2.5) }}
-                resizeMode="cover"
-              />
-            </TouchableOpacity>
-            {item.tag_name === 'spoiler' && !spoilerRevealed && (
-              <BlurView intensity={50} tint="dark" style={[StyleSheet.absoluteFill, styles.blurContainer]}>
-                <TouchableOpacity onPress={() => setSpoilerRevealed(true)} style={styles.viewSpoilerButton}>
-                  <EyeOff color={'white'} size={24} />
-                  <Text style={styles.viewSpoilerText}>View Spoiler</Text>
-                </TouchableOpacity>
-              </BlurView>
-            )}
-            <Modal visible={isImageVisible} transparent={true} onRequestClose={() => setImageVisible(false)}>
-              <ImageViewing
-                images={[{ uri: getFileUrl(item.user_id, item.file) }]}
-                imageIndex={0}
-                visible={isImageVisible}
-                onRequestClose={() => setImageVisible(false)}
-              />
-            </Modal>
-          </View>
-        ) : item.file && item.file.match(/\.(mp4|mov|avi|mkv)$/i) ? (
+        {item.file && (() => {
+          const raw = Array.isArray(item.file) ? item.file : [item.file];
+          const files = raw.map((f: string) => String(f).trim()).filter(Boolean);
+          const imageFiles = files.filter((f: string) => f.match(/\.(jpeg|jpg|png|gif|webp)$/i));
+          if (imageFiles.length > 0) {
+            const imageUris = imageFiles.map((f: string) => ({ uri: getFileUrl(item.user_id, f) }));
+            return (
+              <>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: hp(1.25) }}>
+                  {imageFiles.map((f: string, idx: number) => (
+                    <View key={f} style={{ position: 'relative', marginRight: wp(2) }}>
+                      <TouchableOpacity onPress={() => { setImageIndex(idx); setImageVisible(true); }}>
+                        <Image
+                          source={{ uri: getFileUrl(item.user_id, f) }}
+                          style={{ height: hp(18.5), width: wp(50), borderWidth: 1, borderColor: 'black', borderRadius: wp(2.5) }}
+                          resizeMode="cover"
+                        />
+                      </TouchableOpacity>
+                      {item.tag_name === 'spoiler' && !spoilerRevealed && (
+                        <BlurView intensity={80} tint="dark" style={sharedViewStyles.blurContainer}>
+                          <TouchableOpacity activeOpacity={0.8} onPress={() => setSpoilerRevealed(true)} style={spoilerButtonStyles.button}>
+                            <View style={spoilerButtonStyles.iconGap}>
+                              <Eye color={spoilerButtonColors.icon} size={20} strokeWidth={2} />
+                            </View>
+                            <Text style={spoilerButtonStyles.text}>{item.text?.trim() ? 'View Spoiler' : 'Spoiler'}</Text>
+                          </TouchableOpacity>
+                        </BlurView>
+                      )}
+                    </View>
+                  ))}
+                </ScrollView>
+                <Modal visible={isImageVisible} transparent onRequestClose={() => setImageVisible(false)}>
+                  <ImageViewing
+                    images={imageUris}
+                    imageIndex={imageIndex}
+                    visible={isImageVisible}
+                    onRequestClose={() => setImageVisible(false)}
+                  />
+                </Modal>
+              </>
+            );
+          }
+          return null;
+        })()}
+        {item.file && (() => {
+          const first = Array.isArray(item.file) ? item.file[0] : item.file;
+          return first && String(first).match(/\.(mp4|mov|avi|mkv)$/i);
+        })() ? (
           <View style={{ position: 'relative' }}>
             <Video
               ref={videoRef}
-              source={{ uri: getFileUrl(item.user_id, item.file) }}
+              source={{ uri: getFileUrl(item.user_id, Array.isArray(item.file) ? item.file[0] : item.file) }}
               style={{ height: hp(37), marginTop: hp(1.25), width: wp(50), borderWidth: 0.5, borderColor: 'black', borderRadius: wp(2.5) }}
               useNativeControls={false}
               onPlaybackStatusUpdate={(status) => {
@@ -216,23 +302,25 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
               onLoad={() => setIsLoading(false)}
             />
             {item.tag_name === 'spoiler' && !spoilerRevealed && (
-              <BlurView intensity={50} tint="dark" style={[StyleSheet.absoluteFill, styles.blurContainer]}>
-                <TouchableOpacity  onPress={() => setSpoilerRevealed(true)} style={styles.viewSpoilerButton}>
-                  <EyeOff color={'white'} size={24} />
-                  <Text style={styles.viewSpoilerText}>Spoiler</Text>
+              <BlurView intensity={80} tint="dark" style={sharedViewStyles.blurContainer}>
+                <TouchableOpacity activeOpacity={0.8} onPress={() => setSpoilerRevealed(true)} style={spoilerButtonStyles.button}>
+                  <View style={spoilerButtonStyles.iconGap}>
+                    <Eye color={spoilerButtonColors.icon} size={20} strokeWidth={2} />
+                  </View>
+                  <Text style={spoilerButtonStyles.text}>{item.text?.trim() ? 'View Spoiler' : 'Spoiler'}</Text>
                 </TouchableOpacity>
               </BlurView>
             )}
-            <View style={styles.videoControls}>
+            <View style={sharedViewStyles.videoControls}>
               {videoFinished && (
-                <TouchableOpacity style={styles.controlButton} onPress={handleReplay}>
+                <TouchableOpacity style={sharedViewStyles.controlButton} onPress={handleReplay}>
                   <RotateCcw size={15} color="grey" />
                 </TouchableOpacity>
               )}
-              <TouchableOpacity style={styles.controlButton} onPress={handlePlayPause}>
+              <TouchableOpacity style={sharedViewStyles.controlButton} onPress={handlePlayPause}>
                 {isPlaying ? <Pause size={15} color="grey" /> : <Play size={15} color="grey" />}
               </TouchableOpacity>
-              <TouchableOpacity style={styles.controlButton} onPress={() => setIsMuted(!isMuted)}>
+              <TouchableOpacity style={sharedViewStyles.controlButton} onPress={() => setIsMuted(!isMuted)}>
                 {isMuted ? <VolumeX size={15} color="grey" /> : <Volume2 size={15} color="grey" />}
               </TouchableOpacity>
             </View>
@@ -256,6 +344,11 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
           <TouchableOpacity onPress={handleShare}>
             <Share2 color="white" size={20} strokeWidth={1} />
           </TouchableOpacity>
+          {user?.id !== item.user_id && (
+            <TouchableOpacity onPress={() => setShowReportModal(true)}>
+              <Flag color="white" size={20} strokeWidth={1} />
+            </TouchableOpacity>
+          )}
           {user?.id === item.user_id && (
             <TouchableOpacity onPress={deletePost}>
               <LucideTrash2 color="#ff4500" size={20} strokeWidth={1} />
@@ -267,12 +360,12 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
   );
 
   return (
-    <Card style={{ backgroundColor: '#010118' , borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: wp(2.5)}}>
+    <Card style={{ backgroundColor: '#010118', borderRadius: wp(2.5) }}>
       {header}
       <View>
         {content}
         {isScheduled && (
-          <BlurView intensity={50} tint="dark" style={styles.blurOverlay}>
+          <BlurView intensity={50} tint="dark" style={sharedViewStyles.blurOverlay}>
             <VStack style={{ padding: wp(1.25), backgroundColor: '#FF4500',borderWidth:2,borderColor:'white', justifyContent: 'center', alignItems: 'center', borderRadius: wp(2) }}>
               <Text style={{ color: 'white', fontSize: 14, fontWeight: '400' ,fontStyle:'italic'}}>{item.User?.username}</Text>
               <Text style={{ color: 'white', fontSize: 14, fontWeight: '400' }}>𝘩𝘢𝘴 𝘴𝘦𝘵 𝘵𝘩𝘪𝘴 𝘗𝘰𝘴𝘵 𝘢𝘴 𝘱𝘳𝘦𝘮𝘪𝘦𝘳.
@@ -286,136 +379,52 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
         )}
       </View>
 
-      {/* Custom Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal */}
       <Modal visible={showDeleteModal} transparent animationType="fade" onRequestClose={() => setShowDeleteModal(false)}>
-        <View style={styles.modalOverlay}>
-          <BlurView intensity={100} tint="dark" style={styles.modalBlur}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>Delete Post</Text>
-              <Text style={styles.modalMessage}>Are you sure you want to delete this post? This action cannot be undone.</Text>
-              <View style={styles.modalButtons}>
-                <TouchableOpacity style={styles.cancelButton} onPress={() => setShowDeleteModal(false)}>
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
+        <View style={sharedViewStyles.modalOverlay}>
+          <BlurView intensity={100} tint="dark" style={sharedViewStyles.modalBlur}>
+            <View style={sharedViewStyles.modalContainer}>
+              <Text style={sharedViewStyles.modalTitle}>Delete Post</Text>
+              <Text style={sharedViewStyles.modalMessage}>Are you sure you want to delete this post? This action cannot be undone.</Text>
+              <View style={sharedViewStyles.modalButtons}>
+                <TouchableOpacity style={sharedViewStyles.cancelButton} onPress={() => setShowDeleteModal(false)}>
+                  <Text style={sharedViewStyles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.deleteButton} onPress={confirmDeletePost}>
-                  <Text style={styles.deleteButtonText}>Delete</Text>
+                <TouchableOpacity style={sharedViewStyles.deleteButton} onPress={confirmDeletePost}>
+                  <Text style={sharedViewStyles.deleteButtonText}>Delete</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </BlurView>
         </View>
       </Modal>
+
+      {/* Report Bottom Sheet */}
+      <Actionsheet isOpen={showReportModal} onClose={() => setShowReportModal(false)}>
+        <ActionsheetBackdrop />
+        <ActionsheetContent style={{ backgroundColor: '#010118', borderTopWidth: 1, borderTopColor: 'rgba(255,69,0,0.2)' }}>
+          <ActionsheetDragIndicatorWrapper>
+            <ActionsheetDragIndicator />
+          </ActionsheetDragIndicatorWrapper>
+          <ActionsheetItem disabled>
+            <ActionsheetItemText style={{ color: '#9CA3AF', fontSize: 14 }}>
+              Why are you reporting this post?
+            </ActionsheetItemText>
+          </ActionsheetItem>
+          <Divider />
+          {REPORT_REASONS.map(({ label, Icon }) => (
+            <ActionsheetItem key={label} onPress={() => reportPost(label)}>
+              <ActionsheetIcon color="#FF4500" as={Icon} />
+              <ActionsheetItemText style={{ color: 'white' }}>{label}</ActionsheetItemText>
+            </ActionsheetItem>
+          ))}
+          <Divider />
+          <ActionsheetItem onPress={() => setShowReportModal(false)}>
+            <ActionsheetItemText style={{ color: '#9CA3AF' }}>Cancel</ActionsheetItemText>
+          </ActionsheetItem>
+        </ActionsheetContent>
+      </Actionsheet>
     </Card>
   );
 }
 
-const styles = StyleSheet.create({
-  blurContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#010122',
-    borderWidth: 2,
-    marginTop: hp(0.6),
-    borderColor: 'rgba(255,107,53,0.3)'
-  },
-  blurOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'black',
-    marginTop: hp(1.25),
-    borderRadius: wp(2.5),
-    
-  },
-  audiospoiler:{
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#010118",
-  },
-  viewSpoilerButton: {
-    paddingHorizontal: wp(4.25),
-    paddingVertical: hp(0.9),
-    backgroundColor: '#FF4500',
-    borderRadius: wp(6.25), 
-    borderColor:'white',
-    borderWidth:2,
-    alignContent: 'center',
-    alignItems: 'center'
-  },
-  viewSpoilerText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: '900',
-    fontSize: hp(1.4),
-    marginBottom: hp(0.4)
-  },
-  videoControls: {
-    position: 'absolute',
-    gap: wp(1.5),
-    left: wp(30),
-    bottom: hp(0.75),
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  controlButton: {
-    backgroundColor: '#2f2f2f',
-    borderRadius: wp(12.5),
-    padding: wp(0.5)
-  },
-  // Modal styles for deletion confirmation
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  modalBlur: {
-    width: '90%',
-    padding: wp(5),
-    borderRadius: wp(5)
-  },
-  modalContainer: {
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    borderRadius: wp(5),
-    padding: wp(5),
-    alignItems: 'center'
-  },
-  modalTitle: {
-    color: '#FF4500',
-    fontSize: hp(2.75),
-    fontWeight: 'bold',
-    marginBottom: hp(1.25)
-  },
-  modalMessage: {
-    color: 'white',
-    fontSize: hp(2),
-    textAlign: 'center',
-    marginBottom: hp(2.5)
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-between'
-  },
-  cancelButton: {
-    paddingVertical: hp(1.25),
-    paddingHorizontal: wp(5),
-    borderRadius: wp(2.5),
-    backgroundColor: '#444'
-  },
-  cancelButtonText: {
-    color: 'white',
-    fontSize: hp(2)
-  },
-  deleteButton: {
-    paddingVertical: hp(1.25),
-    paddingHorizontal: wp(5),
-    borderRadius: wp(2.5),
-    backgroundColor: '#FF4500'
-  },
-  deleteButtonText: {
-    color: 'white',
-    fontSize: hp(2),
-    fontWeight: 'bold'
-  }
-});

@@ -14,7 +14,7 @@ export interface Post {
   parent_id?: string | null;
   user_id: string;
   text: string;
-  file?: string | null
+  file?: string[] | string | null
   created_at?: string;
   User?: User;
   Post?: Post[];

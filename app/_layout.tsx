@@ -19,8 +19,11 @@ import { AudioProvider } from '@/providers/AudioProvider';
 SplashScreen.preventAutoHideAsync();
 
 function AppNavigator() {
-  const { isSignedIn, isUsernameSkipped } = useAuth();
-  const initialRoute = isSignedIn && isUsernameSkipped ? '(tabs)' : isSignedIn ? '(auth)/username' : '(auth)';
+  const { isSignedIn, isUsernameSkipped, authHydrated } = useAuth();
+  if (!authHydrated) return null;
+
+  const canEnterHome = isSignedIn && isUsernameSkipped;
+  const initialRoute = canEnterHome ? '(tabs)' : isSignedIn ? '(auth)/username' : '(auth)';
   return (
     <Stack
       initialRouteName={initialRoute}
@@ -44,6 +47,7 @@ function AppNavigator() {
       <Stack.Screen name="followsheet" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
       <Stack.Screen name="followingsheet" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
       <Stack.Screen name="drawer" options={{ headerShown: false, animation: 'slide_from_left' }} />
+      <Stack.Screen name="blocked" options={{ headerShown: false, animation: 'slide_from_left' }} />
       <Stack.Screen name="policies" options={{ headerShown: false, animation: 'slide_from_left' }} />
       <Stack.Screen name="useterms" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
       <Stack.Screen name="starter" options={{ headerShown: false, animation: 'slide_from_right' }} />

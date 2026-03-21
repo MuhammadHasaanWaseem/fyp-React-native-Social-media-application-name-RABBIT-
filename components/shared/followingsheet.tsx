@@ -1,18 +1,9 @@
-import React from "react";
-import {
-  SafeAreaView,
-  FlatList,
-  ActivityIndicator,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-  Alert,
-} from "react-native";
+import React, { useState } from "react";
+import { SafeAreaView, FlatList, TouchableOpacity } from "react-native";
 import { Divider } from "@/components/ui/divider";
 import { HStack } from "@/components/ui/hstack";
 import { ArrowLeft } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
-import { Button, ButtonText } from "@/components/ui/button";
 import { usefollowing } from "@/hooks/use-following";
 import { useAuth } from "@/providers/AuthProviders";
 import { Avatar, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar";
@@ -21,6 +12,18 @@ import { router } from "expo-router";
 import { useQueries } from "@tanstack/react-query";
 import { getUser } from "@/hooks/use-user";
 import { supabase } from "@/lib/supabase";
+import { getFileUrl } from "@/lib/supabase";
+import { Spinner } from "../ui/spinner";
+import {
+  Actionsheet,
+  ActionsheetBackdrop,
+  ActionsheetContent,
+  ActionsheetDragIndicator,
+  ActionsheetDragIndicatorWrapper,
+  ActionsheetItem,
+  ActionsheetItemText,
+} from "../ui/actionsheet";
+import { followingSheetStyles as styles } from "./followingsheet.styles";
 
 export default function Followingsheet() {
   const { user: authUser } = useAuth();
@@ -40,108 +43,60 @@ export default function Followingsheet() {
   const queriesLoading = userQueries.some((q) => q.isLoading);
   const users = userQueries.map((q) => q.data).filter(Boolean);
 
+  const [unfollowSheet, setUnfollowSheet] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{ id: string; username: string } | null>(null);
+
   const handleUnfollow = async (targetId: string) => {
     const { error } = await supabase
       .from("Followers")
       .delete()
       .eq("user_id", authUser?.id)
       .eq("following_user_id", targetId);
-    if (!error) {
-      refetch();
-    } else {
-      console.error("Error unfollowing:", error);
-    }
+    if (!error) refetch();
+    else console.error("Error unfollowing:", error);
+    setUnfollowSheet(false);
+    setSelectedUser(null);
   };
 
-  const confirmUnfollow = (targetId: string) => {
-    Alert.alert(
-      "Unfollow Confirmation",
-      "Are you sure you want to unfollow this user?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Unfollow", style: "destructive", onPress: () => handleUnfollow(targetId) },
-      ]
-    );
+  const openUnfollowSheet = (item: { id: string; username: string }) => {
+    setSelectedUser(item);
+    setUnfollowSheet(true);
   };
 
-  const AnimatedListItem = ({ item, index }) => {
-    const opacity = React.useRef(new Animated.Value(0)).current;
-    const buttonScale = React.useRef(new Animated.Value(1)).current;
-
-    React.useEffect(() => {
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: 300,
-        delay: index * 100,
-        useNativeDriver: true,
-      }).start();
-    }, []);
-
-    const handlePressIn = () => {
-      Animated.spring(buttonScale, {
-        toValue: 0.95,
-        useNativeDriver: true,
-      }).start();
-    };
-
-    const handlePressOut = () => {
-      Animated.spring(buttonScale, {
-        toValue: 1,
-        useNativeDriver: true,
-      }).start();
-    };
-
-    return (
-      <Animated.View style={[styles.itemContainer, { opacity }]}>
-        <HStack style={styles.itemRow} space="md">
-          <HStack style={styles.userInfo} space="md">
-            <Avatar size="lg">
-              <AvatarFallbackText style={styles.avatarFallback}>
-                {item?.username ? item.username.charAt(0).toUpperCase() : "?"}
-              </AvatarFallbackText>
-              <AvatarImage source={{ uri: item?.avatar }} />
-            </Avatar>
-            <VStack>
-              <TouchableOpacity
-                onPress={() =>
-                  router.push({
-                    pathname: "/user",
-                    params: { userid: item.id },
-                  })
-                }
-              >
-                <Text style={styles.usernameText}>
-                  {item?.username || "Unknown User"}
-                </Text>
-              </TouchableOpacity>
-              <Text style={{ color: "white", fontSize: 12 }}>You are Following</Text>
-            </VStack>
-          </HStack>
-          <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-            <Button
-              onPressIn={handlePressIn}
-              onPressOut={handlePressOut}
-              onPress={() => confirmUnfollow(item.id)}
-              variant="outline"
-              style={styles.button}
-            >
-              <ButtonText style={styles.buttonTextOutline}>Unfollow</ButtonText>
-            </Button>
-          </Animated.View>
-        </HStack>
-        <Divider style={styles.itemDivider} />
-      </Animated.View>
-    );
-  };
-
-  const renderItem = ({ item, index }) => (
-    <AnimatedListItem item={item} index={index} />
+  const renderItem = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={styles.itemCard}
+      onPress={() => router.push({ pathname: "/user", params: { userid: item.id } })}
+    >
+      <HStack style={styles.userRow} space="md">
+        <Avatar size="lg" style={styles.avatar}>
+          <AvatarFallbackText style={{ color: "white" }}>
+            {item?.username ? item.username.charAt(0).toUpperCase() : "?"}
+          </AvatarFallbackText>
+          <AvatarImage source={{ uri: item?.avatar || getFileUrl(item?.id || "", "avatar.jpeg") }} />
+        </Avatar>
+        <VStack style={styles.userInfo}>
+          <Text style={styles.usernameText}>{item?.username || "Unknown User"}</Text>
+          <Text style={styles.subText}>@{(item?.username || "").toLowerCase()}</Text>
+        </VStack>
+      </HStack>
+      <TouchableOpacity
+        onPress={(e) => {
+          e.stopPropagation();
+          openUnfollowSheet({ id: item.id, username: item.username });
+        }}
+        style={styles.unfollowBtn}
+      >
+        <Text style={styles.btnTextOutline}>Unfollow</Text>
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 
   if (isLoading || queriesLoading) {
     return (
       <SafeAreaView style={styles.centered}>
-        <ActivityIndicator size="large" color="#fff" />
+        <Spinner color="white" size={24} />
       </SafeAreaView>
     );
   }
@@ -157,92 +112,43 @@ export default function Followingsheet() {
   return (
     <SafeAreaView style={styles.container}>
       <HStack style={styles.header} space="md">
-        <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft color={"white"} />
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} activeOpacity={0.7}>
+          <ArrowLeft color="white" size={22} />
         </TouchableOpacity>
         <Text style={styles.headerText}>Following</Text>
       </HStack>
-      <Divider style={styles.divider} />
       <FlatList
         data={users}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         refreshing={!!isLoading}
         onRefresh={refetch}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, !users?.length && { flex: 1 }]}
+        ListEmptyComponent={!isLoading ? <Text style={styles.emptyText}>Not following anyone yet</Text> : null}
       />
+      <Actionsheet isOpen={unfollowSheet} onClose={() => setUnfollowSheet(false)}>
+        <ActionsheetBackdrop />
+        <ActionsheetContent style={{ backgroundColor: "#141414" }}>
+          <ActionsheetDragIndicatorWrapper>
+            <ActionsheetDragIndicator />
+          </ActionsheetDragIndicatorWrapper>
+          <ActionsheetItem disabled>
+            <ActionsheetItemText style={{ color: "#9CA3AF", fontSize: 14 }}>
+              Unfollow @{selectedUser?.username || ""}?
+            </ActionsheetItemText>
+          </ActionsheetItem>
+          <Divider />
+          <ActionsheetItem onPress={() => selectedUser && handleUnfollow(selectedUser.id)}>
+            <ActionsheetItemText style={{ color: "#EF4444", fontWeight: "700" }}>
+              Unfollow
+            </ActionsheetItemText>
+          </ActionsheetItem>
+          <Divider />
+          <ActionsheetItem onPress={() => setUnfollowSheet(false)}>
+            <ActionsheetItemText style={{ color: "white" }}>Cancel</ActionsheetItemText>
+          </ActionsheetItem>
+        </ActionsheetContent>
+      </Actionsheet>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0A0A0A",
-  },
-  centered: {
-    flex: 1,
-    backgroundColor: "#0A0A0A",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorText: {
-    color: "red",
-    fontSize: 16,
-  },
-  header: {
-    marginTop: 10,
-    padding: 12,
-    alignItems: "center",
-  },
-  headerText: {
-    color: "white",
-    fontSize: 22,
-    fontWeight: "600",
-    marginLeft: 10,
-  },
-  divider: {
-    marginBottom: 10,
-  },
-  listContent: {
-    gap: 9,
-    padding: 7,
-    margin: 3,
-  },
-  itemContainer: {
-    marginVertical: 5,
-    paddingHorizontal: 8,
-  },
-  itemRow: {
-    marginTop: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  userInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  avatarFallback: {
-    color: "white",
-  },
-  usernameText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-  button: {
-    borderRadius: 6,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-  },
-  buttonTextOutline: {
-    color: "white",
-    fontWeight: "900",
-  },
-  itemDivider: {
-    borderWidth: 1,
-    borderColor: "grey",
-    marginTop: 5,
-  },
-});

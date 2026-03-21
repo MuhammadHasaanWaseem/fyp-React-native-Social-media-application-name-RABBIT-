@@ -1,9 +1,9 @@
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { supabase } from '@/lib/supabase';
-import { View, StyleSheet, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, Text, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { wp, hp } from '@/lib/helper';
 import Layout from './_layout';
 import { OtpInput } from 'react-native-otp-entry';
@@ -14,7 +14,6 @@ export default function VerifyScreen() {
   const [token, setToken] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const { input, type } = useLocalSearchParams();
-  const router = useRouter();
 
   const handleVerify = async () => {
     const verifyParams =
@@ -26,7 +25,6 @@ export default function VerifyScreen() {
 
     if (!error) {
       setErrorMessage('Verified Successfully!');
-      router.push('/(auth)/username');
     } else {
       setErrorMessage('OTP is incorrect. Please try again.');
     }
@@ -34,15 +32,13 @@ export default function VerifyScreen() {
 
   return (
     <Layout onPress={handleVerify} buttonText="Verify OTP">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        <SafeAreaView style={styles.innerContainer}>
-          <View style={styles.content}>
-            <Text style={styles.subtitle}>Sent to {input}</Text>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <SafeAreaView style={styles.innerContainer}>
+            <View style={styles.content}>
+              <Text style={styles.subtitle}>Sent to {input}</Text>
 
-            <OtpInput
+              <OtpInput
               numberOfDigits={6}
               autoFocus
               onTextChange={setToken}
@@ -66,9 +62,10 @@ export default function VerifyScreen() {
                 {errorMessage}
               </Text>
             )}
-          </View>
-        </SafeAreaView>
-      </KeyboardAvoidingView>
+            </View>
+          </SafeAreaView>
+        </View>
+      </TouchableWithoutFeedback>
     </Layout>
   );
 }

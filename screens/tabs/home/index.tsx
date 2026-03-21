@@ -21,17 +21,22 @@ import {
   CalendarClock,
   Hourglass
 } from 'lucide-react-native';
-import { Pressable, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Pressable, FlatList, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Divider } from '@/components/ui/divider';
-import { usePosts } from '@/hooks/use-posts';
+import { usePostsInfinite } from '@/hooks/use-posts';
+import { useBlocked } from '@/hooks/use-blocked';
 import View from '@/components/shared/sharedview';
 import { getFileUrl } from '@/lib/supabase';
 import { wp, hp } from '@/lib/helper';
+import { homeStyles } from './styles';
+import { PostSkeletonList, PostSkeletonFooter } from '@/components/shared/PostSkeleton';
 export default () => {
   const { user } = useAuth();
   const router = useRouter();
-  const { data, refetch, isLoading } = usePosts({ key: 'parent_id', value: null, type: 'is' });
+  const { data, refetch, isLoading, isRefetching, fetchNextPage, hasNextPage, isFetchingNextPage } = usePostsInfinite({ key: 'parent_id', value: null, type: 'is' });
+  const { blockedIds = [] } = useBlocked(user?.id);
+  const filteredData = data?.filter((p) => !blockedIds.includes(p.user_id)) ?? [];
 
   const backPressTimeRef = useRef(0);
 
@@ -69,7 +74,7 @@ export default () => {
         </TouchableOpacity>
         <Image
           source={require('../../../assets/gif/RAB.gif')}
-          style={styles.image}
+          style={homeStyles.image}
         />
 
         <TouchableOpacity onPress={() => {}}>
@@ -81,10 +86,7 @@ export default () => {
           <Avatar size="md" style={{ borderColor: 'white', backgroundColor: 'white' }}>
             <AvatarFallbackText style={{ color: 'black' }}>{user?.username || ''}</AvatarFallbackText>
             {/* <AvatarImage source={{ uri: user?.avatar }} /> */}
-            <AvatarImage
-              source={{ uri: `${getFileUrl(user?.id || '', 'avatar.jpeg')}?t=${new Date().getTime()}` }}
-
-            />
+            <AvatarImage source={{ uri: `${user?.avatar || getFileUrl(user?.id || '', 'avatar.jpeg')}?t=${Date.now()}` }} />
           </Avatar>
 
           <Card size="lg" className=" bg-transparent">
@@ -116,27 +118,17 @@ export default () => {
       </Pressable>
 
       <FlatList
-        data={data}
-        refreshing={isLoading}
+        data={filteredData}
+        refreshing={isRefetching}
         onRefresh={refetch}
+        onEndReached={() => hasNextPage && !isFetchingNextPage && fetchNextPage()}
+        onEndReachedThreshold={0.3}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <>
-            <View item={item} refetch={refetch} />
-
-          </>
-        )}
+        ListEmptyComponent={isLoading ? <PostSkeletonList count={4} /> : null}
+        ListFooterComponent={isFetchingNextPage ? <PostSkeletonFooter /> : null}
+        renderItem={({ item }) => <View item={item} refetch={refetch} />}
       />
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  image: {
-    width: wp(10),
-    height: wp(10),
-    marginTop: hp(3),
-  },
-});
-
 

@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { VStack } from '@/components/ui/vstack';
 import { Button, ButtonText } from '@/components/ui/button';
-import { Lock, ThumbsUp, MessageCircle, Send, Trash2, Play, Pause, Volume2, VolumeX, RotateCcw, EyeOff, Timer } from 'lucide-react-native';
+import { Lock, ThumbsUp, MessageCircle, Send, Trash2, Play, Pause, Volume2, VolumeX, RotateCcw, Eye, Timer } from 'lucide-react-native';
 import { Video } from 'expo-av';
 import ImageViewing from 'react-native-image-viewing';
 import { rendertext } from '@/screens/post/input';
@@ -18,6 +18,7 @@ import { useAuth } from '@/providers/AuthProviders';
 import { router } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { Spinner } from '@/components/ui/spinner';
+import { spoilerButtonColors, spoilerButtonStyles } from '@/components/shared/spoilerButton.styles';
 
 export default function MentionView({ item, refetch }) {
   const { user } = useAuth();
@@ -188,9 +189,9 @@ export default function MentionView({ item, refetch }) {
           </TouchableOpacity>
           {item.tag_name === 'spoiler' && !spoilerRevealed && (
             <BlurView intensity={50} tint="dark" style={[StyleSheet.absoluteFill, styles.blurContainer]}>
-              <TouchableOpacity onPress={() => setSpoilerRevealed(true)} style={styles.viewSpoilerButton}>
-                <EyeOff color={'white'} size={24} />
-                <Text style={styles.viewSpoilerText}>View Spoiler</Text>
+              <TouchableOpacity onPress={() => setSpoilerRevealed(true)} style={spoilerButtonStyles.button}>
+                <Eye color={spoilerButtonColors.icon} size={20} strokeWidth={2} />
+                <Text style={[spoilerButtonStyles.text, { marginLeft: wp(2) }]}>View Spoiler</Text>
               </TouchableOpacity>
             </BlurView>
           )}
@@ -224,9 +225,9 @@ export default function MentionView({ item, refetch }) {
           />
           {item.tag_name === 'spoiler' && !spoilerRevealed && (
             <BlurView intensity={50} tint="dark" style={[StyleSheet.absoluteFill, styles.blurContainer]}>
-              <TouchableOpacity onPress={() => setSpoilerRevealed(true)} style={styles.viewSpoilerButton}>
-                <EyeOff color={'white'} size={24} />
-                <Text style={styles.viewSpoilerText}>Spoiler</Text>
+              <TouchableOpacity onPress={() => setSpoilerRevealed(true)} style={spoilerButtonStyles.button}>
+                <Eye color={spoilerButtonColors.icon} size={20} strokeWidth={2} />
+                <Text style={[spoilerButtonStyles.text, { marginLeft: wp(2) }]}>Spoiler</Text>
               </TouchableOpacity>
             </BlurView>
           )}
@@ -368,20 +369,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#1A1A1A',
-  },
-  viewSpoilerButton: {
-    padding: wp(2),
-    backgroundColor: '#FF4500',
-    borderRadius: wp(1.25),
-    alignContent: 'center',
-    alignItems: 'center',
-  },
-  viewSpoilerText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: '900',
-    fontSize: hp(1.4),
-    marginBottom: hp(0.4),
   },
   videoControls: {
     position: 'absolute',

@@ -39,6 +39,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-apple-authentication",
       [
         "expo-image-picker",
         {
@@ -66,6 +67,21 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
+        }
+      ],
+      [
+        "@react-native-community/datetimepicker",
+        {
+          "android": {
+            "datePicker": {
+              "textColorPrimary": { "light": "#000000", "dark": "#FFFFFF" },
+              "colorAccent": { "light": "#FF4500", "dark": "#FF4500" }
+            },
+            "timePicker": {
+              "numbersTextColor": { "light": "#000000", "dark": "#FFFFFF" },
+              "numbersBackgroundColor": { "light": "#FFFFFF", "dark": "#1a1a1a" }
+            }
+          }
         }
       ]
     ],

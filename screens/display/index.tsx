@@ -33,7 +33,7 @@ import {
   Volume2,
   VolumeX,
   RotateCcw,
-  EyeOff,
+  Eye,
   Timer,
 } from 'lucide-react-native';
 import { Video } from 'expo-av';
@@ -45,6 +45,7 @@ import { useAuth } from '@/providers/AuthProviders';
 import { router } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { Spinner } from '@/components/ui/spinner';
+import { spoilerButtonColors, spoilerButtonStyles } from '@/components/shared/spoilerButton.styles';
 
 export default () => {
   // Local search params and auth
@@ -279,10 +280,10 @@ export default () => {
             >
               <TouchableOpacity
                 onPress={() => setSpoilerRevealed(true)}
-                style={styles.viewSpoilerButton}
+                style={spoilerButtonStyles.button}
               >
-                <EyeOff color={'white'} size={24} />
-                <Text style={styles.viewSpoilerText}>View Spoiler</Text>
+                <Eye color={spoilerButtonColors.icon} size={20} strokeWidth={2} />
+                <Text style={[spoilerButtonStyles.text, { marginLeft: wp(2) }]}>View Spoiler</Text>
               </TouchableOpacity>
             </BlurView>
           )}
@@ -339,10 +340,10 @@ export default () => {
             >
               <TouchableOpacity
                 onPress={() => setSpoilerRevealed(true)}
-                style={styles.viewSpoilerButton}
+                style={spoilerButtonStyles.button}
               >
-                <EyeOff color={'white'} size={24} />
-                <Text style={styles.viewSpoilerText}>Spoiler</Text>
+                <Eye color={spoilerButtonColors.icon} size={20} strokeWidth={2} />
+                <Text style={[spoilerButtonStyles.text, { marginLeft: wp(2) }]}>Spoiler</Text>
               </TouchableOpacity>
             </BlurView>
           )}
@@ -641,21 +642,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#1A1A1A',
-  },
-  viewSpoilerButton: {
-    padding: wp(2),
-    borderRadius: wp(1.25),
-    flex:1,
-    justifyContent:'center',
-    alignContent: 'center',
-    alignItems: 'center',
-  },
-  viewSpoilerText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: '900',
-    fontSize: hp(1.4),
-    marginBottom: hp(0.4),
   },
   videoControls: {
     position: 'absolute',

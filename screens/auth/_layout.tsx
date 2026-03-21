@@ -1,43 +1,49 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { VStack } from '@/components/ui/vstack';
-import { Button, ButtonText } from '@/components/ui/button';
 import {
   StyleSheet,
   View,
   StatusBar,
-  Image,
   Text,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { wp, hp } from '@/lib/helper';
+import { Button, ButtonText } from '@/components/ui/button';
 
-export default ({ children, onPress, buttonText, buttonDisabled }: {
+export default ({ children, onPress, buttonText, buttonDisabled, footerExtra }: {
   children: React.ReactNode,
   onPress: () => void,
   buttonText: React.ReactNode,
-  buttonDisabled?: boolean
+  buttonDisabled?: boolean,
+  footerExtra?: React.ReactNode,
 }) => {
+  const insets = useSafeAreaInsets();
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={'#010118'}/>
-      
-          <View style={styles.innerContainer}>
-            
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <View style={styles.innerContainer}>
+          <View style={styles.content}>
+            {children}
+          </View>
 
-            <View style={styles.content}>
-              {children}
-            </View>
-
-            <VStack style={styles.footer}>
+          <VStack style={[styles.footer, { paddingBottom: Math.max(insets.bottom, hp(1.5)) }]}>
+              {footerExtra}
               <Button onPress={onPress} style={styles.mainButton} disabled={buttonDisabled}>
                 <ButtonText style={styles.buttonText}>{buttonText}</ButtonText>
               </Button>
-
-             
             </VStack>
 
-            <View style={styles.bottomBranding}>
-            </View>
+          <View style={styles.bottomBranding}>
           </View>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -46,6 +52,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#010118',
+  },
+  keyboardView: {
+    flex: 1,
   },
   innerContainer: {
     flex: 1,
@@ -66,16 +75,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   footer: {
-    paddingTop: hp(40),
-    paddingBottom: hp(20),
-    gap: hp(2),
+    paddingTop: hp(2),
+    gap: hp(1),
+    width: '100%',
   },
   mainButton: {
     backgroundColor: '#FF4500',
     borderRadius: wp(3.5),
     height: hp(5),
-    bottom: hp(2.5),
-    position: 'absolute',
     alignSelf: 'center',
     width: '100%',
     zIndex: 1000,

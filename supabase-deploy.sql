@@ -165,3 +165,5 @@ USING (bucket_id = 'files');
 -- 6. AUTH
 -- ============================================
 -- Enable Phone/OTP in Authentication > Providers if using OTP login.
+--
+-- Account self-delete (no Edge Function): run supabase-migrations/delete-own-account-rpc.sql

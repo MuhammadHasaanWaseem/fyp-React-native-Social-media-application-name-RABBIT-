@@ -15,11 +15,13 @@ export const TimePicker = ({ onSelect, onCancel }) => {
   };
 
   return (
-    <View style={{ backgroundColor: 'white', padding: 20 }}>
+    <View style={{ backgroundColor: '#010118', padding: 20 }}>
       <DateTimePicker
         value={date}
         mode="datetime"
         display="spinner"
+        themeVariant="dark"
+        textColor="#FFFFFF"
         onChange={onChange}
         minimumDate={new Date()}
       />
