@@ -12,38 +12,20 @@ import {
 import { ArrowLeft, ChevronDown } from "lucide-react-native";
 import Collapsible from "react-native-collapsible";
 import { router } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { policyStyles } from "./index.styles";
 
-// Create an Animated version of the Chevron icon
 const AnimatedChevron = Animated.createAnimatedComponent(ChevronDown);
 
-// Simple HStack component for horizontal layout using a native View
-const HStack = ({
-  children,
-  style,
-  ...props
-}: {
-  children: React.ReactNode;
-  style?: object;
-}) => {
-  return (
-    <View
-      style={[{ flexDirection: "row", alignItems: "center",gap:6,marginBottom:30 }, style]}
-      {...props}
-    >
-      {children}
-    </View>
-  );
-};
-
 const PrivacyPolicy = () => {
+  const insets = useSafeAreaInsets();
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
-  // Define the sections for the privacy policy
   const sections = [
     {
       title: "1. Information Collection",
       content:
-        "We collect information you provide directly to enhance your Rabbit experience...",
+        "We collect information you provide directly to enhance your Minoqtopus experience...",
     },
     {
       title: "2. Use of Information",
@@ -64,7 +46,6 @@ const PrivacyPolicy = () => {
     },
   ];
 
-  // Create an Animated.Value for each section using useRef
   const animations = useRef(
     sections.reduce((acc, section) => {
       acc[section.title] = new Animated.Value(0);
@@ -72,7 +53,6 @@ const PrivacyPolicy = () => {
     }, {} as { [key: string]: Animated.Value })
   ).current;
 
-  // Enable LayoutAnimation on Android
   useEffect(() => {
     if (Platform.OS === "android") {
       UIManager.setLayoutAnimationEnabledExperimental &&
@@ -80,12 +60,10 @@ const PrivacyPolicy = () => {
     }
   }, []);
 
-  // Toggle the expansion of a section
   const toggleSection = (sectionTitle: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
     if (activeSection === sectionTitle) {
-      // Collapse the active section
       Animated.timing(animations[sectionTitle], {
         toValue: 0,
         duration: 300,
@@ -93,7 +71,6 @@ const PrivacyPolicy = () => {
       }).start();
       setActiveSection(null);
     } else {
-      // If there is an active section, collapse it first
       if (activeSection) {
         Animated.timing(animations[activeSection], {
           toValue: 0,
@@ -101,7 +78,6 @@ const PrivacyPolicy = () => {
           useNativeDriver: true,
         }).start();
       }
-      // Expand the selected section
       Animated.timing(animations[sectionTitle], {
         toValue: 1,
         duration: 300,
@@ -113,61 +89,35 @@ const PrivacyPolicy = () => {
 
   return (
     <ScrollView
-      style={{ backgroundColor: "#010118" }}
-      contentContainerStyle={{ padding: 20, paddingBottom: 20 }}
+      style={policyStyles.scroll}
+      contentContainerStyle={[
+        policyStyles.content,
+        { paddingTop: insets.top + 12 },
+      ]}
     >
-      <HStack >
-       
-       <TouchableOpacity onPress={() => router.back()}>
+      <View style={policyStyles.headerRow}>
+        <TouchableOpacity onPress={() => router.back()}>
           <ArrowLeft color="white" size={24} />
         </TouchableOpacity>
-        <Text
-          style={{
-            color: "#FF4500",
-            fontSize: 24,
-            fontWeight: "bold",
-            marginLeft: 10,
-          }}
-        >
-          Privacy Policy
-        </Text>
-       
-      </HStack>
+        <Text style={policyStyles.headerTitle}>Privacy Policy</Text>
+      </View>
 
       {sections.map((section) => {
-        // Rotate the chevron based on the animation value for the section
         const rotate = animations[section.title].interpolate({
           inputRange: [0, 1],
           outputRange: ["0deg", "180deg"],
         });
         return (
-          <View
-            key={section.title}
-            style={{
-              backgroundColor: "#010118",
-              borderRadius: 10,
-              padding: 15,
-              marginBottom: 15,
-              shadowColor: "#000",
-              shadowOpacity: 0.1,
-              shadowRadius: 5,
-            }}
-          >
+          <View key={section.title} style={policyStyles.sectionCard}>
             <TouchableOpacity
               onPress={() => toggleSection(section.title)}
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
+              style={policyStyles.sectionHeaderRow}
             >
               <Text
-                style={{
-                  color: "white",
-                  fontSize: 18,
-                  fontWeight:
-                    activeSection === section.title ? "bold" : "600",
-                }}
+                style={[
+                  policyStyles.sectionTitle,
+                  activeSection === section.title && policyStyles.sectionTitleActive,
+                ]}
               >
                 {section.title}
               </Text>
@@ -178,44 +128,21 @@ const PrivacyPolicy = () => {
               />
             </TouchableOpacity>
             <Collapsible collapsed={activeSection !== section.title}>
-              <Text style={{ color: "#FF4500", marginTop: 10, lineHeight: 22 }}>
-                {section.content}
-              </Text>
+              <Text style={policyStyles.sectionBody}>{section.content}</Text>
             </Collapsible>
           </View>
         );
       })}
 
-      <View
-        style={{
-          backgroundColor: "#010118",
-          borderRadius: 10,
-          padding: 15,
-          marginTop: 20,
-          shadowColor: "#000",
-          shadowOpacity: 0.1,
-          shadowRadius: 5,
-        }}
-      >
-        <Text
-          style={{
-            color: "white",
-            fontSize: 18,
-            fontWeight: "600",
-            marginBottom: 10,
-            marginTop:'80%',
-            textAlign:'center'
-          }}
-        >
-          Contact Us
-        </Text>
-        <Text style={{ color: "white", lineHeight: 22,textAlign:'center' }}>
+      <View style={policyStyles.contactCard}>
+        <Text style={policyStyles.contactTitle}>Contact Us</Text>
+        <Text style={policyStyles.contactBody}>
           If you have any questions about this Privacy Policy, reach out to us at
-          support@rabbitsocial.com.
+          muhammadhasaanwork@gmail.com.
         </Text>
       </View>
     </ScrollView>
-  ); 
+  );
 };
 
 export default PrivacyPolicy;

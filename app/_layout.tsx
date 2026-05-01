@@ -14,6 +14,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import OnboardingScreen from './(onboarding)';
 import Starter from './starter';
 import { AudioProvider } from '@/providers/AudioProvider';
+import { VideoPlayerProvider } from '@/providers/VideoPlayerProvider';
+import { NavigationMediaPause } from '@/components/NavigationMediaPause';
 
 // Prevent the splash screen from auto-hiding before assets load
 SplashScreen.preventAutoHideAsync();
@@ -127,8 +129,11 @@ export default function RootLayout() {
     <GluestackUIProvider mode="light">
         <PostProvider>
           <AudioProvider>
-            <AppNavigator />
-            </AudioProvider>
+            <VideoPlayerProvider>
+              <NavigationMediaPause />
+              <AppNavigator />
+            </VideoPlayerProvider>
+          </AudioProvider>
         </PostProvider>
     </GluestackUIProvider>
     </AuthProvider>

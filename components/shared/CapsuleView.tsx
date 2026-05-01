@@ -19,13 +19,15 @@ import { BlurView } from "expo-blur";
 import { Timer, Eye, ThumbsUp, MessageCircle, Share2, Trash2, Play, Pause, Volume2, VolumeX, RotateCcw } from "lucide-react-native";
 import { formatDistanceToNowStrict } from "date-fns";
 import { rendertext } from "@/screens/post/input";
+import { openProfileByMentionUsername } from "@/lib/mention-nav";
 import Audio from "@/screens/post/audio";
 import { Video } from "expo-av";
 import ImageViewing from "react-native-image-viewing";
 import { Spinner } from "../ui/spinner";
 import * as Haptics from "expo-haptics";
 import { useAuth } from "@/providers/AuthProviders";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import { useVideoPlayer } from "@/providers/VideoPlayerProvider";
 import { capsuleViewStyles as styles } from "./CapsuleView.styles";
 import { spoilerButtonColors, spoilerButtonStyles } from "./spoilerButton.styles";
 
@@ -36,6 +38,7 @@ interface CapsuleViewProps {
 export default function CapsuleView({ userId }: CapsuleViewProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { playVideo, releaseVideo, pauseAllMedia } = useVideoPlayer();
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ["capsulePosts", userId],
@@ -55,6 +58,24 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
   const [postStates, setPostStates] = useState(() => new Map());
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
   const videoRefs = useRef<Map<string, Video>>(new Map());
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        void pauseAllMedia();
+        videoRefs.current.forEach((ref) => {
+          ref.pauseAsync().catch(() => {});
+        });
+        setPostStates((prev) => {
+          const next = new Map(prev);
+          next.forEach((s, id) => {
+            if (s?.isPlaying) next.set(id, { ...s, isPlaying: false });
+          });
+          return next;
+        });
+      };
+    }, [pauseAllMedia]),
+  );
 
   const getPostState = useCallback(
     (postId: string, post?: { unlock_at?: string }) => {
@@ -229,8 +250,13 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
       const handlePlayPause = async () => {
         const ref = videoRefs.current.get(item.id);
         if (!ref) return;
-        if (state.isPlaying) await ref.pauseAsync();
-        else await ref.playAsync();
+        if (state.isPlaying) {
+          await ref.pauseAsync();
+          releaseVideo(ref);
+        } else {
+          await playVideo(ref);
+          await ref.playAsync();
+        }
         setPostStates((prev) => {
           const next = new Map(prev);
           const s = next.get(item.id) || {};
@@ -243,6 +269,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
       const handleReplay = async () => {
         const ref = videoRefs.current.get(item.id);
         if (!ref) return;
+        await playVideo(ref);
         await ref.setPositionAsync(0);
         await ref.playAsync();
         setPostStates((prev) => {
@@ -257,7 +284,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
 
       const content = (
         <VStack style={styles.contentArea}>
-          {rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}
+          {rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [], { onMentionPress: openProfileByMentionUsername })}
           {item.file && String(item.file).match(/\.(mp3|m4a)$/i) && (
             <View style={{ marginTop: 3 }}>
               <Audio
@@ -357,7 +384,10 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
                 resizeMode="cover"
                 onLoad={() => handleMediaLoad()}
                 onPlaybackStatusUpdate={(status) => {
-                  if (status.isLoaded && status.didJustFinish) {
+                  if (!status.isLoaded) return;
+                  if (status.didJustFinish) {
+                    const r = videoRefs.current.get(item.id);
+                    if (r) releaseVideo(r);
                     setPostStates((prev) => {
                       const next = new Map(prev);
                       const s = next.get(item.id) || {};
@@ -519,7 +549,7 @@ export default function CapsuleView({ userId }: CapsuleViewProps) {
         </Card>
       );
     },
-    [getPostState, posts, user?.id]
+    [getPostState, posts, user?.id, playVideo, releaseVideo]
   );
 
   if (isLoading) return <Spinner color="white" size={24} />;

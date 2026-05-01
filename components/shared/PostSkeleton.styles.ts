@@ -77,4 +77,10 @@ export const postSkeletonStyles = StyleSheet.create({
   listContainer: {
     paddingBottom: hp(10),
   },
+  footerCard: {
+    marginVertical: hp(2),
+  },
+  footerMedia: {
+    height: hp(12),
+  },
 });

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { Image, TouchableOpacity, View, Modal, Share, Alert, ScrollView } from 'react-native';
 import {
   Actionsheet,
@@ -22,19 +22,22 @@ import {  MessageCircle, Volume2, VolumeX, Pause, Play, RotateCcw, Trash2, Timer
 import { Video } from 'expo-av'; //video
 import ImageViewing from 'react-native-image-viewing'; // image zoom
 import { rendertext } from '@/screens/post/input'; //text
+import { openProfileByMentionUsername } from '@/lib/mention-nav';
 import Audio from '@/screens/post/audio'; // Audio
 import { supabase, getFileUrl } from '@/lib/supabase';
 import * as Haptics from 'expo-haptics'; //vibration
 import { useAuth } from '@/providers/AuthProviders'; 
-import { router } from 'expo-router'; //navigation
+import { router, useFocusEffect } from 'expo-router';
+import { useVideoPlayer } from '@/providers/VideoPlayerProvider';
 import { BlurView } from 'expo-blur'; // blur effect
 import { sharedViewStyles } from './sharedview.styles';
 import { spoilerButtonColors, spoilerButtonStyles } from './spoilerButton.styles';
 import { StyleSheet } from 'react-native';
 import { PostSkeletonItem } from '@/components/shared/PostSkeleton';
 
-export default function ShareView({ item, refetch }: { item: any; refetch: () => void }) {
+function ShareView({ item, refetch }: { item: any; refetch: () => void }) {
   const { user } = useAuth();
+  const { playVideo, releaseVideo } = useVideoPlayer();
 
   const imageFiles = useMemo(() => {
     if (!item?.file) return [] as string[];
@@ -79,6 +82,18 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        const v = videoRef.current;
+        if (!v) return;
+        v.pauseAsync().catch(() => {});
+        releaseVideo(v);
+        setIsPlaying(false);
+      };
+    }, [releaseVideo]),
+  );
+
   useEffect(() => {
     if (item.unlock_at) {
       const unlock = new Date(item.unlock_at);
@@ -100,13 +115,20 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
 
   const handlePlayPause = async () => {
     if (!videoRef.current) return;
-    if (isPlaying) await videoRef.current.pauseAsync();
-    else await videoRef.current.playAsync();
-    setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      await videoRef.current.pauseAsync();
+      releaseVideo(videoRef.current);
+      setIsPlaying(false);
+    } else {
+      await playVideo(videoRef.current);
+      await videoRef.current.playAsync();
+      setIsPlaying(true);
+    }
   };
 
   const handleReplay = async () => {
     if (!videoRef.current) return;
+    await playVideo(videoRef.current);
     await videoRef.current.setPositionAsync(0);
     await videoRef.current.playAsync();
     setIsPlaying(true);
@@ -182,11 +204,11 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
 
   const header = (
     <HStack style={{ alignItems: 'center' }} space="lg">
-      <Avatar style={{ borderColor: 'white', backgroundColor: 'white' }} size="md">
+      <Avatar style={{ borderWidth: 0, backgroundColor: 'rgba(255,255,255,0.12)' }} size="md">
         {item.User?.avatar ? (
           <AvatarImage source={{ uri: item.User.avatar }} />
         ) : (
-          <AvatarFallbackText size={17} style={{ color: 'black', fontWeight: '700' }}>
+          <AvatarFallbackText size={17} style={{ color: '#fff', fontWeight: '700' }}>
             {item.User?.username?.charAt(0) || ''}
           </AvatarFallbackText>
         )}
@@ -204,11 +226,11 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
           item.text?.trim() ? (
             <HStack>
               <Text style={{ color: 'white', fontWeight: '700' }}>Post Captions : </Text>
-              <>{rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}</>
+              <>{rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [], { onMentionPress: openProfileByMentionUsername })}</>
             </HStack>
           ) : null
         ) : (
-          <>{rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}</>
+          <>{rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [], { onMentionPress: openProfileByMentionUsername })}</>
         )}
         
       </VStack>
@@ -267,14 +289,12 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
                     </View>
                   ))}
                 </ScrollView>
-                <Modal visible={isImageVisible} transparent onRequestClose={() => setImageVisible(false)}>
-                  <ImageViewing
-                    images={imageUris}
-                    imageIndex={imageIndex}
-                    visible={isImageVisible}
-                    onRequestClose={() => setImageVisible(false)}
-                  />
-                </Modal>
+                <ImageViewing
+                  images={imageUris}
+                  imageIndex={imageIndex}
+                  visible={isImageVisible}
+                  onRequestClose={() => setImageVisible(false)}
+                />
               </>
             );
           }
@@ -291,7 +311,9 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
               style={{ height: hp(37), marginTop: hp(1.25), width: wp(50), borderWidth: 0.5, borderColor: 'black', borderRadius: wp(2.5) }}
               useNativeControls={false}
               onPlaybackStatusUpdate={(status) => {
+                if (!status.isLoaded) return;
                 if (status.didJustFinish) {
+                  if (videoRef.current) releaseVideo(videoRef.current);
                   setIsPlaying(false);
                   setVideoFinished(true);
                 }
@@ -299,6 +321,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
               isMuted={isMuted}
               isLooping={false}
               resizeMode="cover"
+              progressUpdateIntervalMillis={1000}
               onLoad={() => setIsLoading(false)}
             />
             {item.tag_name === 'spoiler' && !spoilerRevealed && (
@@ -366,7 +389,7 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
         {content}
         {isScheduled && (
           <BlurView intensity={50} tint="dark" style={sharedViewStyles.blurOverlay}>
-            <VStack style={{ padding: wp(1.25), backgroundColor: '#FF4500',borderWidth:2,borderColor:'white', justifyContent: 'center', alignItems: 'center', borderRadius: wp(2) }}>
+            <VStack style={{ padding: wp(1.25), backgroundColor: '#FF4500', justifyContent: 'center', alignItems: 'center', borderRadius: wp(2) }}>
               <Text style={{ color: 'white', fontSize: 14, fontWeight: '400' ,fontStyle:'italic'}}>{item.User?.username}</Text>
               <Text style={{ color: 'white', fontSize: 14, fontWeight: '400' }}>𝘩𝘢𝘴 𝘴𝘦𝘵 𝘵𝘩𝘪𝘴 𝘗𝘰𝘴𝘵 𝘢𝘴 𝘱𝘳𝘦𝘮𝘪𝘦𝘳.
               </Text>
@@ -428,3 +451,4 @@ export default function ShareView({ item, refetch }: { item: any; refetch: () =>
   );
 }
 
+export default React.memo(ShareView);

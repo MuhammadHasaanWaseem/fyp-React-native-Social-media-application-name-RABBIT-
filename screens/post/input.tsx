@@ -4,22 +4,55 @@ import { Text } from '@/components/ui/text'
 import { TextInput } from 'react-native'
 //hastag post related screen
 
-export const rendertext = (textArray: string[]) => {
-    if (!textArray) return null
-    return (
-        <Text className=' my-2'>
-            {textArray?.map((part, index) => {
-                if (part?.startsWith('#') || part.startsWith('@')) {
-                    const tag = part?.toLowerCase()
-                    return <Text style={{ color: '#90d5ff',fontSize:12 }} size="md" key={index} className='font-bold'>{tag}</Text>
+export type RendertextOptions = {
+  onMentionPress?: (usernameWithoutAt: string) => void;
+};
 
-                }
-                else {
-                    return <Text style={{ color: 'white' }} size="md" key={index} >{part}</Text>
-                }
-            })}
-        </Text>)
-}
+export const rendertext = (textArray: string[], options?: RendertextOptions) => {
+  if (!textArray) return null;
+  const onMention = options?.onMentionPress;
+  return (
+    <Text className=" my-2">
+      {textArray?.map((part, index) => {
+        if (part?.startsWith('#')) {
+          const tag = part?.toLowerCase();
+          return (
+            <Text style={{ color: '#90d5ff', fontSize: 12 }} size="md" key={index} className="font-bold">
+              {tag}
+            </Text>
+          );
+        }
+        if (part?.startsWith('@')) {
+          const display = part?.toLowerCase();
+          const slug = part.slice(1);
+          if (onMention) {
+            return (
+              <Text
+                key={index}
+                onPress={() => onMention(slug)}
+                style={{ color: '#90d5ff', fontSize: 12 }}
+                size="md"
+                className="font-bold"
+              >
+                {display}
+              </Text>
+            );
+          }
+          return (
+            <Text style={{ color: '#90d5ff', fontSize: 12 }} size="md" key={index} className="font-bold">
+              {display}
+            </Text>
+          );
+        }
+        return (
+          <Text style={{ color: 'white' }} size="md" key={index}>
+            {part}
+          </Text>
+        );
+      })}
+    </Text>
+  );
+};
 
 
 

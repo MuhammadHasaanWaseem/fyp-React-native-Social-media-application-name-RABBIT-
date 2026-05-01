@@ -9,15 +9,15 @@ import CommentsNotification from "./CommentsNotification"; // Newly created
 import LikesNotification from "./LikesNotification";
 import Mention from "./Mention";
 
-const tabs = ['Rabbit Follows', 'Likes on your Post', 'User Mentions', 'Comments on your Post'];
+const tabs = ['Minoqtopus Follows', 'Likes on your Post', 'User Mentions', 'Comments on your Post'];
 
 export default () => {
-  const [selectedTab, setSelectedTab] = useState('Follows');
+  const [selectedTab, setSelectedTab] = useState('Minoqtopus Follows');
 
   // Renders the component corresponding to the active tab
   const renderTabComponent = () => {
     switch(selectedTab) {
-      case 'Rabbit Follows':
+      case 'Minoqtopus Follows':
         return <Follows />;
       case 'Comments on your Post':
         return <CommentsNotification />;
@@ -33,7 +33,6 @@ export default () => {
   return (
     <SafeAreaView style={{ backgroundColor: '#010118',flex:1 }} className="flex-1">
       <HStack space="md" style={{ marginTop: 10 }} className="p-3 items-center">
-        <BellIcon color={'grey'} size={24} />
         <Text style={{ color: '#ff4500', fontSize: 22, fontWeight: '600' }}>Notifications</Text>
       </HStack>
       <Divider style={{ marginBottom: 10 }} />

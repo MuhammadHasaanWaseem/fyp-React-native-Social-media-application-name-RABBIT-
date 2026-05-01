@@ -1,97 +1,108 @@
-import { FlatList, SafeAreaView, Text, TouchableOpacity, ActivityIndicator, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { usefollowers } from "@/hooks/use-followers";
 import { useAuth } from "@/providers/AuthProviders";
-import { HStack } from "@/components/ui/hstack";
 import { Avatar, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar";
-import { Button, ButtonText } from "@/components/ui/button";
-import { Divider } from "@/components/ui/divider";
-import { VStack } from "@/components/ui/vstack";
 import { router } from "expo-router";
 import { usefollowing } from "@/hooks/use-following";
 import { supabase } from "@/lib/supabase";
+import { followsStyles as s } from "./follows.styles";
 
 export default () => {
   const { user } = useAuth();
   const { data, isLoading, refetch: refetchfollowers } = usefollowers(user?.id);
   const { data: followingdata, refetch: refetchfollowing } = usefollowing(user?.id);
 
-  // Follow a user
   const followuser = async (following_user_id: string) => {
-    const { error } = await supabase.from('Followers').insert({
+    const { error } = await supabase.from("Followers").insert({
       user_id: user?.id,
-      following_user_id
+      following_user_id,
     });
-    if (!error) refetchfollowers();
+    if (!error) {
+      refetchfollowers();
+      refetchfollowing();
+    }
   };
 
-  // Unfollow a user
   const unfollowuser = async (following_user_id: string) => {
-    const { error } = await supabase.from('Followers').delete()
-      .eq('user_id', user?.id)
-      .eq('following_user_id', following_user_id);
-    if (!error) refetchfollowing();
+    const { error } = await supabase
+      .from("Followers")
+      .delete()
+      .eq("user_id", user?.id)
+      .eq("following_user_id", following_user_id);
+    if (!error) {
+      refetchfollowing();
+      refetchfollowers();
+    }
   };
 
-  // Loading state
   if (isLoading) {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="white" />
-      </SafeAreaView>
+      <View style={s.center}>
+        <ActivityIndicator size="small" color="rgba(255,255,255,0.5)" />
+      </View>
     );
   }
 
-  // No followers message
-  if (!isLoading && (!data || data.length === 0)) {
+  if (!data?.length) {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: "white", fontSize: 18, fontWeight: "bold" }}>No followers yet</Text>
-      </SafeAreaView>
+      <View style={s.center}>
+        <Text style={s.emptyTitle}>No new followers yet</Text>
+        <Text style={s.emptyHint}>When someone follows you, they will show up here.</Text>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView>
+    <View style={s.flex}>
       <FlatList
-        showsHorizontalScrollIndicator={true}
-        contentContainerStyle={{ gap: 9, padding: 7, margin: 3, paddingBottom: 500 }}
+        showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={({ item }) => (
-          <SafeAreaView>
-            <HStack style={{ marginTop: 10 }} space="md" className="items-center justify-between">
-              <HStack space="md" className="items-center">
-                <Avatar size="lg">
-                  <AvatarFallbackText style={{ color: "white" }}>
+        keyExtractor={(item) => String(item?.user_id ?? item?.user?.id)}
+        contentContainerStyle={s.list}
+        renderItem={({ item }) => {
+          const isFollowing = followingdata?.includes(item?.user?.id);
+          return (
+            <View style={s.row}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={s.left}
+                onPress={() =>
+                  router.push({ pathname: "/user", params: { userid: item?.user_id } })
+                }
+              >
+                <Avatar size="md">
+                  <AvatarFallbackText style={{ color: "rgba(255,255,255,0.7)" }}>
                     {item?.user?.username}
                   </AvatarFallbackText>
                   <AvatarImage source={{ uri: item.user?.avatar }} />
                 </Avatar>
-                <VStack>
-                  <TouchableOpacity onPress={() => router.push({
-                    pathname: '/user',
-                    params: { userid: item?.user_id }
-                  })}>
-                    <Text style={{ color: 'white', fontWeight: '700' }}>
-                      {item?.user?.username}
-                    </Text>
-                  </TouchableOpacity>
-                  <Text style={{ color: 'white' }}>Started following you</Text>
-                </VStack>
-              </HStack>
-              {followingdata?.includes(item?.user?.id) ? (
-                <Button onPress={() => unfollowuser(item.user.id)} variant="outline" className="rounded-lg">
-                  <ButtonText style={{ color: 'white', fontWeight: '900' }}>Unfollow</ButtonText>
-                </Button>
+                <View style={{ marginLeft: 12, flex: 1 }}>
+                  <Text style={s.name} numberOfLines={1}>
+                    {item?.user?.username}
+                  </Text>
+                  <Text style={s.meta}>Started following you</Text>
+                </View>
+              </TouchableOpacity>
+              {isFollowing ? (
+                <Pressable onPress={() => unfollowuser(item.user.id)} style={s.btnGhost}>
+                  <Text style={s.btnGhostText}>Unfollow</Text>
+                </Pressable>
               ) : (
-                <Button onPress={() => followuser(item.user.id)} className="bg-white rounded-lg">
-                  <ButtonText style={{ color: '#141414', fontWeight: '900' }}>Follow Back</ButtonText>
-                </Button>
+                <Pressable onPress={() => followuser(item.user.id)} style={s.btnPrimary}>
+                  <Text style={s.btnPrimaryText}>Follow back</Text>
+                </Pressable>
               )}
-            </HStack>
-            <Divider style={{ borderWidth: 1, borderColor: 'grey', marginTop: 5 }} />
-          </SafeAreaView>
-        )}
+            </View>
+          );
+        }}
       />
-    </SafeAreaView>
+    </View>
   );
 };

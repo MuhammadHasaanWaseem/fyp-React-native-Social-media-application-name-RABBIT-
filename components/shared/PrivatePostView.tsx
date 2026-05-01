@@ -1,5 +1,5 @@
 // PrivatePostView.tsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   Text,
   TextInput,
@@ -25,9 +25,11 @@ import { formatDistanceToNowStrict } from 'date-fns';
 import { supabase, getFileUrl } from '@/lib/supabase';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/providers/AuthProviders';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useVideoPlayer } from '@/providers/VideoPlayerProvider';
 import Audio from '@/screens/post/audio';
 import { rendertext } from '@/screens/post/input';
+import { openProfileByMentionUsername } from '@/lib/mention-nav';
 import { Spinner } from '../ui/spinner';
 import { spoilerButtonColors, spoilerButtonStyles } from '@/components/shared/spoilerButton.styles';
 
@@ -38,6 +40,7 @@ interface PrivatePostViewProps {
 
 export default function PrivatePostView({ item, refetch }: PrivatePostViewProps) {
   const { user } = useAuth();
+  const { playVideo, releaseVideo } = useVideoPlayer();
   const [passwordInput, setPasswordInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [unlocked, setUnlocked] = useState(false);
@@ -54,6 +57,18 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
   // Image states
   const [isImageVisible, setImageVisible] = useState(false);
   const [spoilerRevealed, setSpoilerRevealed] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        const v = videoRef.current;
+        if (!v) return;
+        v.pauseAsync().catch(() => {});
+        releaseVideo(v);
+        setIsPlaying(false);
+      };
+    }, [releaseVideo]),
+  );
 
   const isliked = item?.Like?.some((like: { user_id: string }) => like.user_id === user?.id);
   const file = item?.file ? (Array.isArray(item.file) ? item.file[0] : item.file) : null;
@@ -75,13 +90,20 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
 
   const handlePlayPause = async () => {
     if (!videoRef.current) return;
-    if (isPlaying) await videoRef.current.pauseAsync();
-    else await videoRef.current.playAsync();
-    setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      await videoRef.current.pauseAsync();
+      releaseVideo(videoRef.current);
+      setIsPlaying(false);
+    } else {
+      await playVideo(videoRef.current);
+      await videoRef.current.playAsync();
+      setIsPlaying(true);
+    }
   };
 
   const handleReplay = async () => {
     if (!videoRef.current) return;
+    await playVideo(videoRef.current);
     await videoRef.current.setPositionAsync(0);
     await videoRef.current.playAsync();
     setIsPlaying(true);
@@ -201,7 +223,7 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
               {item?.created_at && formatDistanceToNowStrict(new Date(new Date(item.created_at).getTime() - new Date().getTimezoneOffset() * 60000)) + ' ago'}
             </Text>
           </HStack>
-          {rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])}
+          {rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [], { onMentionPress: openProfileByMentionUsername })}
         </VStack>
       </HStack>
       <VStack style={{ marginLeft: wp(15), marginBottom: hp(2.5) }}>
@@ -232,14 +254,12 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
                   </TouchableOpacity>
                 </BlurView>
               )}
-              <Modal visible={isImageVisible} transparent={true} onRequestClose={() => setImageVisible(false)}>
-                <ImageViewing
-                  images={[{ uri: getFileUrl(item.user_id, fileStr) }]}
-                  imageIndex={0}
-                  visible={isImageVisible}
-                  onRequestClose={() => setImageVisible(false)}
-                />
-              </Modal>
+              <ImageViewing
+                images={[{ uri: getFileUrl(item.user_id, fileStr) }]}
+                imageIndex={0}
+                visible={isImageVisible}
+                onRequestClose={() => setImageVisible(false)}
+              />
             </View>
           ) : fileStr && fileStr.match(/\.(mp4|mov|avi|mkv)$/i) ? (
             <View style={{ position: 'relative' }}>
@@ -249,7 +269,9 @@ export default function PrivatePostView({ item, refetch }: PrivatePostViewProps)
                 style={{ height: hp(37), marginTop: hp(0.6), width: wp(50), borderWidth: 0.5, borderColor: 'black', borderRadius: wp(2.5) }}
                 useNativeControls={false}
                 onPlaybackStatusUpdate={(status) => {
+                  if (!status.isLoaded) return;
                   if (status.didJustFinish) {
+                    if (videoRef.current) releaseVideo(videoRef.current);
                     setIsPlaying(false);
                     setVideoFinished(true);
                   }

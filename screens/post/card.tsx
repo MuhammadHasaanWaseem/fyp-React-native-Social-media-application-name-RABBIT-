@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -35,7 +35,7 @@ import Input from './input';
 import GifPicker from './GifPicker';
 import { Post } from '@/lib/type';
 import { Video, ResizeMode } from 'expo-av';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { usePost } from '@/providers/PostProvider';
 import { useVideoPlayer } from '@/providers/VideoPlayerProvider';
 import Audio from './audio';
@@ -80,7 +80,18 @@ export default function PostCard({ post }: PostCardProps) {
     setPhotos,
   } = usePost();
   const videoRef = useRef<Video>(null);
-  const { playVideo } = useVideoPlayer();
+  const { playVideo, releaseVideo } = useVideoPlayer();
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        const v = videoRef.current;
+        if (!v) return;
+        v.pauseAsync().catch(() => {});
+        releaseVideo(v);
+      };
+    }, [releaseVideo]),
+  );
 
   // Spoiler state
   const [isSpoiler, setIsSpoiler] = useState(false);
@@ -187,19 +198,58 @@ const showiconalert=()=> {
     updatepost(post.id, 'file', name);
   };
 
-  // ----- Image/Video picker (supports multiple images)
+  // ----- Image/Video picker (multi-image or single video)
   const addPhotoAndVideo = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Allow library access to attach photos or videos.');
+      return;
+    }
     setPhoto('');
     setPhotos([]);
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsMultipleSelection: true,
       allowsEditing: false,
+      videoQuality: ImagePicker.UIImagePickerControllerQualityType.Medium,
       quality: 0.5,
     });
     setShowaudio(false);
     if (!result.assets?.length) return;
-    const images = result.assets.filter((a) => a.mimeType?.startsWith('image/'));
+
+    const isVideo = (a: ImagePicker.ImagePickerAsset) =>
+      a.mimeType?.startsWith('video/') ||
+      /\.(mp4|mov|m4v|webm|mkv|avi)$/i.test(a.uri || '');
+
+    const videos = result.assets.filter(isVideo);
+    const images = result.assets.filter((a) => a.mimeType?.startsWith('image/') && !isVideo(a));
+
+    if (videos.length && images.length) {
+      Alert.alert('One media type', 'Choose either photos or one video for this post.');
+      return;
+    }
+    if (videos.length > 0) {
+      const v = videos[0];
+      if (videos.length > 1) {
+        Alert.alert('One video', 'Only the first selected video was added.');
+      }
+      const uriExt = v.uri?.split('.').pop()?.split('?')[0]?.toLowerCase() || '';
+      const ext =
+        uriExt && /^[a-z0-9]+$/i.test(uriExt)
+          ? uriExt
+          : v.mimeType?.includes('quicktime')
+            ? 'mov'
+            : 'mp4';
+      const name = `${Date.now()}_0.${ext}`;
+      const mime = v.mimeType || 'video/mp4';
+      setPhoto(v.uri!);
+      setPhotos([v.uri!]);
+      setMediaType(mime);
+      await uploadFile(post.id, v.uri!, mime, name, true);
+      updatepost(post.id, 'file', name);
+      return;
+    }
+
     if (images.length === 0) return;
     const uris = images.map((a) => a.uri!);
     setPhotos(uris);

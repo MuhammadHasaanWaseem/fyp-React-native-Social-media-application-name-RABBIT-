@@ -1,9 +1,10 @@
 import { VStack } from "@/components/ui/vstack";
-import { FlatList, Text } from "react-native";
+import { FlatList, Text, View } from "react-native";
 import { useUser } from "@/hooks/use-user";
 import UserRow from "@/components/shared/user-row";
 import { usefollowing } from "@/hooks/use-following";
 import { useAuth } from "@/providers/AuthProviders";
+import { usersStyles } from "./users.styles";
 
 interface UsersProps {
   search?: string;
@@ -17,34 +18,35 @@ export default ({ search = "" }: UsersProps) => {
   // Filter out the logged in user from the list
   let filteredData = data?.filter((u) => u.id !== loggedInUser?.id) || [];
 
-  // Apply search filter if search text exists
-  if (search.trim() !== "") {
-    filteredData = filteredData.filter((u) =>
-      u.username.toLowerCase().includes(search.toLowerCase())
-    );
+  const q = search.trim();
+  if (q === "") {
+    return <View style={usersStyles.empty} />;
   }
 
-  // If there are no users after filtering, show a message
+  filteredData = filteredData.filter((u) =>
+    u.username.toLowerCase().includes(q.toLowerCase())
+  );
+
   if (filteredData.length === 0) {
     return (
-      <VStack style={{ alignItems: "center", marginTop: 20 }}>
-        <Text style={{ color: "white", fontSize: 16 }}>
-          No user available with name {search ? `"${search}"` : ""}
+      <VStack style={usersStyles.noResults}>
+        <Text style={usersStyles.noResultsText}>
+          No user found for &quot;{q}&quot;
         </Text>
       </VStack>
     );
   }
 
   return (
-    <VStack>
+    <View style={usersStyles.listWrap}>
       <FlatList
         data={filteredData}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ paddingBottom: 50 }}
+        contentContainerStyle={usersStyles.listContent}
         renderItem={({ item }) => (
           <UserRow user={item} followingdata={followingdata} refetchfollowing={refetchfollowing} />
         )}
       />
-    </VStack>
+    </View>
   );
 };

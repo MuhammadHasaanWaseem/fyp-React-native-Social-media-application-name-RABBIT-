@@ -1,11 +1,12 @@
 import { SearchIcon } from "lucide-react-native";
-import { SafeAreaView, Text } from "react-native";
+import { SafeAreaView, Text, View } from "react-native";
 import { wp, hp } from "@/lib/helper";
 import Users from "./users";
 import { VStack } from "@/components/ui/vstack";
 import { Input, InputSlot, InputIcon, InputField } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useState } from "react";
+import { searchStyles } from "./index.styles";
 
 export default () => {
   const [search, setSearch] = useState("");
@@ -37,8 +38,9 @@ export default () => {
           />
         </Input>
       </VStack>
-      {/* Pass the debounced search query to the Users component */}
-      <Users search={debounceSearch} />
+      <View style={searchStyles.listArea}>
+        <Users search={debounceSearch} />
+      </View>
     </SafeAreaView>
   );
 };

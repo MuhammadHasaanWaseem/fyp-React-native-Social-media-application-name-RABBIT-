@@ -175,7 +175,7 @@ import {
             Legal Contact
           </Text>
           <Text style={{ color: "white" }} className="text-gray-300 leading-6">
-            For legal inquiries: legal@rabbitsocial.com
+            For legal inquiries: muhammadhasaanwork@gmail.com
           </Text>
         </View>
       </ScrollView>

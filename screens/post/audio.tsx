@@ -3,14 +3,16 @@ import { HStack } from "@/components/ui/hstack";
 import { AudioLines, Circle, CirclePause, CirclePlay } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Alert, TouchableOpacity } from "react-native";
-import { Audio } from "expo-av";
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import * as Crypto from "expo-crypto";
 import { usePost } from "@/providers/PostProvider";
 import { useAuth } from "@/providers/AuthProviders";
+import { useVideoPlayer } from "@/providers/VideoPlayerProvider";
 
 export default ({ id, uri, userid }: { id: string; uri?: string, userid?: string }) => {
   const { user } = useAuth();
   const { uploadFile } = usePost();
+  const { notifyAudioPlaying, releaseAudio } = useVideoPlayer();
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [recordingUri, setRecordingUri] = useState<string | null>(null);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
@@ -23,12 +25,34 @@ export default ({ id, uri, userid }: { id: string; uri?: string, userid?: string
     if (uri) setRecordingUri(uri)
   }, [uri])
 
+  useEffect(() => {
+    return () => {
+      if (sound) {
+        sound.unloadAsync().catch(() => {});
+        releaseAudio(sound);
+      }
+    };
+  }, [sound, releaseAudio]);
+
+  const playbackAudioMode = async () => {
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: false,
+      interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+      interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+      shouldDuckAndroid: false,
+      playThroughEarpieceAndroid: false,
+    });
+  };
+
   // Request Audio Permissions
   const requestAudioPermissions = async () => {
     const { granted } = await Audio.requestPermissionsAsync();
     if (!granted) {
       Alert.alert("Permission to access microphone was denied");
     }
+    await playbackAudioMode();
   };
 
   // Start Recording
@@ -55,6 +79,7 @@ export default ({ id, uri, userid }: { id: string; uri?: string, userid?: string
 
     setRecording(null);
     await recording.stopAndUnloadAsync();
+    await playbackAudioMode();
 
     const uri = recording.getURI();
     if (!uri) return;
@@ -71,17 +96,28 @@ export default ({ id, uri, userid }: { id: string; uri?: string, userid?: string
   // Play Audio
   const playAudio = async () => {
     if (!recordingUri) return;
+    if (sound) {
+      await sound.unloadAsync().catch(() => {});
+      releaseAudio(sound);
+      setSound(null);
+    }
 
-    const { sound } = await Audio.Sound.createAsync({ uri: recordingUri });
-    setSound(sound);
-
-    await sound.playAsync();
+    await playbackAudioMode();
+    const { sound: next } = await Audio.Sound.createAsync(
+      { uri: recordingUri },
+      { volume: 1, isMuted: false, shouldPlay: false }
+    );
+    await next.setVolumeAsync(1);
+    setSound(next);
+    await notifyAudioPlaying(next);
+    await next.playAsync();
     setIsPlaying(true);
 
-    sound.setOnPlaybackStatusUpdate((status) => {
+    next.setOnPlaybackStatusUpdate((status) => {
       if (!status.isLoaded || status.didJustFinish) {
         setIsPlaying(false);
-        sound.unloadAsync();
+        releaseAudio(next);
+        next.unloadAsync().catch(() => {});
       }
     });
   };
@@ -90,6 +126,7 @@ export default ({ id, uri, userid }: { id: string; uri?: string, userid?: string
   const pauseAudio = async () => {
     if (sound) {
       await sound.pauseAsync();
+      releaseAudio(sound);
       setIsPlaying(false);
     }
   };

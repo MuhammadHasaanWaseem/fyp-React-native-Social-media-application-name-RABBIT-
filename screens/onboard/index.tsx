@@ -17,7 +17,7 @@ export default function OnboardingScreen({ onDone }: OnboardingScreenProps) {
               style={styles.image}
             />
           ),
-          title: 'Rabbit',
+          title: 'Minoqtopus',
           subtitle: 'Leap Beyond the Ordinary',
           titleStyles: styles.title,
           subTitleStyles: styles.subtitle,

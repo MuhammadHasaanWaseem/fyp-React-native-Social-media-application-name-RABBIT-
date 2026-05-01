@@ -11,24 +11,25 @@ import {
 import { ArrowLeft, ChevronDown } from "lucide-react-native";
 import React, { useState, useRef, useEffect } from "react";
 import Collapsible from "react-native-collapsible";
-import { useColorScheme } from "nativewind";
 import { HStack } from "@/components/ui/hstack";
 import { router } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { userTermsStyles } from "./index.styles";
 
 const AnimatedChevron = Animated.createAnimatedComponent(ChevronDown);
 
 export default () => {
-  const { colorScheme } = useColorScheme();
+  const insets = useSafeAreaInsets();
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
   const sections = [
     {
       title: "1. Acceptance of Terms",
-      content: "By using Rabbit, you agree to these Terms and our Privacy Policy...",
+      content: "By using Minoqtopus, you agree to these Terms and our Privacy Policy...",
     },
     {
       title: "2. Service Description",
-      content: "Rabbit is a social media platform offering content sharing, messaging...",
+      content: "Minoqtopus is a social media platform offering content sharing, messaging...",
     },
     {
       title: "3. User Responsibilities",
@@ -36,7 +37,7 @@ export default () => {
     },
     {
       title: "4. Content Ownership",
-      content: "You retain ownership but grant Rabbit a license to use your content...",
+      content: "You retain ownership but grant Minoqtopus a license to use your content...",
     },
     {
       title: "5. Prohibited Conduct",
@@ -56,7 +57,7 @@ export default () => {
     },
     {
       title: "9. Limitation of Liability",
-      content: "Rabbit not liable for indirect damages arising from service use...",
+      content: "Minoqtopus is not liable for indirect damages arising from service use...",
     },
     {
       title: "10. Modifications",
@@ -68,12 +69,12 @@ export default () => {
     sections.reduce((acc, section) => {
       acc[section.title] = new Animated.Value(0);
       return acc;
-    }, {})
+    }, {} as Record<string, Animated.Value>)
   ).current;
 
   useEffect(() => {
     if (Platform.OS === "android") {
-      UIManager.setLayoutAnimationEnabledExperimental(true);
+      UIManager.setLayoutAnimationEnabledExperimental?.(true);
     }
   }, []);
 
@@ -106,16 +107,22 @@ export default () => {
 
   return (
     <ScrollView
-      style={{ backgroundColor: "#010118" }}
+      style={userTermsStyles.scroll}
       className="flex-1 p-5"
-      contentContainerStyle={{ paddingBottom: 20 }}
+      contentContainerStyle={[
+        userTermsStyles.content,
+        { paddingTop: insets.top + 12 },
+      ]}
     >
-      <HStack space="lg" className="items-center">
+      <HStack
+        space="lg"
+        className="items-center"
+        style={userTermsStyles.headerRow}
+      >
         <TouchableOpacity onPress={() => router.back()}>
           <ArrowLeft size={24} color={'white'} />
-
         </TouchableOpacity>
-        <Text style={{ color: '#FF4500' }} className="text-3xl font-bold">
+        <Text style={userTermsStyles.headerTitle} className="text-3xl font-bold">
           Terms of Service
         </Text>
       </HStack>
@@ -158,12 +165,12 @@ export default () => {
         );
       })}
 
-      <View style={{ backgroundColor: '#010118' }} className="mt-8 bg-neutral-800 rounded-xl p-5 shadow-md">
+      <View style={userTermsStyles.legalBlock} className="mt-8 bg-neutral-800 rounded-xl p-5 shadow-md">
         <Text style={{ color: 'white' }} className="text-lg font-semibold text-white mb-4">
           Legal Contact
         </Text>
         <Text style={{ color: 'white' }} className="text-gray-300 leading-6">
-          For legal inquiries: legal@rabbitsocial.com
+          For legal inquiries: muhammadhasaanwork@gmail.com
         </Text>
       </View>
     </ScrollView>

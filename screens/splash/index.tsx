@@ -40,7 +40,7 @@ const Splash = () => {
       </Animated.View>
 
       <Animated.View style={[styles.bottomBranding, { opacity: textFadeIn }]}>
-        <Text style={[styles.brandText, { textAlign: 'center' }]}>From Rabbit</Text>
+        <Text style={[styles.brandText, { textAlign: 'center' }]}>From Minoqtopus</Text>
         <Animated.Text 
           style={[styles.brandText, {
             transform: [{

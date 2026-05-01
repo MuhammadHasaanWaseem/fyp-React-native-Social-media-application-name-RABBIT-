@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Text,
   ActivityIndicator,
@@ -13,7 +13,8 @@ import {
 } from 'react-native';
 import { wp, hp } from '@/lib/helper';
 import { useQuery } from '@tanstack/react-query';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useFocusEffect } from 'expo-router';
+import { useVideoPlayer } from '@/providers/VideoPlayerProvider';
 import { supabase, getFileUrl } from '@/lib/supabase';
 import { Divider } from '@/components/ui/divider';
 import { formatDistanceToNowStrict } from 'date-fns';
@@ -39,6 +40,7 @@ import {
 import { Video } from 'expo-av';
 import ImageViewing from 'react-native-image-viewing';
 import { rendertext } from '@/screens/post/input';
+import { openProfileByMentionUsername } from '@/lib/mention-nav';
 import Audio from '@/screens/post/audio';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/providers/AuthProviders';
@@ -51,6 +53,7 @@ export default () => {
   // Local search params and auth
   const { postId } = useLocalSearchParams();
   const { user } = useAuth();
+  const { playVideo, releaseVideo } = useVideoPlayer();
 
   // Query for fetching post data
   const { data: post, isLoading, error, refetch } = useQuery({
@@ -87,6 +90,18 @@ export default () => {
   // State for delete modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        const v = videoRef.current;
+        if (!v) return;
+        v.pauseAsync().catch(() => {});
+        releaseVideo(v);
+        setIsPlaying(false);
+      };
+    }, [releaseVideo]),
+  );
+
   // Check if post is liked
   const isliked = post?.Like?.some((like) => like.user_id === user?.id);
 
@@ -115,13 +130,20 @@ export default () => {
   // Media control functions
   const handlePlayPause = async () => {
     if (!videoRef.current) return;
-    if (isPlaying) await videoRef.current.pauseAsync();
-    else await videoRef.current.playAsync();
-    setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      await videoRef.current.pauseAsync();
+      releaseVideo(videoRef.current);
+      setIsPlaying(false);
+    } else {
+      await playVideo(videoRef.current);
+      await videoRef.current.playAsync();
+      setIsPlaying(true);
+    }
   };
 
   const handleReplay = async () => {
     if (!videoRef.current) return;
+    await playVideo(videoRef.current);
     await videoRef.current.setPositionAsync(0);
     await videoRef.current.playAsync();
     setIsPlaying(true);
@@ -234,7 +256,7 @@ export default () => {
             Solve this puzzle to unlock it: {post.hint}
           </Text>
         ) : (
-          rendertext(post?.text?.match(/([#@]\w+)|([^#@]+)/g) || [])
+          rendertext(post?.text?.match(/([#@]\w+)|([^#@]+)/g) || [], { onMentionPress: openProfileByMentionUsername })
         )}
       </VStack>
     </HStack>
@@ -287,22 +309,16 @@ export default () => {
               </TouchableOpacity>
             </BlurView>
           )}
-          <Modal
+          <ImageViewing
+            images={[
+              {
+                uri: getFileUrl(post.user_id, post.file),
+              },
+            ]}
+            imageIndex={0}
             visible={isImageVisible}
-            transparent={true}
             onRequestClose={() => setImageVisible(false)}
-          >
-            <ImageViewing
-              images={[
-                {
-                  uri: getFileUrl(post.user_id, post.file),
-                },
-              ]}
-              imageIndex={0}
-              visible={isImageVisible}
-              onRequestClose={() => setImageVisible(false)}
-            />
-          </Modal>
+          />
         </View>
       );
     } else if (post.file.match(/\.(mp4|mov|avi|mkv)$/i)) {
@@ -323,7 +339,9 @@ export default () => {
             }}
             useNativeControls={false}
             onPlaybackStatusUpdate={(status) => {
+              if (!status.isLoaded) return;
               if (status.didJustFinish) {
+                if (videoRef.current) releaseVideo(videoRef.current);
                 setIsPlaying(false);
                 setVideoFinished(true);
               }

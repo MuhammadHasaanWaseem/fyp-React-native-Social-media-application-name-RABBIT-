@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Image, TouchableOpacity, View, TextInput, Modal, Share, StyleSheet, Text } from 'react-native';
 import { wp, hp } from '@/lib/helper';
 import { formatDistanceToNowStrict } from 'date-fns';
@@ -11,17 +11,20 @@ import { Lock, ThumbsUp, MessageCircle, Send, Trash2, Play, Pause, Volume2, Volu
 import { Video } from 'expo-av';
 import ImageViewing from 'react-native-image-viewing';
 import { rendertext } from '@/screens/post/input';
+import { openProfileByMentionUsername } from '@/lib/mention-nav';
 import Audio from '@/screens/post/audio';
 import { supabase, getFileUrl } from '@/lib/supabase';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/providers/AuthProviders';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useVideoPlayer } from '@/providers/VideoPlayerProvider';
 import { BlurView } from 'expo-blur';
 import { Spinner } from '@/components/ui/spinner';
 import { spoilerButtonColors, spoilerButtonStyles } from '@/components/shared/spoilerButton.styles';
 
 export default function MentionView({ item, refetch }) {
   const { user } = useAuth();
+  const { playVideo, releaseVideo } = useVideoPlayer();
 
   // States for time capsule
   const [isLocked, setIsLocked] = useState(false);
@@ -34,7 +37,7 @@ export default function MentionView({ item, refetch }) {
   const [loading, setLoading] = useState(false);
 
   // States for media
-  const videoRef = useRef(null);
+  const videoRef = useRef<Video | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoFinished, setVideoFinished] = useState(false);
@@ -43,6 +46,18 @@ export default function MentionView({ item, refetch }) {
 
   // State for delete modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        const v = videoRef.current;
+        if (!v) return;
+        v.pauseAsync().catch(() => {});
+        releaseVideo(v);
+        setIsPlaying(false);
+      };
+    }, [releaseVideo]),
+  );
 
   const isliked = item?.Like?.some((like) => like.user_id === user?.id);
 
@@ -71,13 +86,20 @@ export default function MentionView({ item, refetch }) {
   // Media control functions
   const handlePlayPause = async () => {
     if (!videoRef.current) return;
-    if (isPlaying) await videoRef.current.pauseAsync();
-    else await videoRef.current.playAsync();
-    setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      await videoRef.current.pauseAsync();
+      releaseVideo(videoRef.current);
+      setIsPlaying(false);
+    } else {
+      await playVideo(videoRef.current);
+      await videoRef.current.playAsync();
+      setIsPlaying(true);
+    }
   };
 
   const handleReplay = async () => {
     if (!videoRef.current) return;
+    await playVideo(videoRef.current);
     await videoRef.current.setPositionAsync(0);
     await videoRef.current.playAsync();
     setIsPlaying(true);
@@ -100,7 +122,7 @@ export default function MentionView({ item, refetch }) {
   const handleShare = async () => {
     let shareMessage = item.text || '';
     if (item.file) {
-      const fileUrl = `getFileUrl(item.user_id, item.file)`;
+      const fileUrl = getFileUrl(item.user_id, item.file);
       shareMessage += `\n\nView media: ${fileUrl}`;
     }
     try {
@@ -163,7 +185,7 @@ export default function MentionView({ item, refetch }) {
         {item.Availablity === 'private' && !unlocked ? (
           <Text style={{ color: 'white', fontSize: 12 }}>Solve this puzzle to unlock it: {item.hint}</Text>
         ) : (
-          rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [])
+          rendertext(item.text?.match(/([#@]\w+)|([^#@]+)/g) || [], { onMentionPress: openProfileByMentionUsername })
         )}
       </VStack>
     </HStack>
@@ -174,7 +196,7 @@ export default function MentionView({ item, refetch }) {
     if (item.file && item.file.match(/\.(mp3|m4a)$/i)) {
       return (
         <View style={{ marginTop: 3 }}>
-          <Audio userId={item.user_id} id={item.id} uri={`getFileUrl(item.user_id, item.file)`} />
+          <Audio userId={item.user_id} id={item.id} uri={getFileUrl(item.user_id, item.file)} />
         </View>
       );
     } else if (item.file && item.file.match(/\.(jpeg|jpg|png|gif)$/i)) {
@@ -182,7 +204,7 @@ export default function MentionView({ item, refetch }) {
         <View style={{ position: 'relative' }}>
           <TouchableOpacity onPress={() => setImageVisible(true)}>
             <Image
-              source={{ uri: `getFileUrl(item.user_id, item.file)` }}
+              source={{ uri: getFileUrl(item.user_id, item.file) }}
               style={{ height: hp(18.5), width: wp(50), marginTop: hp(1.25), borderWidth: 1, borderColor: 'black', borderRadius: wp(2.5) }}
               resizeMode="cover"
             />
@@ -195,14 +217,12 @@ export default function MentionView({ item, refetch }) {
               </TouchableOpacity>
             </BlurView>
           )}
-          <Modal visible={isImageVisible} transparent={true} onRequestClose={() => setImageVisible(false)}>
-            <ImageViewing
-              images={[{ uri: `getFileUrl(item.user_id, item.file)` }]}
-              imageIndex={0}
-              visible={isImageVisible}
-              onRequestClose={() => setImageVisible(false)}
-            />
-          </Modal>
+          <ImageViewing
+            images={[{ uri: getFileUrl(item.user_id, item.file) }]}
+            imageIndex={0}
+            visible={isImageVisible}
+            onRequestClose={() => setImageVisible(false)}
+          />
         </View>
       );
     } else if (item.file && item.file.match(/\.(mp4|mov|avi|mkv)$/i)) {
@@ -210,11 +230,13 @@ export default function MentionView({ item, refetch }) {
         <View style={{ position: 'relative' }}>
           <Video
             ref={videoRef}
-            source={{ uri: `getFileUrl(item.user_id, item.file)` }}
+            source={{ uri: getFileUrl(item.user_id, item.file) }}
             style={{ height: hp(37), marginTop: hp(1.25), width: wp(50), borderWidth: 0.5, borderColor: 'black', borderRadius: wp(2.5) }}
             useNativeControls={false}
             onPlaybackStatusUpdate={(status) => {
+              if (!status.isLoaded) return;
               if (status.didJustFinish) {
+                if (videoRef.current) releaseVideo(videoRef.current);
                 setIsPlaying(false);
                 setVideoFinished(true);
               }

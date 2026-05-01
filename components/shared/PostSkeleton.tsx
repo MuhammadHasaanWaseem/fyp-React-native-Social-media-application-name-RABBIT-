@@ -62,7 +62,7 @@ export function PostSkeletonFooter() {
     return () => anim.stop();
   }, []);
   return (
-    <Animated.View style={[postSkeletonStyles.card, { opacity, marginVertical: hp(2) }]}>
+    <Animated.View style={[postSkeletonStyles.card, postSkeletonStyles.footerCard, { opacity }]}>
       <View style={postSkeletonStyles.header}>
         <View style={postSkeletonStyles.avatar} />
         <View style={postSkeletonStyles.headerText}>
@@ -70,7 +70,7 @@ export function PostSkeletonFooter() {
           <View style={postSkeletonStyles.line2} />
         </View>
       </View>
-      <View style={[postSkeletonStyles.media, { height: hp(12) }]} />
+      <View style={[postSkeletonStyles.media, postSkeletonStyles.footerMedia]} />
     </Animated.View>
   );
 }
